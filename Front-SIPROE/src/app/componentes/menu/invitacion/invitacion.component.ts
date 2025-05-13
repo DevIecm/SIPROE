@@ -48,6 +48,7 @@ import { AuthService } from '../../../services/auth.service';
 
 export class InvitacionComponent {
 
+  datosRegistros!: boolean;
   loading = false;
   value!: Date;
   unidades: any[] = [];
@@ -58,7 +59,7 @@ export class InvitacionComponent {
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
-   datos = [
+  datos = [
     { nombre: '1', demarcacion: 'Venustiano Carranza', clave: '17-076', unidad:'Jardin Balbuena', fecha: '03/04/1992', hora: '11:45' },
   ];
 
@@ -217,29 +218,21 @@ export class InvitacionComponent {
 
     this.service.getRegistros(idD, this.tokenSesion).subscribe({
       next: (data) => {
-        console.log(data)
-        this.registros = data;
-      }, error: (err) => {
-        console.error("Error al cargar registros", err);
+        console.log(data);
+        this.datosRegistros = true;
+        this.registros = data.registrosCalendario ?? []; // 👈 usa arreglo vacío si es null/undefined
+      },
+      error: (err) => {
+        if (err.error.code === 100) {
+          this.registros = [];
+          this.datosRegistros = false;
+          console.log(this.registros);
+        } else {
+          console.error("Error al cargar registros", err);
+        }
       }
     });
   }
   
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
-
-  ngAfterViewInit() {
-  }
 }
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: string;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: '03/04/1992', weight: '11:45', symbol: 'H'},
-
-];
