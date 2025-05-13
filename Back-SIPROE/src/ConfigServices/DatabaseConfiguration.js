@@ -3,8 +3,25 @@ require('dotenv').config();
 
 const config = {
     user: process.env.DB_USER,
-    pass: process.env.DB_PASSWORD,
+    password: process.env.DB_PASSWORD,
     server: process.env.DB_SERVER,
     database: process.env.DB_DATABASE,
-    port: process.env.DB_PORT
+    port: parseInt(process.env.DB_PORT),
+    options: {
+        encrypt: false,
+        trustServerCertificate: true,
+        enableArithAbort: true
+    }
 }
+
+async function connectToDatabase() {
+    try {
+        const pool = await sql.connect(config);
+        return pool;
+    } catch (err) {
+        console.log("error", err);
+        throw error;
+    }
+}
+
+module.exports = { connectToDatabase, sql };

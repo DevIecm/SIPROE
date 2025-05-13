@@ -2,29 +2,66 @@ const express = require('express');
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../ConfigServices/Midleware");
-const secretKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+const { connectToDatabase, sql } = require('../ConfigServices/DatabaseConfiguration')
 require('dotenv').config();
-const tokens = process.env.JWT_KEY;
+const secretKey = process.env.JWT_KEY;
+const crypto = require('crypto');
 
-router.post("/login", (req, res) => {
+function encryptSHA256(text) {
+    const hash = crypto.createHash('sha256');
+    hash.update(text);
+    return hash.digest('hex');
+}
+
+router.post("/login", async (req, res) => {
     try{
-        const username = req.body.username;
-        const password = req.body.password;
+
+        const { username, password } = req.body;
 
         if(!username || !password) {
             return res.status(400).json({ message: "Datos requeridos"})
         }
 
-        //aqui hacemos la consulta a la tabla de usuarios para saber que iusuario y contraseña traemos
-        if(username === "admin" && password === "admin"){
-            const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" });
-            return res.status(200).json({ token});
+        const ecryptedPass = encryptSHA256(password);
+
+        const pool = await connectToDatabase();
+        const result = await pool.request()
+            .input('username', sql.VarChar, username)
+            .input('password', sql.VarChar, ecryptedPass)
+            .query('SELECT ' +
+                    'cs.id, ' +
+                    'cs.password, ' +
+                    'cs.usuario, ' +
+                    'tu.tipo_usuario AS tipo, ' +
+                    'es.estado AS estado, ' +
+                    'cs.distrito AS distrital, ' +
+                    'cs.estado_usuario ' +
+                    'FROM usuarios cs ' +
+                    'JOIN tipo_usuario tu ON cs.id = tu.id ' +
+                    'JOIN estado_usuario es ON cs.estado_usuario = es.id ' +
+                    'JOIN cat_distrito cd ON cs.distrito = cd.id ' +
+                    'WHERE cs.usuario = @username AND cs.password = @password;')
+
+        if (result.recordset.length > 0) {
+            if(result.recordset[0].estado_usuario === 1){
+                const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" });
+                return res.status(200).json({ 
+                    token, 
+                    userData: result.recordset 
+                });
+
+            } else {
+            
+            return res.status(401).json({ message: "Fallo autenticación", code: 401 });
+            
+            }
+
         } else {
-            return rest.status(401).json({ message: "Fallo autenticación"});
+            return res.status(401).json({ message: "Fallo autenticación", code: 101 });
         }
 
     } catch(error) {
-        return res.status(500).json({ message: "Error de servidor"});
+        return res.status(500).json({ message: "Error de servidor" , error});
     }
 });
 
