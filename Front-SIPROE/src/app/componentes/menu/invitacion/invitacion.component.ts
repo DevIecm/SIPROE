@@ -19,7 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-
+import { AuthService } from '../../../services/auth.service';
 @Component({
   selector: 'app-invitacion',
   standalone: true,
@@ -50,16 +50,28 @@ export class InvitacionComponent {
 
   loading = false;
   value!: Date;
+  unidades: any[] = [];
+  registros: any[] = [];
+  selectedUnidad: number | null = null;
+  idDistrital = sessionStorage.getItem('dir') || '0';
+  tokenSesion = sessionStorage.getItem('key') || '0';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private service: AuthService) {}
 
    datos = [
     { nombre: '1', demarcacion: 'Venustiano Carranza', clave: '17-076', unidad:'Jardin Balbuena', fecha: '03/04/1992', hora: '11:45' },
   ];
 
+  ngOnInit(): void{
 
-  ngOnInit() {
-  
+    this.service.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+      next: (data) => {
+        this.unidades = data.catUnidad;
+      }, error: (err) => {
+        console.error("Error al cargar unidades", err);
+      }
+    });
+
   }
 
   guardaData() {
@@ -75,6 +87,7 @@ export class InvitacionComponent {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
         this.loading = false;
@@ -112,7 +125,6 @@ export class InvitacionComponent {
 
       startYY -= 20;
 
-      //Consecutivo
       this.datos.forEach((d, index) => {
         page.drawText(`${d.nombre}`, {
           x: startXX,
@@ -177,9 +189,7 @@ export class InvitacionComponent {
     } finally {
       this.loading = false;
     }
-
   }
-  
 
   eliminarElemento(element: any) {
     Swal.fire({
@@ -199,6 +209,20 @@ export class InvitacionComponent {
     });
     // Aquí pones la lógica para eliminar el elemento
     console.log('Eliminar:', element);
+  }
+
+  onDistritoChange(idDistrito: any) {
+
+    let idD = idDistrito.clave_ut;
+
+    this.service.getRegistros(idD, this.tokenSesion).subscribe({
+      next: (data) => {
+        console.log(data)
+        this.registros = data;
+      }, error: (err) => {
+        console.error("Error al cargar registros", err);
+      }
+    });
   }
   
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];

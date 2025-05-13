@@ -17,8 +17,10 @@ import { RouterModule } from '@angular/router';
 })
 export class DashboardComponent {
 
+  idDistrital = sessionStorage.getItem('dir');
+
   constructor( private router: Router ) {}
-  
+
   cerrarSesion() {
     this.router.navigate(['']);
   }

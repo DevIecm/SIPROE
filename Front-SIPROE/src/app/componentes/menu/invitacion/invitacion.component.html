@@ -6,10 +6,8 @@
         <label class="form-label">Seleccione una Unidad Territorial</label>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Seleccione unidad territorial</mat-label>
-          <mat-select disableRipple>
-            <mat-option value="1">Option 1</mat-option>
-            <mat-option value="2">Option 2</mat-option>
-            <mat-option value="3">Option 3</mat-option>
+          <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
+            <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -42,7 +40,7 @@
         <mat-card-title class="label-header">Programación</mat-card-title>
 
         <div class="mat-elevation-z8">
-          <table mat-table [dataSource]="dataSource">
+          <table mat-table [dataSource]="registros">
           
               <ng-container matColumnDef="position">
               <th mat-header-cell *matHeaderCellDef> Id </th>
@@ -73,7 +71,6 @@
           </table>
         </div>
         <button class="button" (click)="generaPdf()" mat-raised-button color="primary">Generar Formato</button>
-
     </mat-card-content>
   </mat-card>
   
