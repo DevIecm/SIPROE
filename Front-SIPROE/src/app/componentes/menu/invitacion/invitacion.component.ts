@@ -20,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { AuthService } from '../../../services/auth.service';
+
 @Component({
   selector: 'app-invitacion',
   standalone: true,
@@ -56,12 +57,17 @@ export class InvitacionComponent {
   selectedUnidad: number | null = null;
   idDistrital = sessionStorage.getItem('dir') || '0';
   tokenSesion = sessionStorage.getItem('key') || '0';
+  fechaSeleccionada : Date | null = null;
+  horaSeleccionada: string = '';
+  territorioSelected!: boolean;
+  registrosC!: number;
+  dt!: number;
+  modoEdicion: boolean = false;
+  registroEnEdicion: any = null;
+
+  dataReport: any[] = [];
 
   constructor(private http: HttpClient, private service: AuthService) {}
-
-  datos = [
-    { nombre: '1', demarcacion: 'Venustiano Carranza', clave: '17-076', unidad:'Jardin Balbuena', fecha: '03/04/1992', hora: '11:45' },
-  ];
 
   ngOnInit(): void{
 
@@ -76,46 +82,89 @@ export class InvitacionComponent {
   }
 
   guardaData() {
+
+    const preue = {
+      dt: this.dt,
+      ut: this.registrosC,
+      distrito: sessionStorage.getItem('dir'),
+      fecha: this.fechaSeleccionada,
+      hora: this.horaSeleccionada.trim()
+    }
+
     this.loading = true;
 
     setTimeout(() => {
       this.loading = false;
 
       Swal.fire({
-      title: "¿Está seguro de eliminar esta programación?",
+      title: "¿Está seguro de guardar esta programación?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
+
     }).then((result) => {
       if (result.isConfirmed) {
         this.loading = false;
+
+        this.service.guardaRegistros(preue, this.tokenSesion).subscribe({
+           next: (data) => {  
+                Swal.fire({
+                  title: "Creación de la programacíon con éxito",
+                  icon: "success"
+                });
+
+                this.service.getRegistros(this.registrosC, this.tokenSesion).subscribe({
+                  next: (data) => {
+                    this.datosRegistros = true;
+                    this.fechaSeleccionada = null;
+                    this.horaSeleccionada = '';
+                    this.registros = data.registrosCalendario ?? [];
+                  },
+                  error: (err) => {
+                    if (err.error.code === 100) {
+                      this.registros = [];
+                      this.datosRegistros = false;
+                    } else {
+                      console.error("Error al cargar registros", err);
+                    }
+                  }
+                });
+              }, error: (err) => {
+              Swal.fire({
+                title: "Error al crear la programacíon con éxito",
+                icon: "warning"
+              });
+            }
+        });
+      } else {
+        Swal.fire({
+          title: "Error al crear la programacíon",
+          icon: "warning"
+        });
       }
     });
     }, 2000);
   }
 
   async generaPdf() {
-
     try {
-
       this.loading = true;
 
       const existingPdfBytes = await this.http
-        .get('assets/Anexo-Invitacion.pdf', { responseType: 'arraybuffer'})
+        .get('assets/Anexo-Invitacion.pdf', { responseType: 'arraybuffer' })
         .toPromise();
 
-      if(!existingPdfBytes) {
-        throw new Error("No se pudo cargar el pdf");
+      if (!existingPdfBytes) {
+        throw new Error("No se pudo cargar el PDF");
       }
 
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       const page = pdfDoc.getPages()[0];
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-      
       let startYY = 500;
       const startXX = 93;
       const demarcacionXX = 118;
@@ -126,65 +175,34 @@ export class InvitacionComponent {
 
       startYY -= 20;
 
-      this.datos.forEach((d, index) => {
-        page.drawText(`${d.nombre}`, {
-          x: startXX,
-          y: startYY - index * 20,
-          size: 12,
-          font,
-          color: rgb(0.2, 0.2, 0.2),
-        });
+      this.dataReport.forEach((d, index) => {
+        const y = startYY - index * 20;
 
-        page.drawText(`${d.demarcacion}`, {
-          x: demarcacionXX,
-          y: startYY - index * 20,
-          size: 10,
-          font,
-          color: rgb(0.2, 0.2, 0.2),
-        });
+        const fechaObj = new Date(d.fecha);
+        const fechaStr = `${String(fechaObj.getDate()).padStart(2, '0')}/` +
+                        `${String(fechaObj.getMonth() + 1).padStart(2, '0')}/` +
+                        `${fechaObj.getFullYear()}`;
 
-        page.drawText(`${d.clave}`, {
-          x: claveXX,
-          y: startYY - index * 20,
-          size: 10,
-          font,
-          color: rgb(0.2, 0.2, 0.2),
-        });
+        const horaObj = new Date(d.hora);
+        const horaStr = `${String(horaObj.getHours()).padStart(2, '0')}:` +
+                        `${String(horaObj.getMinutes()).padStart(2, '0')}`;
 
-        page.drawText(`${d.unidad}`, {
-          x: unidadXX,
-          y: startYY - index * 20,
-          size: 10,
-          font,
-          color: rgb(0.2, 0.2, 0.2),
-        });
-
-        page.drawText(`${d.fecha}`, {
-          x: fechaXX,
-          y: startYY - index * 20,
-          size: 9,
-          font,
-          color: rgb(0.2, 0.2, 0.2),
-        });
-
-        page.drawText(`${d.hora}`, {
-          x: horaXX,
-          y: startYY - index * 20,
-          size: 10,
-          font,
-          color: rgb(0.2, 0.2, 0.2),
-        });
+        page.drawText(`${d.id}`, { x: startXX, y, size: 9, font, color: rgb(0.2, 0.2, 0.2) });
+        page.drawText(`${d.dt}`, { x: demarcacionXX, y, size: 9, font, color: rgb(0.2, 0.2, 0.2) });
+        page.drawText(`${d.clave}`, { x: claveXX, y, size: 10, font, color: rgb(0.2, 0.2, 0.2) });
+        page.drawText(`${d.ut}`, { x: unidadXX, y, size: 8, font, color: rgb(0.2, 0.2, 0.2) });
+        page.drawText(fechaStr, { x: fechaXX, y, size: 9, font, color: rgb(0.2, 0.2, 0.2) });
+        page.drawText(horaStr, { x: horaXX, y, size: 10, font, color: rgb(0.2, 0.2, 0.2) });
       });
 
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Anexo Calendario.pdf';
-    a.click();
-
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Anexo Calendario.pdf';
+      a.click();
     } catch (error) {
       console.error("Error al generar el pdf", error);
     } finally {
@@ -193,6 +211,7 @@ export class InvitacionComponent {
   }
 
   eliminarElemento(element: any) {
+
     Swal.fire({
       title: "¿Está seguro de eliminar esta programación?",
       icon: "warning",
@@ -202,31 +221,72 @@ export class InvitacionComponent {
       confirmButtonText: "Aceptar",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Eliminación de la programacíon con éxito",
-          icon: "success"
+        this.service.delRegistros(element.ut, this.tokenSesion).subscribe({
+          next: (data) => {
+            Swal.fire({
+              title: "Eliminación de la programacíon con éxito",
+              icon: "success"
+            });
+
+             this.service.getRegistros(this.registrosC, this.tokenSesion).subscribe({
+                next: (data) => {
+                  this.datosRegistros = true;
+                  this.fechaSeleccionada = null;
+                  this.horaSeleccionada = '';
+                  this.registros = data.registrosCalendario ?? [];
+                },
+                error: (err) => {
+                  if (err.error.code === 100) {
+                    this.registros = [];
+                    this.datosRegistros = false;
+                  } else {
+                    console.error("Error al cargar registros", err);
+                  }
+                }
+              });
+              
+          }, error: (err) => {
+             Swal.fire({
+              title: "Error al eliminar la programacíon",
+              icon: "warning"
+            });
+          }
         });
       }
     });
-    // Aquí pones la lógica para eliminar el elemento
-    console.log('Eliminar:', element);
   }
 
   onDistritoChange(idDistrito: any) {
 
+    this.territorioSelected = true;
     let idD = idDistrito.clave_ut;
+    this.registrosC = idD;
+    this.dt = idDistrito.idDt;
+    this.dataReport = [];
 
     this.service.getRegistros(idD, this.tokenSesion).subscribe({
       next: (data) => {
-        console.log(data);
         this.datosRegistros = true;
-        this.registros = data.registrosCalendario ?? []; // 👈 usa arreglo vacío si es null/undefined
+        this.fechaSeleccionada = null;
+        this.horaSeleccionada = '';
+        this.registros = data.registrosCalendario ?? [];
+
+        let fechaFoermat = data.registrosCalendario[0].fecha;
+
+        this.dataReport.push({
+          id: 1,
+          dt: idDistrito.dt,
+          clave: idDistrito.clave_ut,
+          ut: idDistrito.ut,
+          fecha: data.registrosCalendario[0].fecha,
+          hora: data.registrosCalendario[0].hora.trim(),
+        });
+
       },
       error: (err) => {
         if (err.error.code === 100) {
           this.registros = [];
           this.datosRegistros = false;
-          console.log(this.registros);
         } else {
           console.error("Error al cargar registros", err);
         }
@@ -234,5 +294,13 @@ export class InvitacionComponent {
     });
   }
   
+  editarElemento(element: any): void {
+    this.fechaSeleccionada = element.fecha;
+    this.horaSeleccionada = element.hora.substring(0, 5); // "HH:mm"
+    this.modoEdicion = true;
+    this.registroEnEdicion = element;
+
+  }
+
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
 }
