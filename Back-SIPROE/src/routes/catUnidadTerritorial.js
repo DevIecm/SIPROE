@@ -18,7 +18,11 @@ router.get("/catUnidad", verifyToken, async (req, res) => {
     const pool = await connectToDatabase();
     const result = await pool.request()
       .input('idDistrito', sql.Int, distritoId)
-      .query('SELECT * FROM unidad_territorial ut WHERE distrito = @idDistrito;');
+
+    .query('SELECT ut.id, ut.clave_ut, ut.ut, ut.distrito, ut.demarcacion_territorial, dt.dt as dt, dt.id as idDt ' +
+    'FROM unidad_territorial ut ' + 
+      'JOIN demarcacion_territorial dt ON ut.demarcacion_territorial  = dt.id ' +
+    'WHERE ut.distrito = @idDistrito;');
 
     if (result.recordset.length > 0) {
       return res.status(200).json({

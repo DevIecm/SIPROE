@@ -1,0 +1,1 @@
+import{Pb as t,Qb as a,jc as i,qb as o}from"./chunk-Z7GTBSLQ.js";var s=class n{static \u0275fac=function(e){return new(e||n)};static \u0275cmp=o({type:n,selectors:[["app-reasignacion"]],decls:2,vars:0,template:function(e,p){e&1&&(t(0,"p"),i(1,"reasignacion works!"),a())},encapsulation:2})};export{s as ReasignacionComponent};

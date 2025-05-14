@@ -1,0 +1,1 @@
+import{Pb as n,Qb as p,jc as s,qb as o}from"./chunk-Z7GTBSLQ.js";var r=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=o({type:t,selectors:[["app-reportes"]],decls:2,vars:0,template:function(e,a){e&1&&(n(0,"p"),s(1,"reportes works!"),p())},encapsulation:2})};export{r as ReportesComponent};
