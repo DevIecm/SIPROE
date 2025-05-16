@@ -17,8 +17,22 @@ router.get("/getCalendario", verifyToken, async (req, res) => {
 
     const pool = await connectToDatabase();
     const result = await pool.request()
-      .input('claveUt', sql.VarChar, claveIUt)
-      .query('select * from calendario where ut = @claveUt;');
+      .input('claveUt', sql.Int, claveIUt)
+      .query(`
+        SELECT 
+          c.id,
+          c.dt,
+          c.ut,
+          c.distrito,
+          FORMAT(c.fecha, 'yyyy/MM/dd') AS fecha,
+          c.hora,
+          dt.dt AS dt,
+          ut.ut AS ut
+        FROM calendario c
+        JOIN demarcacion_territorial dt ON dt.id = c.dt
+        JOIN unidad_territorial ut ON ut.clave_ut = c.ut
+        WHERE c.distrito = @claveUt;
+      `)
 
     if (result.recordset.length > 0) {
       return res.status(200).json({
@@ -84,9 +98,34 @@ router.delete("/delRegistros", verifyToken, async (req, res) => {
     return res.status(200).json({ message: "Registro eliminado correctamente", code: 200 });
 
     } catch(error) {
-        console.error(error);
-        return res.status(500).json({ message: "Error de servidor" , error});
+      console.error(error);
+      return res.status(500).json({ message: "Error de servidor" , error});
     }
+});
+
+router.patch("/actualizaRegistros", verifyToken, async (req, res) => {
+  try {
+
+    const { fecha, hora, ut, distrito } = req.body;
+
+    if(!fecha || !hora || !ut || !distrito){
+      return res.status(400).json({ message: "Datos requeridos"});
+    }
+
+    const pool = await connectToDatabase();
+    const result = await pool.request()
+      .input('fecha', sql.VarChar, fecha)
+      .input('hora', sql.VarChar, hora)
+      .input('ut', sql.VarChar, ut)
+      .input('distrito', sql.Int, distrito)
+      .query(`UPDATE calendario set fecha = @fecha , hora = @hora where ut = @ut and distrito = @distrito;`)
+
+      return res.status(200).json({ message: "Registro actualizado correctamente", code: 200 });
+
+  } catch(error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error de servidor", error});
+  }
 });
 
 module.exports = router;

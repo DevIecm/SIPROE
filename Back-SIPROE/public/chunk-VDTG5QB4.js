@@ -1,0 +1,1 @@
+import{Ob as n,Pb as s,ic as a,pb as o}from"./chunk-MQ5UGFIA.js";var p=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=o({type:t,selectors:[["app-resultados"]],decls:2,vars:0,template:function(e,m){e&1&&(n(0,"p"),a(1,"resultados works!"),s())},encapsulation:2})};export{p as ResultadosComponent};
