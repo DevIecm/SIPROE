@@ -41,7 +41,6 @@ export class AuthService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
   
-
   delRegistros(claveUt: string, token: string): Observable<any> {
 
     const headers = new HttpHeaders({
@@ -50,8 +49,6 @@ export class AuthService {
 
     const params = new HttpParams().set('idUt', claveUt);
 
-    console.log(params)
-
     return this.http.delete(this.apiUrl + 'calendario/delRegistros', {headers, params})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
 
@@ -59,14 +56,22 @@ export class AuthService {
 
   guardaRegistros(regData: any, token: string): Observable<any> {
 
-    console.log("prueba", token)
-
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
 
 
     return this.http.post(this.apiUrl + 'calendario/guardaCalendario', regData, {headers})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
+  }
+
+  actualizaRegistros(actData: any, token: string): Observable<any> {
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    return this.http.patch(this.apiUrl + 'calendario/actualizaRegistros', actData, {headers})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 }

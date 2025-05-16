@@ -4,8 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { FooterComponent } from '../../footer/footer.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIcon } from '@angular/material/icon';
 import { MatTimepickerModule } from '@angular/material/timepicker';
@@ -20,6 +20,9 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { AuthService } from '../../../services/auth.service';
+import { saveAs } from 'file-saver';
+import PizZip from 'pizzip';
+import Docxtemplater from 'docxtemplater';
 
 @Component({
   selector: 'app-invitacion',
@@ -64,8 +67,13 @@ export class InvitacionComponent {
   dt!: number;
   modoEdicion: boolean = false;
   registroEnEdicion: any = null;
-
+  selectedDistrito: boolean = false;
+  existDataSame: boolean = false;
   dataReport: any[] = [];
+  actualiza: boolean = false;
+  dataUpdate: any;
+  distritoChange: any;
+  utChange: any;
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
@@ -79,9 +87,29 @@ export class InvitacionComponent {
       }
     });
 
+    this.getDataService(parseInt(this.idDistrital));
+  }
+
+  getDataService(claveIUt: number) {
+    this.service.getRegistros(claveIUt, this.tokenSesion).subscribe({
+      next: (data) => {
+        this.registros = data.registrosCalendario ?? [];
+      }, error: (err) => {
+         if (err.error.code === 100) {
+          this.registros = [];
+          this.datosRegistros = false;
+        } else {
+          console.error("Error al cargar registros", err);
+        }
+      }
+    })
   }
 
   guardaData() {
+
+    if(this.actualiza) {
+      this.actualizaData();
+    } else {
 
     const preue = {
       dt: this.dt,
@@ -116,12 +144,12 @@ export class InvitacionComponent {
                   icon: "success"
                 });
 
-                this.service.getRegistros(this.registrosC, this.tokenSesion).subscribe({
+                this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
                   next: (data) => {
-                    this.datosRegistros = true;
+                    this.registros = data.registrosCalendario ?? [];
+                    this.datosRegistros = this.registros.some(d => this.registrosC === d.ut[0]);
                     this.fechaSeleccionada = null;
                     this.horaSeleccionada = '';
-                    this.registros = data.registrosCalendario ?? [];
                   },
                   error: (err) => {
                     if (err.error.code === 100) {
@@ -147,67 +175,66 @@ export class InvitacionComponent {
       }
     });
     }, 2000);
+    }
   }
 
-  async generaPdf() {
-    try {
-      this.loading = true;
+  extraerHoraUTC(iso: string): string {
+    const date = new Date(iso);
+    let hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const formattedHours = hours.toString().padStart(2, '0');
 
-      const existingPdfBytes = await this.http
-        .get('assets/Anexo-Invitacion.pdf', { responseType: 'arraybuffer' })
-        .toPromise();
+    return `${formattedHours}:${minutes} ${ampm}`;
+  }
 
-      if (!existingPdfBytes) {
-        throw new Error("No se pudo cargar el PDF");
+  async generaDocumento() {
+
+    this.loading = true;
+
+    const datos = {
+      distrito: this.registros.length > 0 ? this.registros[0].distrito : null,
+      productos: this.registros.map(item => ({
+        id: item.id,
+        dt: item.dt[1],
+        clave: item.ut[0],
+        ut: item.ut[1],
+        fecha: item.fecha,
+        hora: this.extraerHoraUTC(item.hora)
+      }))
+    };
+
+    const templateBob = await this.http
+      .get('assets/Anexo-Invitacion.docx', { responseType: 'arraybuffer' })
+      .toPromise();
+
+      if (!templateBob) {
+        throw new Error("No se pudo cargar el Documento");
       }
 
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-      const page = pdfDoc.getPages()[0];
-      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-      let startYY = 500;
-      const startXX = 93;
-      const demarcacionXX = 118;
-      const claveXX = 225;
-      const unidadXX = 300;
-      const fechaXX = 442;
-      const horaXX = 500;
-
-      startYY -= 20;
-
-      this.dataReport.forEach((d, index) => {
-        const y = startYY - index * 20;
-
-        const fechaObj = new Date(d.fecha);
-        const fechaStr = `${String(fechaObj.getDate()).padStart(2, '0')}/` +
-                        `${String(fechaObj.getMonth() + 1).padStart(2, '0')}/` +
-                        `${fechaObj.getFullYear()}`;
-
-        const horaObj = new Date(d.hora);
-        const horaStr = `${String(horaObj.getHours()).padStart(2, '0')}:` +
-                        `${String(horaObj.getMinutes()).padStart(2, '0')}`;
-
-        page.drawText(`${d.id}`, { x: startXX, y, size: 9, font, color: rgb(0.2, 0.2, 0.2) });
-        page.drawText(`${d.dt}`, { x: demarcacionXX, y, size: 9, font, color: rgb(0.2, 0.2, 0.2) });
-        page.drawText(`${d.clave}`, { x: claveXX, y, size: 10, font, color: rgb(0.2, 0.2, 0.2) });
-        page.drawText(`${d.ut}`, { x: unidadXX, y, size: 8, font, color: rgb(0.2, 0.2, 0.2) });
-        page.drawText(fechaStr, { x: fechaXX, y, size: 9, font, color: rgb(0.2, 0.2, 0.2) });
-        page.drawText(horaStr, { x: horaXX, y, size: 10, font, color: rgb(0.2, 0.2, 0.2) });
+      const zip = new PizZip(templateBob);
+      const doc = new Docxtemplater(zip, { 
+        paragraphLoop: true,
+        linebreaks: true,
+        delimiters: { start: '[[', end: ']]' }
       });
 
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
+      doc.setData(datos);
 
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Anexo Calendario.pdf';
-      a.click();
-    } catch (error) {
-      console.error("Error al generar el pdf", error);
-    } finally {
+      try{
+        doc.render();
+      } catch (error) {
+        console.error('Error al cargar archivo', error);
+        return;
+      } 
+
+      const output = doc.getZip().generate({ type: 'blob' });
+      saveAs(output, 'Anexo Calendario.docx');
+
       this.loading = false;
-    }
   }
 
   eliminarElemento(element: any) {
@@ -221,19 +248,17 @@ export class InvitacionComponent {
       confirmButtonText: "Aceptar",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.service.delRegistros(element.ut, this.tokenSesion).subscribe({
+        this.service.delRegistros(element.ut[0], this.tokenSesion).subscribe({
           next: (data) => {
             Swal.fire({
               title: "Eliminación de la programacíon con éxito",
               icon: "success"
             });
 
-             this.service.getRegistros(this.registrosC, this.tokenSesion).subscribe({
+             this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
                 next: (data) => {
-                  this.datosRegistros = true;
-                  this.fechaSeleccionada = null;
-                  this.horaSeleccionada = '';
                   this.registros = data.registrosCalendario ?? [];
+                  this.datosRegistros = this.registros.some(d => this.registrosC === d.ut[0]);
                 },
                 error: (err) => {
                   if (err.error.code === 100) {
@@ -257,50 +282,99 @@ export class InvitacionComponent {
   }
 
   onDistritoChange(idDistrito: any) {
-
     this.territorioSelected = true;
     let idD = idDistrito.clave_ut;
     this.registrosC = idD;
     this.dt = idDistrito.idDt;
     this.dataReport = [];
+    this.selectedDistrito = true;
+    this.fechaSeleccionada = null;
+    this.horaSeleccionada = '';
+    this.datosRegistros = this.registros.some(d => idD === d.ut[0]);
+  }
 
-    this.service.getRegistros(idD, this.tokenSesion).subscribe({
-      next: (data) => {
-        this.datosRegistros = true;
-        this.fechaSeleccionada = null;
-        this.horaSeleccionada = '';
-        this.registros = data.registrosCalendario ?? [];
+  formatearHora(fechaStr: string): string | null {
+    const fecha = new Date(fechaStr);
+    if (isNaN(fecha.getTime())) {
+      return null; // o lanzar error personalizado
+    }
+    return fecha.toISOString().substring(11, 19); // HH:mm:ss
+  }
 
-        let fechaFoermat = data.registrosCalendario[0].fecha;
+  actualizaData() {
 
-        this.dataReport.push({
-          id: 1,
-          dt: idDistrito.dt,
-          clave: idDistrito.clave_ut,
-          ut: idDistrito.ut,
-          fecha: data.registrosCalendario[0].fecha,
-          hora: data.registrosCalendario[0].hora.trim(),
+    const data = { 
+      distrito: this.distritoChange,
+      hora: this.horaSeleccionada.trim(),
+      ut: this.utChange,
+      fecha: this.fechaSeleccionada
+    };
+
+     Swal.fire({
+      title: "¿Está seguro de actualizar esta programación?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar",
+
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = false;
+
+          this.service.actualizaRegistros(data, this.tokenSesion).subscribe({
+           next: (data) => {  
+                Swal.fire({
+                  title: "Actualización de la programacíon con éxito",
+                  icon: "success"
+                });
+
+                this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+                  next: (data) => {
+                    this.registros = data.registrosCalendario ?? [];
+                    this.datosRegistros = this.registros.some(d => this.registrosC === d.ut[0]);
+                    this.fechaSeleccionada = null;
+                    this.horaSeleccionada = '';
+                  },
+                  error: (err) => {
+                    if (err.error.code === 100) {
+                      this.registros = [];
+                      this.datosRegistros = false;
+                    } else {
+                      console.error("Error al cargar registros", err);
+                    }
+                  }
+                });
+              }, error: (err) => {
+              Swal.fire({
+                title: "Error al actualizar la programacíon con éxito",
+                icon: "warning"
+              });
+            }
         });
-
-      },
-      error: (err) => {
-        if (err.error.code === 100) {
-          this.registros = [];
-          this.datosRegistros = false;
-        } else {
-          console.error("Error al cargar registros", err);
-        }
+      } else {
+        Swal.fire({
+          title: "Error al actualizar la programacíon",
+          icon: "warning"
+        });
       }
     });
+
+  }
+
+  editarElemento(element: any) {
+
+    const hora = new Date(element.hora);
+    const fecha = new Date(element.fecha);
+    this.datosRegistros = false;
+    this.horaSeleccionada = hora.toISOString().substring(11, 16);
+    this.fechaSeleccionada = fecha;
+    this.distritoChange = element.distrito;
+    this.utChange = element.ut[0]
+    this.actualiza = true;
+
   }
   
-  editarElemento(element: any): void {
-    this.fechaSeleccionada = element.fecha;
-    this.horaSeleccionada = element.hora.substring(0, 5); // "HH:mm"
-    this.modoEdicion = true;
-    this.registroEnEdicion = element;
-
-  }
-
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
 }

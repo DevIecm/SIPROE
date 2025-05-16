@@ -42,6 +42,7 @@ import { MatIcon } from '@angular/material/icon';
   templateUrl: './sorteo.component.html',
   styleUrl: './sorteo.component.css'
 })
+
 export class SorteoComponent {
   selectedValues: string = '';
   sorteoIniciado = false;
