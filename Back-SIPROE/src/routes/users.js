@@ -37,7 +37,7 @@ router.post("/login", async (req, res) => {
                     'cs.distrito AS distrital, ' +
                     'cs.estado_usuario ' +
                     'FROM usuarios cs ' +
-                    'JOIN tipo_usuario tu ON cs.id = tu.id ' +
+                    'JOIN tipo_usuario tu ON cs.tipo_usuario = tu.id ' +
                     'JOIN estado_usuario es ON cs.estado_usuario = es.id ' +
                     'JOIN cat_distrito cd ON cs.distrito = cd.id ' +
                     'WHERE cs.usuario = @username AND cs.password = @password;')

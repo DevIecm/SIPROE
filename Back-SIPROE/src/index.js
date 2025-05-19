@@ -10,10 +10,12 @@ app.use(cors());
 const userRoutes = require('./routes/users');
 const unidadRoutes = require('./routes/catUnidadTerritorial');
 const calendarioRoutes = require('./routes/calendarioData');
+const sorteoRoutes = require('./routes/sorteoData');
 
 app.use('/api/users', userRoutes);
 app.use('/api/catUnidadTerritorial', unidadRoutes);
 app.use('/api/calendario', calendarioRoutes);
+app.use('/api/sorteo', sorteoRoutes);
 
 app.listen(port, () => {
     console.log(`El servicio esta corriendo en ${port}`);
