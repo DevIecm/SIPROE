@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ViewChild, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -15,9 +15,10 @@ import Swal from 'sweetalert2';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import {MatGridListModule} from '@angular/material/grid-list';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon } from '@angular/material/icon';
-
+import { SorteoService } from '../../../services/sorteoService/sorteo.service';
+import { AuthService } from '../../../services/auth.service';
 @Component({
   selector: 'app-sorteo',
   standalone: true,
@@ -48,86 +49,93 @@ export class SorteoComponent {
   sorteoIniciado = false;
   mostrarDiv: boolean = false;
   cambiaSorteo = false;
+  idDistrital = sessionStorage.getItem('dir') || '0';
+  tokenSesion = sessionStorage.getItem('key') || '0';
+  selectedUnidad: number | null = null;
+  unidades: any[] = [];
+  proyectos: any[] = [];
+  clave_ut: string = '';
+  aprobados: any;
+  sorteados: any;
+  sortear: any;
+  animandoSorteo!: boolean;
 
-  selectedValue(option: string) {
+  constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService) {}
 
-    this.mostrarDiv = true;
-    console.log("option", option)
-    return this.selectedValues === option;
+  ngOnInit(): void {
+    this.servicea.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+      next: (data) => {
+        this.unidades = data.catUnidad;
+      }, error: (err) => {
+        console.error("Error al cargar unidades", err);
+      }
+    });
   }
 
-  dataSource = new MatTableDataSource([
-    { position: 'F001', numero: '' },
-    { position: 'F002', numero: '' },
-    { position: 'F003', numero: '' },
-  ]);
+  onDistritoChange(element: any){
+    this.mostrarDiv = true;
+    this.clave_ut = element.clave_ut;
+    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion)
+  }
+
+  getDataProyectos(ut: string, distrito: number, token: string) {
+    this.service.getDataProyectos(ut, distrito, token).subscribe({
+      next: (data) => {        
+        this.proyectos = data.registrosProyectos;
+        this.aprobados = this.proyectos[0].aprobados;
+        this.sorteados = this.proyectos[0].sorteados;
+        this.sortear = this.proyectos[0].sortear;
+      }, error: (err) => {
+        console.error("Error al cargar proyectos", err);
+      }
+    })
+  }
 
   columnasVisibles = ['position'];
 
   iniciarSorteo() {
-    Swal.fire({
-      title: 'Aleatorización en proceso',
-      didOpen: () => {
-        Swal.showLoading();
-        setTimeout(() => {
-          this.asignarNumerosAleatorios();
-          this.sorteoIniciado = true;
-          this.columnasVisibles = ['position', 'numero'];
-          Swal.close();
-        }, 2000);
-      }
-    });
-  }
-
-  cambiarsalida() {
-    Swal.fire({
-      title: "¿Está seguro de cambiar el orden de salida?",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: 'Cambio de orden de salida En Proceso',
-          didOpen: () => {
-            Swal.showLoading();
-            setTimeout(() => {
-              this.asignarNumerosAleatorios();
-              this.sorteoIniciado = true;
-              this.columnasVisibles = ['position', 'numero'];
-              Swal.close();
-            }, 2000);
-          }
-        });
-        this.cambiaSorteo = true;
-      }
-    });
+    this.cambiaSorteo = false;
+    this.service.mostrarAnimacion(this.proyectos.length);
+    
+    setTimeout(() => {
+      this.asignarNumerosAleatorios();
+      this.sorteoIniciado = true;
+      this.columnasVisibles = ['position', 'numero'];
+      this.service.ocultarAnimacion();
+    }, 5000);
   }
 
   asignarNumerosAleatorios() {
     const usados = new Set<number>();
-    const nuevosDatos = this.dataSource.data.map(project => {
+
+    if (!this.cambiaSorteo) {
+      this.proyectos.forEach(p => {
+        const n = parseInt(p.numero_aleatorio);
+        if (!isNaN(n)) usados.add(n);
+      });
+    }
+
+    this.proyectos = this.proyectos.map(p => {
       let numero: number;
 
+      if (!this.cambiaSorteo && p.numero_aleatorio && p.numero_aleatorio !== '') {
+        return { ...p, numero: p.numero_aleatorio };
+      }
+
       do {
-        numero = Math.floor(Math.random() * 200); // puedes ajustar el rango si es necesario
+        numero = Math.floor(Math.random() * this.aprobados) + 1;
       } while (usados.has(numero));
 
       usados.add(numero);
 
       return {
-        ...project,
-        numero: numero.toString(),
+        ...p,
+        numero: numero.toString()
       };
-  });
-
-  this.dataSource.data = nuevosDatos;
+    });
   }
 
   deshacerSorteo() {
-
     Swal.fire({
       title: "¿Está seguro de deshacer este Sorteo?",
       showCancelButton: true,
@@ -137,19 +145,18 @@ export class SorteoComponent {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: 'Sorteo deshecho con éxito'
-        });
-        this.cambiaSorteo = true;
-      }
+        Swal.fire({ title: 'Sorteo deshecho con éxito' });
 
-       this.sorteoIniciado = false;
+        this.sorteoIniciado = false;
         this.columnasVisibles = ['position'];
-        const data = this.dataSource.data.map(item => ({
+
+        this.proyectos = this.proyectos.map(item => ({
           ...item,
           numero: ''
         }));
-        this.dataSource.data = data;
+
+        this.cambiaSorteo = false;
+      }
     });
   }
 
@@ -158,21 +165,30 @@ export class SorteoComponent {
   }
 
   aceptarSorteo() {
-    Swal.fire({
-      title: "Sorteo aplicado con éxito!",
-      icon: "success",
-      draggable: true
+    this.service.insertaSorteo(this.tokenSesion).subscribe({
+      next: (data) => {
+        
+      Swal.fire({
+        title: "Sorteo aplicado con éxito!",
+        icon: "success",
+        draggable: true
+      });
+        console.log("a", data)
+      }, error: (err) => {
+        console.error("Error al cargar unidades", err);
+      }
     });
 
     this.columnasVisibles = ['position'];
-    const data = this.dataSource.data.map(item => ({
+    const data = this.proyectos.map(item => ({
       ...item,
       numero: ''
     }));
-    this.dataSource.data = data;
 
+    console.log("register", data);
+
+    this.proyectos = data;
     this.sorteoIniciado = false;
 
-    // y que actulize las card de proyectos
   }
 }

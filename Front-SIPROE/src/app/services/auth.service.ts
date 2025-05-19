@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
-
 @Injectable({ providedIn: 'root' })
 
 export class AuthService {

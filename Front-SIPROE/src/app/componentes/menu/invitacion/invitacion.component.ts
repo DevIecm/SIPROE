@@ -77,7 +77,7 @@ export class InvitacionComponent {
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
-  ngOnInit(): void{
+  ngOnInit(): void {
 
     this.service.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
