@@ -3,29 +3,33 @@
     <span class="title">
         Dirección Ejecutiva de Participación Ciudadana y Capacitación
     </span>
-    <span class="dd">Dirección Distrital: {{idDistrital}}</span>
+    <span class="dd">{{nameUsuario}}</span>
 </mat-toolbar>
 
 <mat-sidenav-container class="main-container">
     <mat-sidenav mode="side" opened class="sidenav" routerLinkActive="active">
       <mat-nav-list>
-        <a mat-list-item routerLink="calendario" routerLinkActive="active">
+        <a mat-list-item [routerLink]="['/dashboard']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <mat-icon>home</mat-icon>
+          <span>Inicio</span>
+        </a>
+        <a *ngIf="!mostrarMenu" mat-list-item routerLink="calendario" routerLinkActive="active">
           <mat-icon>event</mat-icon>
           <span>Calendario Invitación</span>
         </a>
-        <a mat-list-item routerLink="sorteo" routerLinkActive="active">
+        <a *ngIf="!mostrarMenu" mat-list-item routerLink="sorteo" routerLinkActive="active">
           <mat-icon>casino</mat-icon>
           <span>Nuevo Sorteo</span>
         </a>
-        <a mat-list-item routerLink="asignacion" routerLinkActive="active">
+        <a *ngIf="!mostrarMenu" mat-list-item routerLink="asignacion" routerLinkActive="active">
           <mat-icon>assignment</mat-icon>
           <span>Asignación Directa</span>
         </a>
-        <a mat-list-item routerLink="reasignacion" routerLinkActive="active">
+        <a *ngIf="!mostrarMenu" mat-list-item routerLink="reasignacion" routerLinkActive="active">
           <mat-icon>autorenew</mat-icon>
           <span>Reasignación</span>
         </a>
-        <a mat-list-item routerLink="resultados" routerLinkActive="active">
+        <a *ngIf="!mostrarMenu" mat-list-item routerLink="resultados" routerLinkActive="active">
           <mat-icon>print</mat-icon>
           <span>Imprimir Resultados</span>
         </a>
@@ -42,8 +46,7 @@
   
     <mat-sidenav-content class="content">
       <div class="content-body">
-        <h2 class="titulo-central">Sistema para la asignación del identificador numérico aleatorio para los proyectos que serán opinados en la
-            Consulta de Presupuesto Participativo 2025 </h2> <h2 class="titulo-central">SIPROE aleatorio 2025</h2>
+        <h2 class="titulo-central">Sistema para la asignación aleatoria del número identificador para los proyectos que participarán la Consulta de Presupuesto Participativo 2025</h2> <h2 class="titulo-central">SIPROE aleatorio 2025</h2>
         <router-outlet></router-outlet>
       </div>
     </mat-sidenav-content>

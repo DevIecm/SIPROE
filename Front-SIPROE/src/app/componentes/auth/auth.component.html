@@ -4,7 +4,8 @@
     </div>
 
     <div class="right-panel">
-        <div class="login-container">
+        <div class="login-wrapper">
+            <h1 class="titulo-login">Bienvenido, en este sistema se realizará el procedimiento de aleatorización en el que se designará un número identificador para cada proyecto dictaminado viable por el Órgano Dictaminador de la Alcaldía (ODA) correspondiente</h1>
             <mat-card class="login-card">
                 <h3 class="title"> SIPROE Aleatorio 2025</h3>
                 <form (ngSubmit)="onSubmit()">
@@ -20,15 +21,10 @@
                         <mat-icon matPrefix> lock</mat-icon>
                     </mat-form-field>
 
-                    <button type="submit" mat-raised-button color="primary">Ingresar</button>
+                    <button [disabled]="!password || !username" type="submit" mat-raised-button color="primary">Ingresar</button>
                 </form>
-
             </mat-card>
         </div>
         <footer>Instituto Electoral de la Ciudad de México • Huizaches 25 • Rancho Los Colorines • Tlalpan • C.P. 14386 • Ciudad de México • Conmutador: (55) 5483 3800</footer>
     </div>
-</div>
-
-<div class="overlay" *ngIf="loading">
-    <mat-spinner diameter="60"></mat-spinner>
 </div>

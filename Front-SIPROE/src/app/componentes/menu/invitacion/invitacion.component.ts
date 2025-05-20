@@ -4,8 +4,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { FooterComponent } from '../../footer/footer.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIcon } from '@angular/material/icon';
 import { MatTimepickerModule } from '@angular/material/timepicker';
@@ -18,11 +18,12 @@ import Swal from 'sweetalert2';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { AuthService } from '../../../services/auth.service';
 import { saveAs } from 'file-saver';
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
+import { MatPaginator } from '@angular/material/paginator';
+import { getSpanishPaginatorIntl } from './mat-paginator-intl-es';
 
 @Component({
   selector: 'app-invitacion',
@@ -43,15 +44,18 @@ import Docxtemplater from 'docxtemplater';
     MatTimepickerModule,
     MatIcon,
     MatProgressSpinnerModule,
-    CommonModule
+    CommonModule,
+    MatPaginator
   ],
   templateUrl: './invitacion.component.html',
   styleUrl: './invitacion.component.css',
-  providers: [ provideNativeDateAdapter() ]
+  providers: [ { provide: MatPaginatorIntl, useValue: getSpanishPaginatorIntl() },  provideNativeDateAdapter() ]
 })
 
 export class InvitacionComponent {
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  dataSource = new MatTableDataSource<any>();
   datosRegistros!: boolean;
   loading = false;
   value!: Date;
@@ -77,13 +81,22 @@ export class InvitacionComponent {
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+  }
+
   ngOnInit(): void {
 
     this.service.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
         this.unidades = data.catUnidad;
       }, error: (err) => {
+        
         console.error("Error al cargar unidades", err);
+
+        if(err.error.code === 160) {
+         this.service.cerrarSesionByToken();
+        }
       }
     });
 
@@ -93,13 +106,20 @@ export class InvitacionComponent {
   getDataService(claveIUt: number) {
     this.service.getRegistros(claveIUt, this.tokenSesion).subscribe({
       next: (data) => {
-        this.registros = data.registrosCalendario ?? [];
+        
+
+        this.dataSource.data = data.registrosCalendario ?? [];
+        this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
       }, error: (err) => {
-         if (err.error.code === 100) {
-          this.registros = [];
+         if (err.error.code === 160) {
+          this.dataSource.data = [];
           this.datosRegistros = false;
         } else {
           console.error("Error al cargar registros", err);
+
+          if(err.error.code === 160) {
+            this.service.cerrarSesionByToken();
+          }
         }
       }
     })
@@ -146,17 +166,21 @@ export class InvitacionComponent {
 
                 this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
                   next: (data) => {
-                    this.registros = data.registrosCalendario ?? [];
-                    this.datosRegistros = this.registros.some(d => this.registrosC === d.ut[0]);
+                    this.dataSource.data = data.registrosCalendario ?? [];
+                    this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
                     this.fechaSeleccionada = null;
                     this.horaSeleccionada = '';
                   },
                   error: (err) => {
-                    if (err.error.code === 100) {
-                      this.registros = [];
+                    if (err.error.code === 160) {
+                      this.dataSource.data = [];
                       this.datosRegistros = false;
                     } else {
                       console.error("Error al cargar registros", err);
+
+                      if(err.error.code === 160) {
+                        this.service.cerrarSesionByToken();
+                      }
                     }
                   }
                 });
@@ -165,6 +189,10 @@ export class InvitacionComponent {
                 title: "Error al crear la programacíon con éxito",
                 icon: "warning"
               });
+
+              if(err.error.code === 160) {
+                this.service.cerrarSesionByToken();
+              }
             }
         });
       } else {
@@ -183,9 +211,6 @@ export class InvitacionComponent {
     let hours = date.getUTCHours();
     const minutes = date.getUTCMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
-    
-    hours = hours % 12;
-    hours = hours ? hours : 12;
     const formattedHours = hours.toString().padStart(2, '0');
 
     return `${formattedHours}:${minutes} ${ampm}`;
@@ -196,8 +221,8 @@ export class InvitacionComponent {
     this.loading = true;
 
     const datos = {
-      distrito: this.registros.length > 0 ? this.registros[0].distrito : null,
-      productos: this.registros.map(item => ({
+      distrito: this.dataSource.data.length > 0 ? this.dataSource.data[0].distrito : null,
+      productos: this.dataSource.data.map(item => ({
         id: item.id,
         dt: item.dt[1],
         clave: item.ut[0],
@@ -257,15 +282,19 @@ export class InvitacionComponent {
 
              this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
                 next: (data) => {
-                  this.registros = data.registrosCalendario ?? [];
-                  this.datosRegistros = this.registros.some(d => this.registrosC === d.ut[0]);
+                  this.dataSource.data = data.registrosCalendario ?? [];
+                  this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
                 },
                 error: (err) => {
-                  if (err.error.code === 100) {
-                    this.registros = [];
+                  if (err.error.code === 160) {
+                    this.dataSource.data = [];
                     this.datosRegistros = false;
                   } else {
                     console.error("Error al cargar registros", err);
+
+                    if(err.error.code === 160) {
+                      this.service.cerrarSesionByToken();
+                    }
                   }
                 }
               });
@@ -290,15 +319,7 @@ export class InvitacionComponent {
     this.selectedDistrito = true;
     this.fechaSeleccionada = null;
     this.horaSeleccionada = '';
-    this.datosRegistros = this.registros.some(d => idD === d.ut[0]);
-  }
-
-  formatearHora(fechaStr: string): string | null {
-    const fecha = new Date(fechaStr);
-    if (isNaN(fecha.getTime())) {
-      return null; // o lanzar error personalizado
-    }
-    return fecha.toISOString().substring(11, 19); // HH:mm:ss
+    this.datosRegistros = this.dataSource.data.some(d => idD === d.ut[0]);
   }
 
   actualizaData() {
@@ -332,14 +353,18 @@ export class InvitacionComponent {
 
                 this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
                   next: (data) => {
-                    this.registros = data.registrosCalendario ?? [];
-                    this.datosRegistros = this.registros.some(d => this.registrosC === d.ut[0]);
+                    this.dataSource.data = data.registrosCalendario ?? [];
+                    this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
                     this.fechaSeleccionada = null;
                     this.horaSeleccionada = '';
                   },
                   error: (err) => {
+                    if(err.error.code === 160) {
+                      this.service.cerrarSesionByToken();
+                    }
+
                     if (err.error.code === 100) {
-                      this.registros = [];
+                      this.dataSource.data = [];
                       this.datosRegistros = false;
                     } else {
                       console.error("Error al cargar registros", err);
@@ -376,5 +401,5 @@ export class InvitacionComponent {
 
   }
   
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+  displayedColumns: string[] = ['cs', 'ut', 'nut', 'fecha', 'hora', 'accion'];
 }

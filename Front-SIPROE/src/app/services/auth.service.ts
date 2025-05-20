@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 @Injectable({ providedIn: 'root' })
 
 export class AuthService {
   private apiUrl = 'http://localhost:4000/api/'
 
-  constructor(private http: HttpClient) { }
+  constructor(private router: Router, private http: HttpClient) { }
 
   login(username: string, password: string): Observable<any> {
     return this.http.post(this.apiUrl + 'users/login', {
@@ -73,4 +74,9 @@ export class AuthService {
     return this.http.patch(this.apiUrl + 'calendario/actualizaRegistros', actData, {headers})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
+
+  cerrarSesionByToken() {
+    this.router.navigate(['']);
+  }
+  
 }

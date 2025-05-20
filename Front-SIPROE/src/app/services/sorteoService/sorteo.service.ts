@@ -157,10 +157,18 @@ export class SorteoService {
       Authorization: `Bearer ${token}` 
     });
 
-    console.log(headers)
     return this.http.post(this.apiUrl + 'sorteo/insertaSorteo', {}, {headers})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
 
+  }
+
+  actualizaProyecto(token: string, registro: any): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}` 
+    });
+
+    return this.http.patch(this.apiUrl + 'sorteo/actualizaProyecto', registro, {headers})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
   
 }

@@ -19,6 +19,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon } from '@angular/material/icon';
 import { SorteoService } from '../../../services/sorteoService/sorteo.service';
 import { AuthService } from '../../../services/auth.service';
+
 @Component({
   selector: 'app-sorteo',
   standalone: true,
@@ -68,6 +69,9 @@ export class SorteoComponent {
         this.unidades = data.catUnidad;
       }, error: (err) => {
         console.error("Error al cargar unidades", err);
+        if(err.error.code === 160) {
+          this.servicea.cerrarSesionByToken();
+        }
       }
     });
   }
@@ -82,11 +86,17 @@ export class SorteoComponent {
     this.service.getDataProyectos(ut, distrito, token).subscribe({
       next: (data) => {        
         this.proyectos = data.registrosProyectos;
+
+        console.log("data", this.proyectos)
         this.aprobados = this.proyectos[0].aprobados;
         this.sorteados = this.proyectos[0].sorteados;
         this.sortear = this.proyectos[0].sortear;
       }, error: (err) => {
         console.error("Error al cargar proyectos", err);
+
+        if(err.error.code === 160) {
+          this.servicea.cerrarSesionByToken();
+        }
       }
     })
   }
@@ -165,30 +175,83 @@ export class SorteoComponent {
   }
 
   aceptarSorteo() {
+
     this.service.insertaSorteo(this.tokenSesion).subscribe({
       next: (data) => {
         
-      Swal.fire({
-        title: "Sorteo aplicado con éxito!",
-        icon: "success",
-        draggable: true
-      });
-        console.log("a", data)
+        Swal.fire({
+          title: "Sorteo aplicado con éxito!",
+          icon: "success",
+          draggable: true
+        });
+
+        const idSorteo = data.id;
+        console.log(idSorteo);
+
+        this.guardaProyectosConSorteo(idSorteo);
+
       }, error: (err) => {
-        console.error("Error al cargar unidades", err);
+        console.error("Error al crear sorteo", err);
+
+        if(err.error.code === 160) {
+          this.servicea.cerrarSesionByToken();
+        }
+
+        Swal.fire('Error', 'No se pudo crear el sorteo.', 'error')
       }
     });
 
-    this.columnasVisibles = ['position'];
-    const data = this.proyectos.map(item => ({
-      ...item,
-      numero: ''
-    }));
+    
+    // this.proyectos.forEach((item) => {
+    //   const registro = {
+    //     ...item,
+    //     numero_aleatorio: item.numero
+    //   };
 
-    console.log("register", data);
 
-    this.proyectos = data;
-    this.sorteoIniciado = false;
+    // console.log(registro);
+
+    // this.columnasVisibles = ['position'];
+
+    // const data = this.proyectos.map(item => ({
+    //   ...item,
+    //   numero_aleatorio: item.numero,
+    //   sorteo: prueba
+    // }));
+
+    // console.log("register", data);
+
+    // this.proyectos = data;
+    // this.sorteoIniciado = false;
 
   }
+
+  guardaProyectosConSorteo(idSorteo: number) {
+    this.proyectos.forEach((proyecto) => {
+      const registro = {
+        folio: proyecto.folio,
+        numero_aleatorio: proyecto.numero,
+        sorteo: idSorteo
+      };
+
+      this.service.actualizaProyecto(this.tokenSesion, registro).subscribe({
+        next: (resp) => {
+          console.log(resp)
+
+        }, error: (err) => {
+          console.error("Error al guardar proyecto", registro, err);
+
+          if(err.error.code === 160) {
+            this.servicea.cerrarSesionByToken();
+          }
+        }
+      });
+    });
+
+    Swal.fire("Exito", "Sorteo y proyectos guardados correctamente.", "success");
+
+    this.columnasVisibles = ['position'];
+    this.sorteoIniciado = false;
+  }
+
 }

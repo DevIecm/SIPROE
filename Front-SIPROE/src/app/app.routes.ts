@@ -14,6 +14,7 @@ export const routes: Routes = [
       loadComponent: () => import('./componentes/dashboard/dashboard.component').then(m => m.DashboardComponent),
       canActivate: [AuthGuard],
       children: [
+        { path: '', loadComponent: () => import('./componentes/menu/inicio/inicio.component').then(m => m.InicioComponent), canActivate: [AuthGuard] },
         { path: 'calendario', loadComponent: () => import('./componentes/menu/invitacion/invitacion.component').then(m => m.InvitacionComponent), canActivate: [AuthGuard] },
         { path: 'sorteo', loadComponent: () => import('./componentes/menu/sorteo/sorteo.component').then(m => m.SorteoComponent), canActivate: [AuthGuard] },
         { path: 'asignacion', loadComponent: () => import('./componentes/menu/asignacion/asignacion.component').then(m => m.AsignacionComponent),canActivate: [AuthGuard] },

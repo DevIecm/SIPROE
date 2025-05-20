@@ -80,3 +80,7 @@ mat-form-field {
   align-items: center;
   z-index: 9999;
 }
+
+td{
+    font-size: 9px;
+}
