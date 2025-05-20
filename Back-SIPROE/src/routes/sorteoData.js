@@ -67,6 +67,29 @@ router.post("/insertaSorteo", verifyToken, async (req, res) => {
         console.error(error);
         return res.status(500).json({ message: "Error de servidor", error})
     }
+});
+
+router.patch("/actualizaProyecto", verifyToken, async (req, res) => {
+    try {
+
+        const { folio, numero_aleatorio, sorteo } = req.body;
+
+        const pool = await connectToDatabase();
+        const result = await pool.request()
+            .input('folio', sql.VarChar, folio)
+            .input('numero_aleatorio', sql.Int, numero_aleatorio)
+            .input('sorteo', sql.Int, sorteo)
+            .query(`UPDATE 
+                proyectos SET numero_aleatorio = @numero_aleatorio , sorteo = @sorteo 
+                WHERE folio = @folio;
+            `);
+        
+            return res.status(200).json({ message: "Registro actualizado correctamente", code: 200 });
+
+    } catch(err) {
+        console.error(error);
+        return res.status(500).json({ message: "Error de servidor", error})
+    }
 })
 
 module.exports = router;

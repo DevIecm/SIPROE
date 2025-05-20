@@ -24,7 +24,7 @@ router.get("/getCalendario", verifyToken, async (req, res) => {
           c.dt,
           c.ut,
           c.distrito,
-          FORMAT(c.fecha, 'yyyy/MM/dd') AS fecha,
+          FORMAT(c.fecha, 'dd/MM/yyyy') AS fecha,
           c.hora,
           dt.dt AS dt,
           ut.ut AS ut

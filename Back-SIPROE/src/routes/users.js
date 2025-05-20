@@ -28,19 +28,21 @@ router.post("/login", async (req, res) => {
         const result = await pool.request()
             .input('username', sql.VarChar, username)
             .input('password', sql.VarChar, ecryptedPass)
-            .query('SELECT ' +
-                    'cs.id, ' +
-                    'cs.password, ' +
-                    'cs.usuario, ' +
-                    'tu.tipo_usuario AS tipo, ' +
-                    'es.estado AS estado, ' +
-                    'cs.distrito AS distrital, ' +
-                    'cs.estado_usuario ' +
-                    'FROM usuarios cs ' +
-                    'JOIN tipo_usuario tu ON cs.tipo_usuario = tu.id ' +
-                    'JOIN estado_usuario es ON cs.estado_usuario = es.id ' +
-                    'JOIN cat_distrito cd ON cs.distrito = cd.id ' +
-                    'WHERE cs.usuario = @username AND cs.password = @password;')
+            .query(`SELECT
+                        cs.id,
+                        cs.password,
+                        cs.usuario,
+                        cs.tipo_usuario, 
+                        tu.tipo_usuario AS tipo,
+                        es.estado AS estado,
+                        cs.distrito AS distrital,
+                        cs.estado_usuario,
+                        cd.distrito AS footer
+                    FROM usuarios cs
+                        JOIN tipo_usuario tu ON cs.tipo_usuario = tu.id 
+                        JOIN estado_usuario es ON cs.estado_usuario = es.id
+                        JOIN cat_distrito cd ON cs.distrito = cd.id
+                    WHERE cs.usuario = @username AND cs.password = @password`)
 
         if (result.recordset.length > 0) {
             if(result.recordset[0].estado_usuario === 1){
