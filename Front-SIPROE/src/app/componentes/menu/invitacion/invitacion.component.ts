@@ -78,6 +78,8 @@ export class InvitacionComponent {
   dataUpdate: any;
   distritoChange: any;
   utChange: any;
+  horaSeleccionadas: string = '';
+  opcionesHoras: string[] = [];
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
@@ -86,6 +88,8 @@ export class InvitacionComponent {
   }
 
   ngOnInit(): void {
+
+    this.generarOpcionesHoras('08:00', '23:55', 5)
 
     this.service.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
@@ -101,6 +105,20 @@ export class InvitacionComponent {
     });
 
     this.getDataService(parseInt(this.idDistrital));
+  }
+
+  generarOpcionesHoras(inicio: string, fin: string, intervaloMin: number) {
+    const [hInicio, mInicio] = inicio.split(':').map(Number);
+    const [hFin, mFin] = fin.split(':').map(Number);
+
+    const start = hInicio * 60 + mInicio;
+    const end = hFin * 60 + mFin;
+
+    for (let min = start; min <= end; min += intervaloMin) {
+      const horas = String(Math.floor(min / 60)).padStart(2, '0');
+      const minutos = String(min % 60).padStart(2, '0');
+      this.opcionesHoras.push(`${horas}:${minutos}`);
+    }
   }
 
   getDataService(claveIUt: number) {
@@ -128,7 +146,9 @@ export class InvitacionComponent {
   guardaData() {
 
     if(this.actualiza) {
+
       this.actualizaData();
+
     } else {
 
     const preue = {
@@ -136,7 +156,7 @@ export class InvitacionComponent {
       ut: this.registrosC,
       distrito: sessionStorage.getItem('dir'),
       fecha: this.fechaSeleccionada,
-      hora: this.horaSeleccionada.trim()
+      hora: this.horaSeleccionada
     }
 
     this.loading = true;
@@ -222,8 +242,8 @@ export class InvitacionComponent {
 
     const datos = {
       distrito: this.dataSource.data.length > 0 ? this.dataSource.data[0].distrito : null,
-      productos: this.dataSource.data.map(item => ({
-        id: item.id,
+      productos: this.dataSource.data.map((item, index) => ({
+        id: index + 1,
         dt: item.dt[1],
         clave: item.ut[0],
         ut: item.ut[1],
@@ -326,7 +346,7 @@ export class InvitacionComponent {
 
     const data = { 
       distrito: this.distritoChange,
-      hora: this.horaSeleccionada.trim(),
+      hora: this.horaSeleccionada,
       ut: this.utChange,
       fecha: this.fechaSeleccionada
     };
@@ -390,11 +410,15 @@ export class InvitacionComponent {
 
   editarElemento(element: any) {
 
-    const hora = new Date(element.hora);
-    const fecha = new Date(element.fecha);
+    const p = new Date(element.fecha)
+    const mes = String(p.getMonth() + 1).padStart(2, '0');
+    const dia = String(p.getDate()).padStart(2, '0');
+    const anio = p.getFullYear();
+    const fechaFormateada = `${mes}/${dia}/${anio}`;
+    const hora = new Date(element.hora)
     this.datosRegistros = false;
     this.horaSeleccionada = hora.toISOString().substring(11, 16);
-    this.fechaSeleccionada = fecha;
+    this.fechaSeleccionada = new Date(fechaFormateada);
     this.distritoChange = element.distrito;
     this.utChange = element.ut[0]
     this.actualiza = true;

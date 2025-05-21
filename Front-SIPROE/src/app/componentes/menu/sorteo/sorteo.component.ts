@@ -60,6 +60,7 @@ export class SorteoComponent {
   sorteados: any;
   sortear: any;
   animandoSorteo!: boolean;
+  sorteadosData!: boolean;
 
   constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService) {}
 
@@ -82,24 +83,46 @@ export class SorteoComponent {
     this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion)
   }
 
+
   getDataProyectos(ut: string, distrito: number, token: string) {
     this.service.getDataProyectos(ut, distrito, token).subscribe({
       next: (data) => {        
         this.proyectos = data.registrosProyectos;
 
-        console.log("data", this.proyectos)
         this.aprobados = this.proyectos[0].aprobados;
         this.sorteados = this.proyectos[0].sorteados;
         this.sortear = this.proyectos[0].sortear;
-      }, error: (err) => {
-        console.error("Error al cargar proyectos", err);
 
-        if(err.error.code === 160) {
+        if(this.sorteados === 0){
+          this.sorteadosData = false;
+        } else {
+          this.sorteadosData = true;
+        }
+
+        const hayNumeros = this.proyectos.some(p => p.numero_aleatorio && p.numero_aleatorio !== '');
+
+        if (hayNumeros) {
+          this.sorteoIniciado = true;
+          this.columnasVisibles = ['position', 'numero'];
+
+          this.proyectos = this.proyectos.map(p => ({
+            ...p,
+            numero: p.numero_aleatorio
+          }));
+        } else {
+          this.sorteoIniciado = false;
+          this.columnasVisibles = ['position'];
+        }
+      },
+      error: (err) => {
+        console.error("Error al cargar proyectos", err);
+        if (err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
       }
-    })
+    });
   }
+
 
   columnasVisibles = ['position'];
 
@@ -155,17 +178,50 @@ export class SorteoComponent {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({ title: 'Sorteo deshecho con éxito' });
 
         this.sorteoIniciado = false;
         this.columnasVisibles = ['position'];
+
+        const registro = { sorteo: this.proyectos[0].sorteo };
+
+        this.service.actualizaProyectoTo(this.tokenSesion, registro).subscribe ({
+          next: (data) => {
+
+            this.service.deleteSorteo(this.tokenSesion, this.proyectos[0].sorteo).subscribe ({
+              next: (data) => { 
+
+                Swal.fire({
+                  title: "Sorteo deshecho con éxito!",
+                  icon: "success",
+                  draggable: false
+                });
+
+                this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+
+              }, error: (err) => {
+                console.error("Error al actualizar datos del sorteo sorteo", err);
+              }
+            })
+
+          }, error: (err) => {
+
+            console.error("Error al actualizar datos del sorteo sorteo", err);
+
+            if(err.error.code === 160) {
+              this.servicea.cerrarSesionByToken();
+            }
+
+            this.cambiaSorteo = true;
+
+            Swal.fire('Error', 'No se pudo deshacer el sorteo.', 'error')
+          }  
+        });
 
         this.proyectos = this.proyectos.map(item => ({
           ...item,
           numero: ''
         }));
 
-        this.cambiaSorteo = false;
       }
     });
   }
@@ -186,7 +242,6 @@ export class SorteoComponent {
         });
 
         const idSorteo = data.id;
-        console.log(idSorteo);
 
         this.guardaProyectosConSorteo(idSorteo);
 
@@ -201,29 +256,6 @@ export class SorteoComponent {
       }
     });
 
-    
-    // this.proyectos.forEach((item) => {
-    //   const registro = {
-    //     ...item,
-    //     numero_aleatorio: item.numero
-    //   };
-
-
-    // console.log(registro);
-
-    // this.columnasVisibles = ['position'];
-
-    // const data = this.proyectos.map(item => ({
-    //   ...item,
-    //   numero_aleatorio: item.numero,
-    //   sorteo: prueba
-    // }));
-
-    // console.log("register", data);
-
-    // this.proyectos = data;
-    // this.sorteoIniciado = false;
-
   }
 
   guardaProyectosConSorteo(idSorteo: number) {
@@ -236,8 +268,7 @@ export class SorteoComponent {
 
       this.service.actualizaProyecto(this.tokenSesion, registro).subscribe({
         next: (resp) => {
-          console.log(resp)
-
+          this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
         }, error: (err) => {
           console.error("Error al guardar proyecto", registro, err);
 

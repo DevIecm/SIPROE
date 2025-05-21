@@ -61,7 +61,7 @@ export class AuthComponent {
       });
 
     } catch (error) {
-      console.log("Error al iniciar sesión", error);
+      console.error("Error al iniciar sesión", error);
     }
   }
 }

@@ -51,7 +51,6 @@ selectedValues: string = '';
   selectedValue(option: string) {
 
     this.mostrarDiv = true;
-    console.log("option", option)
     return this.selectedValues === option;
   }
 

@@ -171,4 +171,26 @@ export class SorteoService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
   
+  deleteSorteo(token: string, id: number): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}` 
+    });
+
+    const params = new HttpParams().set('id', id);
+
+    return this.http.delete(this.apiUrl + 'sorteo/deleteSorteo', {params, headers})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
+  }
+
+  actualizaProyectoTo(token: string, registro: any): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}` 
+    });
+
+    return this.http.patch(this.apiUrl + 'sorteo/actualizaToDelete', registro, {headers})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
+  }
+  
+  
+  
 }

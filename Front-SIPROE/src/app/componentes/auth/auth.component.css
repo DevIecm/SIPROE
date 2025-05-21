@@ -88,18 +88,3 @@
     align-items: center;
     z-index: 9999;
 }
-
-
-.login-wrapper {
-    flex-direction: column;
-    display: flex;
-    height: 100vh;
-    background-color: #f2f2f2;
-}
-
-.titulo-login {
-    text-align: center;
-    font-size: 19px;
-    font-weight: bold;
-    color: #32215c;
-}

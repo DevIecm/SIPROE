@@ -72,13 +72,10 @@
                     <button mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
                 </mat-grid-tile>
                  <mat-grid-tile [colspan]="1" [rowspan]="1" *ngIf="sorteoIniciado">
-                    <button mat-fab extended color="accent"  (click)="aceptarSorteo()">
+                    <button [disabled]="sorteadosData" mat-fab extended color="accent"  (click)="aceptarSorteo()">
                         <span *ngIf="sorteoIniciado">Aceptar el Sorteo</span>
                     </button>
                 </mat-grid-tile>
-                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" *ngIf="sorteoIniciado">
-                    <button mat-fab extended color="accent"  (click)="cambiarsalida()">Cambiar orden de salida</button>
-                </mat-grid-tile> -->
                 <mat-grid-tile [colspan]="1" [rowspan]="1">
                     <button mat-fab extended color="warn" *ngIf="sorteoIniciado" (click)="deshacerSorteo()">Deshacer el Sorteo</button>
                 </mat-grid-tile>
