@@ -1,0 +1,1 @@
+import{pb as o}from"./chunk-MQ5UGFIA.js";var i=class e{static \u0275fac=function(n){return new(n||e)};static \u0275cmp=o({type:e,selectors:[["app-inicio"]],decls:0,vars:0,template:function(n,c){},encapsulation:2})};export{i as InicioComponent};

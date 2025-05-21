@@ -69,6 +69,28 @@ router.post("/insertaSorteo", verifyToken, async (req, res) => {
     }
 });
 
+router.delete("/deleteSorteo", verifyToken, async (req, res) => {
+    try{
+
+        const { id } = req.query;
+
+        const pool = await connectToDatabase();
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .query(`DELETE FROM sorteo WHERE id = @id`);
+
+
+        return res.status(200).json({
+            message: "Registro eliminado correctamente",
+            code: 200,
+        });
+            
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({ message: "Error de servidor", err})
+    }
+});
+
 router.patch("/actualizaProyecto", verifyToken, async (req, res) => {
     try {
 
@@ -87,8 +109,27 @@ router.patch("/actualizaProyecto", verifyToken, async (req, res) => {
             return res.status(200).json({ message: "Registro actualizado correctamente", code: 200 });
 
     } catch(err) {
-        console.error(error);
-        return res.status(500).json({ message: "Error de servidor", error})
+        console.error(err);
+        return res.status(500).json({ message: "Error de servidor", err})
+    }
+})
+
+router.patch("/actualizaToDelete", verifyToken, async (req, res) => {
+    try {
+
+        const { sorteo } = req.body;
+        const pool = await connectToDatabase();
+        const result = await pool.request()
+            .input('sorteo', sql.Int, sorteo)
+            .query(`UPDATE 
+                        proyectos SET numero_aleatorio = null, sorteo = null 
+                    WHERE sorteo = @sorteo;`)
+            
+            return res.status(200).json({ message: "Registro actualizado correctamente", code: 200 });
+
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({ message: "Error del servidor", err})
     }
 })
 

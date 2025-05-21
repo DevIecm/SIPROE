@@ -24,14 +24,15 @@ router.get("/getCalendario", verifyToken, async (req, res) => {
           c.dt,
           c.ut,
           c.distrito,
-          FORMAT(c.fecha, 'dd/MM/yyyy') AS fecha,
+          c.fecha,
           c.hora,
           dt.dt AS dt,
           ut.ut AS ut
         FROM calendario c
-        JOIN demarcacion_territorial dt ON dt.id = c.dt
-        JOIN unidad_territorial ut ON ut.clave_ut = c.ut
-        WHERE c.distrito = @claveUt;
+          JOIN demarcacion_territorial dt ON dt.id = c.dt
+          JOIN unidad_territorial ut ON ut.clave_ut = c.ut
+        WHERE c.distrito = @claveUt
+        ORDER BY c.hora ASC;
       `)
 
     if (result.recordset.length > 0) {
