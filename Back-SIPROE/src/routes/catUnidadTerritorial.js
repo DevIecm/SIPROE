@@ -33,7 +33,7 @@ router.get("/catUnidad", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "No se encontraron unidades para ese distrito" });
     }
   } catch (error) {
-    console.error(error); // importante para depurar
+    console.error(error);
     return res.status(500).json({ message: "Error de servidor", error: error.message });
   }
 });

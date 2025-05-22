@@ -11,11 +11,13 @@ import userRoutes from './routes/users.js';
 import unidadRoutes from './routes/catUnidadTerritorial.js';
 import calendarioRoutes from './routes/calendarioData.js';
 import sorteoRoutes from './routes/sorteoData.js';
+import catOrgano from './routes/catOrgano.js';
 
 app.use('/api/users', userRoutes);
 app.use('/api/catUnidadTerritorial', unidadRoutes);
 app.use('/api/calendario', calendarioRoutes);
 app.use('/api/sorteo', sorteoRoutes);
+app.use('/api/catOrgano', catOrgano)
 
 app.listen(port, () => {
     console.log(`El servicio esta corriendo en ${port}`);
