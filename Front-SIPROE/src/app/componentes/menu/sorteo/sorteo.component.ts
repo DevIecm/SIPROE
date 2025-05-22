@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -61,8 +61,9 @@ export class SorteoComponent {
   sortear: any;
   animandoSorteo!: boolean;
   sorteadosData!: boolean;
+  guardoSorteo: boolean = false;
 
-  constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService) {}
+  constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService,  private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.servicea.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
@@ -123,12 +124,15 @@ export class SorteoComponent {
     });
   }
 
-
   columnasVisibles = ['position'];
 
   iniciarSorteo() {
     this.cambiaSorteo = false;
-    this.service.mostrarAnimacion(this.proyectos.length);
+    console.log(this.proyectos)
+    this.service.mostrarAnimacion(this.proyectos.length, (numero, index) => {
+      this.proyectos[index].numero_aleatorio = numero.toString();
+      this.cdr.detectChanges();
+    });
     
     setTimeout(() => {
       this.asignarNumerosAleatorios();
@@ -136,6 +140,11 @@ export class SorteoComponent {
       this.columnasVisibles = ['position', 'numero'];
       this.service.ocultarAnimacion();
     }, 5000);
+         
+    if(this.sortear >0){
+      this.guardoSorteo = true
+    }
+
   }
 
   asignarNumerosAleatorios() {
@@ -242,8 +251,8 @@ export class SorteoComponent {
         });
 
         const idSorteo = data.id;
-
         this.guardaProyectosConSorteo(idSorteo);
+        this.guardoSorteo = false;
 
       }, error: (err) => {
         console.error("Error al crear sorteo", err);

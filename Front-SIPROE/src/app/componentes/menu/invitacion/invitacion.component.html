@@ -14,12 +14,12 @@
     </mat-card-header>
   
     <mat-card-content class="card-content">
-        <mat-card-title *ngIf="territorioSelected" class="label-header">Programar fecha y hora</mat-card-title>
+        <mat-card-title class="label-header">Programar fecha y hora</mat-card-title>
         
-        <div *ngIf="territorioSelected" class="datetime-container">
+        <div class="datetime-container">
             <mat-form-field>
                 <mat-label>Selecciona la fecha</mat-label>
-                <input [disabled]="datosRegistros " matInput [matDatepicker]="datepicker" [(ngModel)]="fechaSeleccionada">
+                <input [disabled]="datosRegistros || !territorioSelected" matInput [matDatepicker]="datepicker" [(ngModel)]="fechaSeleccionada" [matDatepickerFilter]="fechaValida">
                 <mat-datepicker #datepicker />
                 <mat-datepicker-toggle [for]="datepicker" matSuffix/>
             </mat-form-field>
@@ -28,7 +28,7 @@
               <mat-label>Selecciona la hora</mat-label>
               <mat-select 
                 [(ngModel)]="horaSeleccionada" 
-                [disabled]="datosRegistros"
+                [disabled]="datosRegistros || !territorioSelected"
                 [ngModelOptions]="{updateOn: 'blur'}">
               <mat-option *ngFor="let hora of opcionesHoras" [value]="hora">
                 {{ hora }}
@@ -38,7 +38,7 @@
 
         </div>
 
-        <button [disabled]="!fechaSeleccionada || !horaSeleccionada" *ngIf="territorioSelected" class="buttonGuardar" (click)="guardaData()" [disabled]="loading || !fechaSeleccionada || !horaSeleccionada" mat-raised-button color="primary">Guardar</button>
+        <button [disabled]="!fechaSeleccionada || !horaSeleccionada" class="buttonGuardar" (click)="guardaData()" [disabled]="loading || !fechaSeleccionada || !horaSeleccionada" mat-raised-button color="primary">Guardar</button>
         <mat-card-title class="label-headers">Programación</mat-card-title>
         <button class="button" (click)="generaDocumento()" mat-raised-button color="primary">Imprimir Calendario</button>
 
@@ -47,7 +47,7 @@
 
             <ng-container matColumnDef="cs">
               <th mat-header-cell *matHeaderCellDef> Consecutivo </th>
-              <td mat-cell *matCellDef="let element; let i = index"> {{ i + 1 }} </td>
+              <td mat-cell *matCellDef="let element; let i = index"> {{ i + 1 + (paginator.pageIndex * paginator.pageSize) }} </td>
             </ng-container>
 
             <ng-container matColumnDef="ut">
@@ -67,13 +67,13 @@
 
             <ng-container matColumnDef="hora">
               <th mat-header-cell *matHeaderCellDef> Hora </th>
-              <td mat-cell *matCellDef="let element"> {{element.hora | date: 'HH:mm a':'UTC'}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.hora | date: "HH:mm 'Hrs'" :'UTC'}} </td>
             </ng-container>
 
             <ng-container matColumnDef="accion">
               <th mat-header-cell *matHeaderCellDef> Acción </th>
               <td mat-cell *matCellDef="let element">
-                <button [disabled]="!territorioSelected" mat-icon-button color="primary" (click)="editarElemento(element)">
+                <button mat-icon-button color="primary" (click)="editarElemento(element)">
                   <mat-icon>edit</mat-icon>
                 </button>
 

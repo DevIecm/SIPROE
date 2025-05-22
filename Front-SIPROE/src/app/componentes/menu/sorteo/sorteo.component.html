@@ -77,7 +77,7 @@
                     </button>
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1">
-                    <button mat-fab extended color="warn" *ngIf="sorteoIniciado" (click)="deshacerSorteo()">Deshacer el Sorteo</button>
+                    <button [disabled]="guardoSorteo" mat-fab extended color="warn" *ngIf="sorteoIniciado" (click)="deshacerSorteo()">Deshacer el Sorteo</button>
                 </mat-grid-tile>
             </mat-grid-list>
         </div>

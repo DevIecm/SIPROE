@@ -25,9 +25,9 @@ export class SorteoService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 
-  mostrarAnimacion(cantidad: number = 10) {
+  mostrarAnimacion(cantidad: number = 10, onNumeroAsignado?: (numero: number, index: number) => void) {
     const existing = document.getElementById(this.canvasId);
-    if (existing) existing.remove(); // elimina si ya existe
+    if (existing) existing.remove();
 
     const canvas = document.createElement('canvas');
     canvas.id = this.canvasId;
@@ -135,16 +135,33 @@ export class SorteoService {
 
     animar();
 
-    let index = 0;
-    const intervalo = setInterval(() => {
-      if (index < pelotas.length) {
-        pelotas[index].activa = false;
-        index++;
-      } else {
+    const usados = new Set<number>();
+    let indexActual = 0;
+
+     const intervalo = setInterval(() => {
+      if (indexActual >= pelotas.length) {
         clearInterval(intervalo);
-        this.ocultarAnimacion();
+        setTimeout(() => canvas.remove(), 1000);
+        return;
       }
-    }, 1000);
+
+      const pelota = pelotas[indexActual];
+      pelota.activa = false;
+
+      // Generar número aleatorio único
+      let numero: number;
+      do {
+        numero = Math.floor(Math.random() * cantidad) + 1;
+      } while (usados.has(numero));
+      usados.add(numero);
+
+      // Notificar al componente
+      if (onNumeroAsignado) {
+        onNumeroAsignado(numero, indexActual); // <-- Este index es la posición en proyectos
+      }
+
+      indexActual++;
+    }, 600);
   }
 
   ocultarAnimacion() {

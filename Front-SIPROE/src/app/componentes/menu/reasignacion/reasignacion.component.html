@@ -1,1 +1,90 @@
-<p>reasignacion works!</p>
+<mat-card class="sorteo-card" appearance="outlined">
+    <mat-card-header class="header-content">
+      <mat-card-title class="label-header">Reasignación de Sorteo de Asignación Directa y Eliminación de Sorteos</mat-card-title>
+      
+      <div class="form-section">
+        <label class="form-label">Seleccione una Unidad Territorial</label>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Seleccione unidad territorial</mat-label>
+          <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
+            <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content class="card-content">
+        <div *ngIf="mostrarDiv">
+            <mat-card-title class="label-header">Inventario de proyectos de la Unidad Territorial</mat-card-title>
+            
+            <mat-grid-list cols="3" rowHeight="100px">
+                <mat-grid-tile [colspan]="1" [rowspan]="1">
+                    <mat-card class="inventario-card" appearance="outlined">
+                        <mat-card-content class="inventario-content">
+                            <mat-icon class="iconAprove">inventory</mat-icon>
+                            <label>Poyectos aprobados </label>
+                            <label>{{aprobados}}</label>
+                        </mat-card-content>
+                    </mat-card>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="1" [rowspan]="1">
+                    <mat-card class="inventario-card" appearance="outlined">
+                        <mat-card-content class="inventario-content">
+                            <mat-icon class="iconSort">inventory</mat-icon>
+                            <label> Proyectos sorteados </label>
+                            <label>{{sorteados}}</label>
+                        </mat-card-content>
+                    </mat-card>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="1" [rowspan]="1">
+                    <mat-card class="inventario-card" appearance="outlined">
+                        <mat-card-content class="inventario-content">
+                            <mat-icon class="iconSorte">inventory</mat-icon>
+                            <label>Poyectos por sortear</label>
+                            <label>{{sortear}}</label>
+                        </mat-card-content>
+                    </mat-card>
+                </mat-grid-tile>
+            </mat-grid-list>
+            
+            <mat-card-title class="label-header">Proyectos Sorteados de la Unidad Territorial</mat-card-title>
+
+            <div class="mat-elevation-z8">
+                <table mat-table [dataSource]="proyectos" class="custom-table">
+
+                    <ng-container matColumnDef="position">
+                    <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Folio de Registro</b> </th>
+                    <td mat-cell *matCellDef="let element" class="center-cell"> {{element.folio}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="numero" *ngIf="sorteoIniciado">
+                    <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Número Aleatorio</b> </th>
+                    <td mat-cell *matCellDef="let element" class="center-cell"> {{element.numero}} </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="columnasVisibles"></tr>
+                    <tr mat-row *matRowDef="let row; columns: columnasVisibles;"></tr>
+                </table>
+            </div>
+
+            <mat-grid-list cols="2" rowHeight="100px">
+                <mat-grid-tile [colspan]="1" [rowspan]="1" *ngIf="!sorteoIniciado">
+                    <button mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
+                </mat-grid-tile>
+                 <mat-grid-tile [colspan]="1" [rowspan]="1" *ngIf="sorteoIniciado">
+                    <button [disabled]="sorteadosData" mat-fab extended color="accent"  (click)="aceptarSorteo()">
+                        <span *ngIf="sorteoIniciado">Aceptar el Sorteo</span>
+                    </button>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="1" [rowspan]="1">
+                    <button [disabled]="guardoSorteo" mat-fab extended color="warn" *ngIf="sorteoIniciado" (click)="deshacerSorteo()">Deshacer el Sorteo</button>
+                </mat-grid-tile>
+            </mat-grid-list>
+        </div>
+    </mat-card-content>
+</mat-card>
+
+<div *ngIf="animandoSorteo" class="overlay">
+  <canvas id="canvas" width="400" height="300"></canvas>
+</div>
+<app-footer></app-footer>

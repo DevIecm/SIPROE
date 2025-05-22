@@ -80,6 +80,8 @@ export class InvitacionComponent {
   utChange: any;
   horaSeleccionadas: string = '';
   opcionesHoras: string[] = [];
+  minFecha = new Date(2025, 5, 5); // 5 de junio de 2025 (mes es base 0)
+  maxFecha = new Date(2025, 5, 9); // 9 de junio de 2025
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
@@ -105,6 +107,11 @@ export class InvitacionComponent {
     });
 
     this.getDataService(parseInt(this.idDistrital));
+  }
+
+  fechaValida = (d: Date | null): boolean => {
+    if (!d) return false;
+    return d >= this.minFecha && d <= this.maxFecha;
   }
 
   generarOpcionesHoras(inicio: string, fin: string, intervaloMin: number) {
@@ -230,25 +237,36 @@ export class InvitacionComponent {
     const date = new Date(iso);
     let hours = date.getUTCHours();
     const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
     const formattedHours = hours.toString().padStart(2, '0');
+    const hrs = "Hrs";
 
-    return `${formattedHours}:${minutes} ${ampm}`;
+    return `${formattedHours}:${minutes} ${hrs}`;
+  }
+
+  extractFecha(fecha: Date) {
+    const date = new Date(fecha);
+    const fechaFormatt = (date.toLocaleDateString("en-GB"));
+  
+    return `${fechaFormatt}`;
   }
 
   async generaDocumento() {
 
     this.loading = true;
+    const primerRegistro = this.dataSource.data[0];
 
     const datos = {
-      distrito: this.dataSource.data.length > 0 ? this.dataSource.data[0].distrito : null,
+      distrito: primerRegistro?.distrito ?? '',
+      domicilio: primerRegistro?.domicilio ?? '',
+      sod: primerRegistro?.sod ?? '',
+      tod: primerRegistro?.tod ?? '',
       productos: this.dataSource.data.map((item, index) => ({
         id: index + 1,
         dt: item.dt[1],
         clave: item.ut[0],
         ut: item.ut[1],
-        fecha: item.fecha,
-        hora: this.extraerHoraUTC(item.hora)
+        fecha: this.extractFecha(item.fecha),
+        hora: this.extraerHoraUTC(item.hora),
       }))
     };
 
@@ -331,6 +349,7 @@ export class InvitacionComponent {
   }
 
   onDistritoChange(idDistrito: any) {
+    this.actualiza = false;
     this.territorioSelected = true;
     let idD = idDistrito.clave_ut;
     this.registrosC = idD;
@@ -409,21 +428,18 @@ export class InvitacionComponent {
   }
 
   editarElemento(element: any) {
+    const fecha = new Date(element.fecha);
+    const hora = new Date(element.hora);
 
-    const p = new Date(element.fecha)
-    const mes = String(p.getMonth() + 1).padStart(2, '0');
-    const dia = String(p.getDate()).padStart(2, '0');
-    const anio = p.getFullYear();
-    const fechaFormateada = `${mes}/${dia}/${anio}`;
-    const hora = new Date(element.hora)
-    this.datosRegistros = false;
+    this.fechaSeleccionada = fecha;
     this.horaSeleccionada = hora.toISOString().substring(11, 16);
-    this.fechaSeleccionada = new Date(fechaFormateada);
     this.distritoChange = element.distrito;
-    this.utChange = element.ut[0]
+    this.utChange = element.ut[0];
     this.actualiza = true;
-
+    this.territorioSelected = true;
+    this.datosRegistros = false;
+    this.selectedUnidad = this.unidades.find(ut => ut.clave_ut === element.ut[0]);
   }
-  
+
   displayedColumns: string[] = ['cs', 'ut', 'nut', 'fecha', 'hora', 'accion'];
 }
