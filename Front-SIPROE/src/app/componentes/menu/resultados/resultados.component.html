@@ -1,1 +1,22 @@
-<p>resultados works!</p>
+<mat-card class="sorteo-card" appearance="outlined">
+        <mat-card-header class="header-content">
+
+    <mat-card-title class="label-header">Reasignación de Sorteo de Asignación Directa y Eliminación de Sorteos
+</mat-card-title>
+    <mat-grid-list cols="2" rowHeight="100px">
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <button mat-fab extended color="primary">Lista de Proyectos</button>
+        </mat-grid-tile>
+            <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <button mat-fab extended color="accent">
+                <span>Generar Constancias</span>
+            </button>
+        </mat-grid-tile>
+    </mat-grid-list>
+        </mat-card-header>
+</mat-card>
+
+<div *ngIf="animandoSorteo" class="overlay">
+  <canvas id="canvas" width="400" height="300"></canvas>
+</div>
+<app-footer></app-footer>

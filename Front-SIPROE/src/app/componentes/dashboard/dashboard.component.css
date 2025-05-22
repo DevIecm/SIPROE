@@ -119,3 +119,7 @@ mat-nav-list mat-icon {
   font-weight: 500;
   color: #003366;
 }
+
+.adaptImage {
+  width: 24%;
+}

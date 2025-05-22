@@ -80,8 +80,8 @@ export class InvitacionComponent {
   utChange: any;
   horaSeleccionadas: string = '';
   opcionesHoras: string[] = [];
-  minFecha = new Date(2025, 5, 5); // 5 de junio de 2025 (mes es base 0)
-  maxFecha = new Date(2025, 5, 9); // 9 de junio de 2025
+  minFecha = new Date(2025, 6, 5);
+  maxFecha = new Date(2025, 6, 9);
 
   constructor(private http: HttpClient, private service: AuthService) {}
 

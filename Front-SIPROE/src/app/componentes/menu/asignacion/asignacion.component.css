@@ -13,7 +13,7 @@
 .label-header {
     font-size: 18px;
     font-weight: 600;
-    padding-top: 30px;
+    padding-top: 2px;
     padding-bottom: 30px;
 }
 
@@ -133,3 +133,6 @@ mat-form-field {
   text-align: center;
 }
 
+.padContent {
+  margin-top: 20px;
+}

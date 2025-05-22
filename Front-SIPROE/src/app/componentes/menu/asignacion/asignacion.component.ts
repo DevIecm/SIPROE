@@ -19,6 +19,9 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon } from '@angular/material/icon';
 import { SorteoService } from '../../../services/sorteoService/sorteo.service';
 import { AuthService } from '../../../services/auth.service';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { getSpanishPaginatorIntl } from '../invitacion/mat-paginator-intl-es';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 
 
 @Component({
@@ -43,7 +46,8 @@ import { AuthService } from '../../../services/auth.service';
       MatIcon
     ],
   templateUrl: './asignacion.component.html',
-  styleUrl: './asignacion.component.css'
+  styleUrl: './asignacion.component.css',
+  providers: [ { provide: MatPaginatorIntl, useValue: getSpanishPaginatorIntl() },  provideNativeDateAdapter() ]
 })
 export class AsignacionComponent {
  selectedValues: string = '';
@@ -62,6 +66,9 @@ export class AsignacionComponent {
   animandoSorteo!: boolean;
   sorteadosData!: boolean;
   guardoSorteo: boolean = false;
+  fechaSeleccionada : Date | null = null;
+  minFecha = new Date(2025, 6, 5);
+  maxFecha = new Date(2025, 6, 9);
 
   constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService,  private cdr: ChangeDetectorRef) {}
 
@@ -76,6 +83,7 @@ export class AsignacionComponent {
         }
       }
     });
+    
   }
 
   onDistritoChange(element: any){
@@ -292,6 +300,11 @@ export class AsignacionComponent {
 
     this.columnasVisibles = ['position'];
     this.sorteoIniciado = false;
+  }
+
+  fechaValida = (d: Date | null): boolean => {
+    if (!d) return false;
+    return d >= this.minFecha && d <= this.maxFecha;
   }
 
 }
