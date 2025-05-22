@@ -1,9 +1,10 @@
-const express = require('express');
+import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
+import verifyToken from '../ConfigServices/Midleware.js';
+import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
+
 const router = express.Router();
-const jwt = require("jsonwebtoken");
-const verifyToken = require("../ConfigServices/Midleware");
-const { connectToDatabase, sql } = require('../ConfigServices/DatabaseConfiguration')
-require('dotenv').config();
 
 router.get("/getCalendario", verifyToken, async (req, res) => {
 
@@ -27,12 +28,16 @@ router.get("/getCalendario", verifyToken, async (req, res) => {
           c.fecha,
           c.hora,
           dt.dt AS dt,
-          ut.ut AS ut
+          ut.ut AS ut,
+          cd.domicilio AS domicilio,
+          cd.nombre_sod AS sod,
+          cd.nombre_tod AS tod
         FROM calendario c
           JOIN demarcacion_territorial dt ON dt.id = c.dt
           JOIN unidad_territorial ut ON ut.clave_ut = c.ut
+          JOIN cat_distrito cd ON cd.id = c.distrito
         WHERE c.distrito = @claveUt
-        ORDER BY c.hora ASC;
+        ORDER BY c.fecha, c.hora ASC;
       `)
 
     if (result.recordset.length > 0) {
@@ -129,4 +134,4 @@ router.patch("/actualizaRegistros", verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

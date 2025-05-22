@@ -1,11 +1,13 @@
-const express = require('express');
+import crypto from 'crypto';
+import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
+import verifyToken from '../ConfigServices/Midleware.js';
+import jwt from 'jsonwebtoken';
+import express from 'express';
+import dotenv from 'dotenv';
+
 const router = express.Router();
-const jwt = require("jsonwebtoken");
-const verifyToken = require("../ConfigServices/Midleware");
-const { connectToDatabase, sql } = require('../ConfigServices/DatabaseConfiguration')
-require('dotenv').config();
 const secretKey = process.env.JWT_KEY;
-const crypto = require('crypto');
+dotenv.config();
 
 function encryptSHA256(text) {
     const hash = crypto.createHash('sha256');
@@ -71,4 +73,4 @@ router.get("/protected", verifyToken, (req, res) => {
     return res.status(200).json({ message: "You have access" });
 });
 
-module.exports = router;
+export default router;

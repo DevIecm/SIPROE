@@ -1,9 +1,10 @@
-const express = require('express');
+import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
+import verifyToken from '../ConfigServices/Midleware.js';
+import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
+
 const router = express.Router();
-const jwt = require("jsonwebtoken");
-const verifyToken = require("../ConfigServices/Midleware");
-const { connectToDatabase, sql } = require('../ConfigServices/DatabaseConfiguration')
-require('dotenv').config();
 
 router.get("/catUnidad", verifyToken, async (req, res) => {
 
@@ -37,4 +38,4 @@ router.get("/catUnidad", verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

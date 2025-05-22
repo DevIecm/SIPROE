@@ -1,16 +1,16 @@
-const express = require('express');
+import cors from 'cors';
+import express from 'express';
+
 const app = express();
 const port = 4000;
-const cors = require('cors');
 
-//app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(cors());
 
-const userRoutes = require('./routes/users');
-const unidadRoutes = require('./routes/catUnidadTerritorial');
-const calendarioRoutes = require('./routes/calendarioData');
-const sorteoRoutes = require('./routes/sorteoData');
+import userRoutes from './routes/users.js';
+import unidadRoutes from './routes/catUnidadTerritorial.js';
+import calendarioRoutes from './routes/calendarioData.js';
+import sorteoRoutes from './routes/sorteoData.js';
 
 app.use('/api/users', userRoutes);
 app.use('/api/catUnidadTerritorial', unidadRoutes);
