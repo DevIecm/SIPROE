@@ -137,21 +137,21 @@ export class ReasignacionComponent {
   iniciarSorteo() {
     this.cambiaSorteo = false;
     console.log(this.proyectos)
-    this.service.mostrarAnimacion(this.proyectos.length, (numero, index) => {
-      this.proyectos[index].numero_aleatorio = numero.toString();
-      this.cdr.detectChanges();
-    });
+    // this.service.mostrarAnimacion(this.proyectos.length, (numero, index) => {
+    //   this.proyectos[index].numero_aleatorio = numero.toString();
+    //   this.cdr.detectChanges();
+    // });
     
-    setTimeout(() => {
-      this.asignarNumerosAleatorios();
-      this.sorteoIniciado = true;
-      this.columnasVisibles = ['position', 'numero'];
-      this.service.ocultarAnimacion();
-    }, 5000);
+    // setTimeout(() => {
+    //   this.asignarNumerosAleatorios();
+    //   this.sorteoIniciado = true;
+    //   this.columnasVisibles = ['position', 'numero'];
+    //   this.service.ocultarAnimacion();
+    // }, 5000);
          
-    if(this.sortear >0){
-      this.guardoSorteo = true
-    }
+    // if(this.sortear >0){
+    //   this.guardoSorteo = true
+    // }
 
   }
 

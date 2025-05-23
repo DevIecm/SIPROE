@@ -41,8 +41,7 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
     MatTimepickerModule,
     MatProgressSpinnerModule,
     CommonModule,
-    MatGridListModule,
-    MatIcon
+    MatGridListModule
   ],
   templateUrl: './resultados.component.html',
   styleUrl: './resultados.component.css'

@@ -62,6 +62,9 @@ export class SorteoComponent {
   animandoSorteo!: boolean;
   sorteadosData!: boolean;
   guardoSorteo: boolean = false;
+  private canvasId = 'sorteo-canvas';
+  sinRegistro!: boolean;
+  botonUsado: boolean = false;
 
   constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService,  private cdr: ChangeDetectorRef) {}
 
@@ -81,9 +84,9 @@ export class SorteoComponent {
   onDistritoChange(element: any){
     this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
-    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion)
+    this.botonUsado = false;
+    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
   }
-
 
   getDataProyectos(ut: string, distrito: number, token: string) {
     this.service.getDataProyectos(ut, distrito, token).subscribe({
@@ -93,6 +96,8 @@ export class SorteoComponent {
         this.aprobados = this.proyectos[0].aprobados;
         this.sorteados = this.proyectos[0].sorteados;
         this.sortear = this.proyectos[0].sortear;
+        this.sinRegistro = false;
+
 
         if(this.sorteados === 0){
           this.sorteadosData = false;
@@ -104,15 +109,18 @@ export class SorteoComponent {
 
         if (hayNumeros) {
           this.sorteoIniciado = true;
-          this.columnasVisibles = ['position', 'numero'];
-
+          this.guardoSorteo = false;
+          this.animandoSorteo = false;
           this.proyectos = this.proyectos.map(p => ({
             ...p,
             numero: p.numero_aleatorio
           }));
+          
         } else {
+           this.animandoSorteo = true;
+        
+        this.mostrarAnimacion(this.proyectos.length, (numero, index) => {});
           this.sorteoIniciado = false;
-          this.columnasVisibles = ['position'];
         }
       },
       error: (err) => {
@@ -120,61 +128,36 @@ export class SorteoComponent {
         if (err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+        if(err.error.code === 100) {
+          this.sinRegistro = true;
+          this.proyectos = [];
+          this.guardoSorteo = true;
+          Swal.fire("No se encontraron registros")
+        }
       }
     });
   }
 
-  columnasVisibles = ['position'];
+  columnasVisibles = ['id', 'position', 'numero'];
 
   iniciarSorteo() {
     this.cambiaSorteo = false;
-    console.log(this.proyectos)
-    this.service.mostrarAnimacion(this.proyectos.length, (numero, index) => {
+    this.botonUsado = true;
+
+    this.mostrarAnimacion(this.proyectos.length, (numero, index) => {
       this.proyectos[index].numero_aleatorio = numero.toString();
       this.cdr.detectChanges();
     });
     
     setTimeout(() => {
-      this.asignarNumerosAleatorios();
       this.sorteoIniciado = true;
-      this.columnasVisibles = ['position', 'numero'];
-      this.service.ocultarAnimacion();
+      this.animandoSorteo = false;
+      this.ocultarAnimacion();
     }, 5000);
-         
-    if(this.sortear >0){
-      this.guardoSorteo = true
+    
+    if(this.sortear > 0) {
+      this.guardoSorteo = true;
     }
-
-  }
-
-  asignarNumerosAleatorios() {
-    const usados = new Set<number>();
-
-    if (!this.cambiaSorteo) {
-      this.proyectos.forEach(p => {
-        const n = parseInt(p.numero_aleatorio);
-        if (!isNaN(n)) usados.add(n);
-      });
-    }
-
-    this.proyectos = this.proyectos.map(p => {
-      let numero: number;
-
-      if (!this.cambiaSorteo && p.numero_aleatorio && p.numero_aleatorio !== '') {
-        return { ...p, numero: p.numero_aleatorio };
-      }
-
-      do {
-        numero = Math.floor(Math.random() * this.aprobados) + 1;
-      } while (usados.has(numero));
-
-      usados.add(numero);
-
-      return {
-        ...p,
-        numero: numero.toString()
-      };
-    });
   }
 
   deshacerSorteo() {
@@ -189,8 +172,6 @@ export class SorteoComponent {
       if (result.isConfirmed) {
 
         this.sorteoIniciado = false;
-        this.columnasVisibles = ['position'];
-
         const registro = { sorteo: this.proyectos[0].sorteo };
 
         this.service.actualizaProyectoTo(this.tokenSesion, registro).subscribe ({
@@ -206,7 +187,7 @@ export class SorteoComponent {
                 });
 
                 this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
-
+                this.botonUsado = false;
               }, error: (err) => {
                 console.error("Error al actualizar datos del sorteo sorteo", err);
               }
@@ -233,10 +214,6 @@ export class SorteoComponent {
 
       }
     });
-  }
-
-  cambiarOrden() {
-    this.asignarNumerosAleatorios();
   }
 
   aceptarSorteo() {
@@ -290,8 +267,165 @@ export class SorteoComponent {
 
     Swal.fire("Exito", "Sorteo y proyectos guardados correctamente.", "success");
 
-    this.columnasVisibles = ['position'];
     this.sorteoIniciado = false;
   }
 
+  mostrarAnimacion(cantidad: number = 10, onNumeroAsignado?: (numero: number, index: number) => void) {
+    const existing = document.getElementById(this.canvasId);
+    if (existing) existing.remove();
+
+    const canvas = document.createElement('canvas');
+    canvas.id = this.canvasId;
+    canvas.width = 300;
+    canvas.height = 300;
+    canvas.style.position = 'absolute';
+    canvas.style.top = '50%';
+    canvas.style.left = '50%';
+    canvas.style.transform = 'translate(-50%, -50%)';
+    canvas.style.zIndex = '1000';
+
+    const container = document.getElementById('container');
+    if (container) {
+        container.appendChild(canvas);
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    class Pelota {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radio = 20;
+      color: string;
+      activa = true;
+
+      constructor(public numero: number) {
+        this.x = Math.random() * (canvas.width - 40) + 20;
+        this.y = Math.random() * (canvas.height - 40) + 20;
+        this.vx = (Math.random() * 2 - 1) * 2;
+        this.vy = (Math.random() * 2 - 1) * 2;
+        this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+      }
+
+      mover() {
+        if (!this.activa) return;
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x + this.radio > canvas.width || this.x - this.radio < 0) this.vx *= -1;
+        if (this.y + this.radio > canvas.height || this.y - this.radio < 0) this.vy *= -1;
+      }
+
+      dibujar(ctx: CanvasRenderingContext2D) {
+        if (!this.activa) return;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radio, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.fillStyle = 'black';
+        ctx.font = '15px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.numero.toString(), this.x, this.y);
+      }
+    }
+
+    const pelotas: Pelota[] = [];
+    for (let i = 1; i <= cantidad; i++) pelotas.push(new Pelota(i));
+
+    function detectarColisiones() {
+      for (let i = 0; i < pelotas.length; i++) {
+        const p1 = pelotas[i];
+        if (!p1.activa) continue;
+
+        for (let j = i + 1; j < pelotas.length; j++) {
+          const p2 = pelotas[j];
+          if (!p2.activa) continue;
+
+          const dx = p2.x - p1.x;
+          const dy = p2.y - p1.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const minDist = p1.radio + p2.radio;
+
+          if (dist < minDist) {
+            const angle = Math.atan2(dy, dx);
+            const sin = Math.sin(angle);
+            const cos = Math.cos(angle);
+
+            const v1 = { x: p1.vx * cos + p1.vy * sin, y: p1.vy * cos - p1.vx * sin };
+            const v2 = { x: p2.vx * cos + p2.vy * sin, y: p2.vy * cos - p2.vx * sin };
+
+            [v1.x, v2.x] = [v2.x, v1.x];
+
+            p1.vx = v1.x * cos - v1.y * sin;
+            p1.vy = v1.y * cos + v1.x * sin;
+            p2.vx = v2.x * cos - v2.y * sin;
+            p2.vy = v2.y * cos + v2.x * sin;
+
+            const overlap = minDist - dist;
+            const separation = overlap / 2;
+
+            p1.x -= cos * separation;
+            p1.y -= sin * separation;
+            p2.x += cos * separation;
+            p2.y += sin * separation;
+          }
+        }
+      }
+    }
+
+    function animar() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      detectarColisiones();
+      pelotas.forEach((p) => {
+        p.mover();
+        p.dibujar(ctx);
+      });
+      requestAnimationFrame(animar);
+    }
+
+    animar();
+
+    const usados = new Set<number>();
+    let indexActual = 0;
+
+    if(this.botonUsado){
+
+      const intervalo = setInterval(() => {
+        if (indexActual >= pelotas.length) {
+          clearInterval(intervalo);
+          setTimeout(() => canvas.remove(), 1000);
+          return;
+        }
+
+        const pelota = pelotas[indexActual];
+        pelota.activa = false;
+
+        let numero: number;
+
+        do {
+          numero = Math.floor(Math.random() * cantidad) + 1;
+        } while (usados.has(numero));
+        usados.add(numero);
+
+        if (onNumeroAsignado) {
+          onNumeroAsignado(numero, indexActual);
+        }
+
+        this.proyectos[indexActual].numero = numero.toString();
+
+        indexActual++;
+      }, 600);
+    }
+  }
+
+  ocultarAnimacion() {
+    const canvas = document.getElementById(this.canvasId);
+    if (canvas) canvas.remove();
+  }
 }
