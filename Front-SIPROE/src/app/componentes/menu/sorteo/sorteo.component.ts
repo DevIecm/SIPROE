@@ -110,17 +110,18 @@ export class SorteoComponent {
         if (hayNumeros) {
           this.sorteoIniciado = true;
           this.guardoSorteo = false;
-          this.animandoSorteo = false;
+          this.ocultarAnimacion();
           this.proyectos = this.proyectos.map(p => ({
             ...p,
             numero: p.numero_aleatorio
           }));
-          
+          this.columnasVisibles = ['position', 'numero'];
         } else {
            this.animandoSorteo = true;
         
         this.mostrarAnimacion(this.proyectos.length, (numero, index) => {});
-          this.sorteoIniciado = false;
+        this.sorteoIniciado = false;
+        this.columnasVisibles = ['id', 'position', 'numero'];
         }
       },
       error: (err) => {
@@ -149,71 +150,20 @@ export class SorteoComponent {
       this.cdr.detectChanges();
     });
     
-    setTimeout(() => {
-      this.sorteoIniciado = true;
-      this.animandoSorteo = false;
-      this.ocultarAnimacion();
-    }, 5000);
-    
     if(this.sortear > 0) {
       this.guardoSorteo = true;
     }
   }
 
   deshacerSorteo() {
-    Swal.fire({
-      title: "¿Está seguro de deshacer este Sorteo?",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        this.sorteoIniciado = false;
-        const registro = { sorteo: this.proyectos[0].sorteo };
-
-        this.service.actualizaProyectoTo(this.tokenSesion, registro).subscribe ({
-          next: (data) => {
-
-            this.service.deleteSorteo(this.tokenSesion, this.proyectos[0].sorteo).subscribe ({
-              next: (data) => { 
-
-                Swal.fire({
-                  title: "Sorteo deshecho con éxito!",
-                  icon: "success",
-                  draggable: false
-                });
-
-                this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
-                this.botonUsado = false;
-              }, error: (err) => {
-                console.error("Error al actualizar datos del sorteo sorteo", err);
-              }
-            })
-
-          }, error: (err) => {
-
-            console.error("Error al actualizar datos del sorteo sorteo", err);
-
-            if(err.error.code === 160) {
-              this.servicea.cerrarSesionByToken();
-            }
-
-            this.cambiaSorteo = true;
-
-            Swal.fire('Error', 'No se pudo deshacer el sorteo.', 'error')
-          }  
-        });
-
-        this.proyectos = this.proyectos.map(item => ({
-          ...item,
-          numero: ''
-        }));
-
-      }
-    });
+      // Reset relevant variables to their initial states
+    this.sorteoIniciado = false;
+    this.guardoSorteo = false;
+    this.proyectos = [];
+    this.sinRegistro = false;
+    this.botonUsado = false;
+    this.selectedUnidad = null;
+    this.mostrarDiv = false;    
   }
 
   aceptarSorteo() {
@@ -265,7 +215,7 @@ export class SorteoComponent {
       });
     });
 
-    Swal.fire("Exito", "Sorteo y proyectos guardados correctamente.", "success");
+    Swal.fire("Exito", "Sorteo aplicado con éxito.", "success");
 
     this.sorteoIniciado = false;
   }
@@ -399,7 +349,15 @@ export class SorteoComponent {
       const intervalo = setInterval(() => {
         if (indexActual >= pelotas.length) {
           clearInterval(intervalo);
-          setTimeout(() => canvas.remove(), 1000);
+
+          setTimeout(() => {
+            this.cdr.detectChanges();
+            setTimeout(() => {
+              this.ocultarAnimacion();
+              this.sorteoIniciado = true;
+            }, 300);
+          }, 100);
+
           return;
         }
 

@@ -22,4 +22,14 @@ export class AsignacionService {
     return this.http.get(this.apiUrl + 'catOrganoJ/catOrgano' , {headers, params})
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
+  
+  insertaSorteo(data: any, token: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}` 
+    });
+
+    return this.http.post(this.apiUrl + 'asignacion/insertaSorteo', data, {headers})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
+
+  }
 }

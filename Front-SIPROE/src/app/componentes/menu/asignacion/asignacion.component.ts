@@ -49,11 +49,9 @@ import { AsignacionService } from '../../../services/asignacionService/asignacio
   styleUrl: './asignacion.component.css',
   providers: [ { provide: MatPaginatorIntl, useValue: getSpanishPaginatorIntl() },  provideNativeDateAdapter() ]
 })
+
 export class AsignacionComponent {
- selectedValues: string = '';
-  sorteoIniciado = false;
-  mostrarDiv: boolean = false;
-  cambiaSorteo = false;
+  selectedValues: string = '';
   idDistrital = sessionStorage.getItem('dir') || '0';
   tokenSesion = sessionStorage.getItem('key') || '0';
   selectedUnidad: number | null = null;
@@ -64,17 +62,28 @@ export class AsignacionComponent {
   aprobados: any;
   sorteados: any;
   sortear: any;
-  animandoSorteo!: boolean;
-  sorteadosData!: boolean;
-  guardoSorteo: boolean = false;
   fechaSeleccionada : Date | null = null;
   minFecha = new Date(2025, 6, 5);
   maxFecha = new Date(2025, 6, 9);
   idOrgano!: Number;
-  botonUsado: boolean = false;
   private canvasId = 'sorteo-canvas';
-  sinRegistro!: boolean;
+  pSortear: any[] = [];
+  id_o!: Number;
+  motivo: string = '';
+  expediente: string = '';
 
+  botonUsado: boolean = false;
+  mostrarDiv: boolean = false;
+  cambiaSorteo = false;
+  animandoSorteo: boolean = false;
+  sorteadosData!: boolean;
+  guardoSorteo: boolean = false;
+  sorteoIniciado!: boolean;
+  ocultaTbla!: boolean;
+  datosProyectosSinNumero: any[] = [];
+  ocultaIfExist: boolean = false;
+  llenadoForm: boolean = false;
+  
   constructor(private http: HttpClient,  private servicea: AuthService, private service: SorteoService, private serviceAsignacion: AsignacionService,  private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -101,7 +110,7 @@ export class AsignacionComponent {
     });
   }
 
-   onDistritoChange(element: any){
+  onDistritoChange(element: any){
     this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
     this.botonUsado = false;
@@ -109,43 +118,40 @@ export class AsignacionComponent {
   }
 
   onOrganoChange(element: any){
-    console.log(element)
+    this.id_o = element.id;
   }
 
   getDataProyectos(ut: string, distrito: number, token: string) {
     this.service.getDataProyectos(ut, distrito, token).subscribe({
-      next: (data) => {        
+      next: (data) => {
         this.proyectos = data.registrosProyectos;
-
         this.aprobados = this.proyectos[0].aprobados;
         this.sorteados = this.proyectos[0].sorteados;
         this.sortear = this.proyectos[0].sortear;
-        this.sinRegistro = false;
-
-
-        if(this.sorteados === 0){
-          this.sorteadosData = false;
+  
+        const proyectosSinNumero = this.proyectos.filter(p => !p.numero_aleatorio || p.numero_aleatorio === '');
+        this.datosProyectosSinNumero = this.proyectos.filter(p => !p.numero_aleatorio || p.numero_aleatorio === '');
+        
+        if(proyectosSinNumero.length > 0){
+          this.animandoSorteo = false;
+          this.ocultaIfExist = false;
+          this.ocultaTbla = false;
+          this.mostrarAnimacion(proyectosSinNumero.length, (numero, index) => {});
+          this.proyectos = this.proyectos.map(p => ({
+            ...p,
+            numero: p.numero_aleatorio
+          }));
         } else {
-          this.sorteadosData = true;
-        }
-
-        const hayNumeros = this.proyectos.some(p => p.numero_aleatorio && p.numero_aleatorio !== '');
-
-        if (hayNumeros) {
-          this.sorteoIniciado = true;
-          this.guardoSorteo = false;
+          this.ocultaIfExist = true;
+          this.ocultaTbla = true;
+          this.ocultarAnimacion();
           this.animandoSorteo = false;
           this.proyectos = this.proyectos.map(p => ({
             ...p,
             numero: p.numero_aleatorio
           }));
-          
-        } else {
-            this.animandoSorteo = true;
-        
-        this.mostrarAnimacion(this.proyectos.length, (numero, index) => {});
-          this.sorteoIniciado = false;
         }
+
       },
       error: (err) => {
         console.error("Error al cargar proyectos", err);
@@ -153,7 +159,6 @@ export class AsignacionComponent {
           this.servicea.cerrarSesionByToken();
         }
         if(err.error.code === 100) {
-          this.sinRegistro = true;
           this.proyectos = [];
           this.guardoSorteo = true;
           Swal.fire("No se encontraron registros")
@@ -164,123 +169,32 @@ export class AsignacionComponent {
 
   columnasVisibles = ['id', 'position', 'numero'];
 
-   iniciarSorteo() {
+  iniciarSorteo() {
     this.cambiaSorteo = false;
     this.botonUsado = true;
+    this.llenadoForm = true;
 
-    this.mostrarAnimacion(this.proyectos.length, (numero, index) => {
-      this.proyectos[index].numero_aleatorio = numero.toString();
+    this.mostrarAnimacion(this.datosProyectosSinNumero.length, (numero, index) => {
+      this.datosProyectosSinNumero[index].numero_aleatorio = numero.toString();
       this.cdr.detectChanges();
     });
-    
-    setTimeout(() => {
-      this.sorteoIniciado = true;
-      this.animandoSorteo = false;
-      this.ocultarAnimacion();
-    }, 5000);
     
     if(this.sortear > 0) {
       this.guardoSorteo = true;
     }
   }
 
-  asignarNumerosAleatorios() {
-    const usados = new Set<number>();
-
-    if (!this.cambiaSorteo) {
-      this.proyectos.forEach(p => {
-        const n = parseInt(p.numero_aleatorio);
-        if (!isNaN(n)) usados.add(n);
-      });
-    }
-
-    this.proyectos = this.proyectos.map(p => {
-      let numero: number;
-
-      if (!this.cambiaSorteo && p.numero_aleatorio && p.numero_aleatorio !== '') {
-        return { ...p, numero: p.numero_aleatorio };
-      }
-
-      do {
-        numero = Math.floor(Math.random() * this.aprobados) + 1;
-      } while (usados.has(numero));
-
-      usados.add(numero);
-
-      return {
-        ...p,
-        numero: numero.toString()
-      };
-    });
-  }
-
-  deshacerSorteo() {
-    Swal.fire({
-      title: "¿Está seguro de deshacer este Sorteo?",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        this.sorteoIniciado = false;
-        this.columnasVisibles = ['position'];
-
-        const registro = { sorteo: this.proyectos[0].sorteo };
-
-        this.service.actualizaProyectoTo(this.tokenSesion, registro).subscribe ({
-          next: (data) => {
-
-            this.service.deleteSorteo(this.tokenSesion, this.proyectos[0].sorteo).subscribe ({
-              next: (data) => { 
-
-                Swal.fire({
-                  title: "Sorteo deshecho con éxito!",
-                  icon: "success",
-                  draggable: false
-                });
-
-                this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
-
-              }, error: (err) => {
-                console.error("Error al actualizar datos del sorteo sorteo", err);
-              }
-            })
-
-          }, error: (err) => {
-
-            console.error("Error al actualizar datos del sorteo sorteo", err);
-
-            if(err.error.code === 160) {
-              this.servicea.cerrarSesionByToken();
-            }
-
-            this.cambiaSorteo = true;
-
-            Swal.fire('Error', 'No se pudo deshacer el sorteo.', 'error')
-          }  
-        });
-
-        this.proyectos = this.proyectos.map(item => ({
-          ...item,
-          numero: ''
-        }));
-
-      }
-    });
-  }
-
-  cambiarOrden() {
-    this.asignarNumerosAleatorios();
-  }
-
   aceptarSorteo() {
 
-    this.service.insertaSorteo(this.tokenSesion).subscribe({
-      next: (data) => {
-        
+    const data = ({
+      id_o: this.id_o,
+      fecha_sentencia: this.fechaSeleccionada,
+      motivo: this.motivo,
+      numero_expediente: this.expediente
+    });
+
+    this.serviceAsignacion.insertaSorteo(data, this.tokenSesion).subscribe({
+      next: (data) => { 
         Swal.fire({
           title: "Sorteo aplicado con éxito!",
           icon: "success",
@@ -301,11 +215,10 @@ export class AsignacionComponent {
         Swal.fire('Error', 'No se pudo crear el sorteo.', 'error')
       }
     });
-
   }
 
   guardaProyectosConSorteo(idSorteo: number) {
-    this.proyectos.forEach((proyecto) => {
+    this.datosProyectosSinNumero.forEach((proyecto) => {
       const registro = {
         folio: proyecto.folio,
         numero_aleatorio: proyecto.numero,
@@ -326,9 +239,8 @@ export class AsignacionComponent {
     });
 
     Swal.fire("Exito", "Sorteo y proyectos guardados correctamente.", "success");
-
-    this.columnasVisibles = ['position'];
-    this.sorteoIniciado = false;
+    this.ocultaTbla = true;
+     this.columnasVisibles = ['id', 'position', 'numero'];
   }
 
   fechaValida = (d: Date | null): boolean => {
@@ -336,7 +248,9 @@ export class AsignacionComponent {
     return d >= this.minFecha && d <= this.maxFecha;
   }
 
-    mostrarAnimacion(cantidad: number = 10, onNumeroAsignado?: (numero: number, index: number) => void) {
+  mostrarAnimacion(cantidad: number, onNumeroAsignado?: (numero: number, index: number) => void) {
+   console.log(cantidad)
+   console.log(this.proyectos)
     const existing = document.getElementById(this.canvasId);
     if (existing) existing.remove();
 
@@ -465,7 +379,16 @@ export class AsignacionComponent {
       const intervalo = setInterval(() => {
         if (indexActual >= pelotas.length) {
           clearInterval(intervalo);
-          setTimeout(() => canvas.remove(), 1000);
+
+          setTimeout(() => {
+            this.cdr.detectChanges();
+            setTimeout(() => {
+              this.ocultarAnimacion();
+              this.sorteoIniciado = true;
+              this.animandoSorteo = false;
+            }, 300);
+          }, 100);
+
           return;
         }
 
@@ -483,9 +406,10 @@ export class AsignacionComponent {
           onNumeroAsignado(numero, indexActual);
         }
 
-        this.proyectos[indexActual].numero = numero.toString();
+        this.datosProyectosSinNumero[indexActual].numero = numero.toString();
 
         indexActual++;
+      
       }, 600);
     }
   }

@@ -56,15 +56,17 @@ mat-form-field {
     color: #fafafa!important;
 }
 
-.buttonOrden {
+.buttonAsignar {
     color: #fafafa!important;
-    background-color: #ad6f1e!important;
+    border-radius: none;
+    background-color: #27ac8f!important;
 }
 
-.buttonOrden:hover {
-    background-color: #be863b!important;
+.buttonAsignar:hover {
+    background-color: #4fd3b6!important;
     color: #fafafa!important;
 }
+
 
 .buttonSorteoD {
     color: #fafafa!important;
