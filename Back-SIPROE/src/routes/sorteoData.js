@@ -103,7 +103,6 @@ router.delete("/deleteSorteo", verifyToken, async (req, res) => {
             .query(`UPDATE 
                 sorteo SET estado = 2 WHERE id = @id;`);
 
-
         return res.status(200).json({
             message: "Registro eliminado correctamente",
             code: 200,

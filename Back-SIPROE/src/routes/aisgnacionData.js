@@ -34,4 +34,106 @@ router.post("/insertaSorteo", verifyToken, async (req, res) => {
     }
 });
 
+router.get("/getSorteosFilter", verifyToken, async (req, res) => {
+    try {
+        const { ut, distrito, tipo } = req.query;
+        
+        if(!ut || !distrito || !tipo){
+            return res.status(400).json({ message: "Datos requeridos"})
+        }
+
+        const tipoNum = Number(tipo);
+        const pool = await connectToDatabase();
+
+        if(tipoNum === 1) {
+            const result = await pool.request()
+            .input('ut', sql.VarChar, ut)
+            .input('distrito', sql.Int, distrito)
+            .query(`
+                SELECT TOP 1
+                    p.id,
+                    p.nombre,
+                    p.folio,
+                    p.numero_aleatorio,
+                    p.dictamen,
+                    p.distrito,
+                    p.sorteo,
+                    p.anio,
+                    p.ut,
+                    c.fecha_sentencia,
+                    c.motivo,
+                    c.numero_expediente,
+                    c.organo_jurisdiccional,
+                    c.fecha,
+                    c.tipo,
+                    c.estado,
+                    ut.ut as nombreUt,
+                    oj.descripcion as organo_descrpcion,
+                    COUNT(*) OVER() AS aprobados,
+                    SUM(CASE WHEN p.sorteo IS NULL OR p.sorteo = '' THEN 1 ELSE 0 END) OVER() AS sortear,
+                    SUM(CASE WHEN p.sorteo IS NOT NULL AND p.sorteo <> '' THEN 1 ELSE 0 END) OVER() AS sorteados
+                FROM proyectos p 
+                    JOIN sorteo c ON p.sorteo = c.id
+                    JOIN unidad_territorial ut ON p.ut = ut.clave_ut
+                    JOIN organo_jurisdiccional oj ON c.organo_jurisdiccional  = oj.id
+                WHERE p.ut = @ut and p.distrito = @distrito and c.estado = 1 and c.tipo = 1;`
+            )
+
+            if (result.recordset.length > 0) {
+                return res.status(200).json({
+                    registrosProyectos: result.recordset
+                });
+            } else {
+                return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            }
+
+        } else {
+            const result = await pool.request()
+            .input('ut', sql.VarChar, ut)
+            .input('distrito', sql.Int, distrito)
+            .query(`
+                SELECT TOP 1
+                    p.id,
+                    p.nombre,
+                    p.folio,
+                    p.numero_aleatorio,
+                    p.dictamen,
+                    p.distrito,
+                    p.sorteo,
+                    p.anio,
+                    p.ut,
+                    c.fecha_sentencia,
+                    c.motivo,
+                    c.numero_expediente,
+                    c.organo_jurisdiccional,
+                    c.fecha,
+                    c.tipo,
+                    c.estado,
+                    ut.ut as nombreUt,
+                    COUNT(*) OVER() AS aprobados,
+                    oj.descripcion as organo_descrpcion,
+                    SUM(CASE WHEN p.sorteo IS NULL OR p.sorteo = '' THEN 1 ELSE 0 END) OVER() AS sortear,
+                    SUM(CASE WHEN p.sorteo IS NOT NULL AND p.sorteo <> '' THEN 1 ELSE 0 END) OVER() AS sorteados
+                FROM proyectos p 
+                    JOIN sorteo c ON p.sorteo = c.id
+                    JOIN unidad_territorial ut ON p.ut = ut.clave_ut
+                    JOIN organo_jurisdiccional oj ON c.organo_jurisdiccional  = oj.id
+                WHERE p.ut = @ut and p.distrito = @distrito and c.estado = 1 and c.tipo = 2;`
+            )
+
+            if (result.recordset.length > 0) {
+                return res.status(200).json({
+                    registrosProyectos: result.recordset
+                });
+            } else {
+                return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            }
+        }
+
+    } catch (error) {
+        console.error("Error: ", error);
+        return res.status(500).json({ message: "Error de servidor", error: error.message0});
+    }
+});
+
 export default router;
