@@ -22,8 +22,8 @@ import { AuthService } from '../../../services/auth.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { getSpanishPaginatorIntl } from '../invitacion/mat-paginator-intl-es';
 import { MatPaginatorIntl } from '@angular/material/paginator';
-
-
+import { ReasignacionService } from '../../../services/reasignacionService/reasignacion.service';
+import { AsignacionService } from '../../../services/asignacionService/asignacion.service';
 @Component({
   selector: 'app-asignacion',
     standalone: true,
@@ -51,263 +51,188 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 })
 export class ReasignacionComponent {
  selectedValues: string = '';
-  sorteoIniciado = false;
-  mostrarDiv: boolean = false;
-  cambiaSorteo = false;
-  idDistrital = sessionStorage.getItem('dir') || '0';
-  tokenSesion = sessionStorage.getItem('key') || '0';
-  selectedUnidad: number | null = null;
-  unidades: any[] = [];
-  proyectos: any[] = [];
-  clave_ut: string = '';
-  aprobados: any;
-  sorteados: any;
-  sortear: any;
-  animandoSorteo!: boolean;
-  sorteadosData!: boolean;
-  guardoSorteo: boolean = false;
-  fechaSeleccionada : Date | null = null;
-  minFecha = new Date(2025, 6, 5);
-  maxFecha = new Date(2025, 6, 9);
+   idDistrital = sessionStorage.getItem('dir') || '0';
+   tokenSesion = sessionStorage.getItem('key') || '0';
+   selectedUnidad: number | null = null;
+   unidades: any[] = [];
+   organos: any[] = [];
+   tipos: any[] = [];
+   proyectos: any[] = [];
+   clave_ut: string = '';
+   aprobados: any;
+   sorteados: any;
+   sortear: any;
+   fechaSeleccionada : Date | null = null;
+   minFecha = new Date(2025, 6, 5);
+   maxFecha = new Date(2025, 6, 9);
+   idOrgano!: Number;
+   private canvasId = 'sorteo-canvas';
+   pSortear: any[] = [];
+   id_o!: Number;
+   motivo: string = '';
+   expediente: string = '';
+ 
+   botonUsado: boolean = false;
+   mostrarDiv: boolean = false;
+   cambiaSorteo = false;
+   sorteadosData!: boolean;
+   guardoSorteo: boolean = false;
+   sorteoIniciado!: boolean;
+   ocultaTbla!: boolean;
+   datosProyectosSinNumero: any[] = [];
+   ocultaIfExist: boolean = false;
+   llenadoForm: boolean = false;
+   showDataAsigned: boolean = false;
+   creoSorteo: boolean = false;
 
-  constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService,  private cdr: ChangeDetectorRef) {}
 
-  ngOnInit(): void {
-    this.servicea.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+   directa: boolean = false;
+   tipoOrgano!: number;
+   idSorteo!: number;
+   organoDescripcion: string = '';
+   
+   constructor(
+    private http: HttpClient, 
+    private servicea: AuthService, 
+    private service: SorteoService, 
+    private serviceReAsignacion: ReasignacionService, private serviceAsignacion: AsignacionService, private cdr: ChangeDetectorRef) {}
+ 
+   ngOnInit(): void {
+     this.servicea.catUnidadFilter(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+       next: (data) => {
+         this.unidades = data.catUnidad;
+       }, error: (err) => {
+         console.error("Error al cargar unidades", err);
+         if(err.error.code === 160) {
+           this.servicea.cerrarSesionByToken();
+         }
+       }
+     });
+ 
+     this.serviceReAsignacion.catRipoSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+       next: (data) => {
+         this.tipos = data.catTipoSorteo;
+       }, error: (err) => {
+         console.error("Error al cargar Organos Jurisiccionales", err);
+         if(err.error.code === 160) {
+           this.servicea.cerrarSesionByToken();
+         }
+       }
+     });
+
+    this.serviceAsignacion.catOrgano(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.unidades = data.catUnidad;
+        this.organos = data.catOrgano;
       }, error: (err) => {
-        console.error("Error al cargar unidades", err);
+        console.error("Error al cargar Organos Jurisiccionales", err);
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
       }
     });
-    
-  }
-
+   }
+ 
   onDistritoChange(element: any){
-    this.mostrarDiv = true;
+    console.log(element)
     this.clave_ut = element.clave_ut;
-    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion)
+  }
+ 
+  onTipoChange(element: any){
+    this.tipoOrgano = element.id;
+    this.mostrarDiv = true;
+    this.botonUsado = false;
+    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tipoOrgano, this.tokenSesion);
   }
 
+  getDataProyectos(ut: string, distrito: number, tipoOrgano: number, token: string) {
+    this.serviceReAsignacion.getDataProyectos(ut, distrito, tipoOrgano, token).subscribe({
+      next: (data) => {
 
-  getDataProyectos(ut: string, distrito: number, token: string) {
-    this.service.getDataProyectos(ut, distrito, token).subscribe({
-      next: (data) => {        
         this.proyectos = data.registrosProyectos;
-
+        console.log(this.proyectos)
+        this.idSorteo = this.proyectos[0].sorteo;
         this.aprobados = this.proyectos[0].aprobados;
         this.sorteados = this.proyectos[0].sorteados;
         this.sortear = this.proyectos[0].sortear;
+  
+        
+        if(this.proyectos.length > 0){
+          this.fechaSeleccionada = this.proyectos[0].fecha_sentencia;
+          this.motivo = this.proyectos[0].motivo;
+          this.organoDescripcion = this.proyectos[0].organo_jurisdiccional;
 
-        if(this.sorteados === 0){
-          this.sorteadosData = false;
-        } else {
-          this.sorteadosData = true;
+          console.log(this.organoDescripcion)
+          this.llenadoForm = true;
         }
-
-        const hayNumeros = this.proyectos.some(p => p.numero_aleatorio && p.numero_aleatorio !== '');
-
-        if (hayNumeros) {
-          this.sorteoIniciado = true;
-          this.columnasVisibles = ['position', 'numero'];
-
-          this.proyectos = this.proyectos.map(p => ({
-            ...p,
-            numero: p.numero_aleatorio
-          }));
-        } else {
-          this.sorteoIniciado = false;
-          this.columnasVisibles = ['position'];
-        }
+        
       },
       error: (err) => {
         console.error("Error al cargar proyectos", err);
         if (err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+        if(err.error.code === 100) {
+          this.proyectos = [];
+          this.mostrarDiv = false;
+          this.guardoSorteo = true;
+          Swal.fire("No se encontraron registros")
+        }
       }
     });
   }
-
-  columnasVisibles = ['position'];
-
-  iniciarSorteo() {
-    this.cambiaSorteo = false;
-    console.log(this.proyectos)
-    // this.service.mostrarAnimacion(this.proyectos.length, (numero, index) => {
-    //   this.proyectos[index].numero_aleatorio = numero.toString();
-    //   this.cdr.detectChanges();
-    // });
-    
-    // setTimeout(() => {
-    //   this.asignarNumerosAleatorios();
-    //   this.sorteoIniciado = true;
-    //   this.columnasVisibles = ['position', 'numero'];
-    //   this.service.ocultarAnimacion();
-    // }, 5000);
-         
-    // if(this.sortear >0){
-    //   this.guardoSorteo = true
-    // }
-
-  }
-
-  asignarNumerosAleatorios() {
-    const usados = new Set<number>();
-
-    if (!this.cambiaSorteo) {
-      this.proyectos.forEach(p => {
-        const n = parseInt(p.numero_aleatorio);
-        if (!isNaN(n)) usados.add(n);
-      });
-    }
-
-    this.proyectos = this.proyectos.map(p => {
-      let numero: number;
-
-      if (!this.cambiaSorteo && p.numero_aleatorio && p.numero_aleatorio !== '') {
-        return { ...p, numero: p.numero_aleatorio };
-      }
-
-      do {
-        numero = Math.floor(Math.random() * this.aprobados) + 1;
-      } while (usados.has(numero));
-
-      usados.add(numero);
-
-      return {
-        ...p,
-        numero: numero.toString()
-      };
-    });
-  }
-
+ 
+  columnasVisibles = ['year', 'sorteo', 'clave', 'ut', 'fecha', 'total'];
+   
   deshacerSorteo() {
+    this.sorteoIniciado = false;
+    this.guardoSorteo = false;
+    this.proyectos = [];
+    this.botonUsado = false;
+    this.selectedUnidad = null;
+    this.mostrarDiv = false;
+    this.ocultaTbla = false;
+    this.datosProyectosSinNumero = [];
+    this.ocultaIfExist = false;
+    this.llenadoForm = false;
+    this.motivo = '';
+    this.fechaSeleccionada = null;
+    this.expediente = '';
+  }
+
+  eliminarSorteo() {
+
     Swal.fire({
-      title: "¿Está seguro de deshacer este Sorteo?",
+      title: "¿Está seguro de eliminar este Sorteo?",
+      icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Aceptar",
-      cancelButtonText: "Cancelar",
+      cancelButtonText: "Cancelar"
     }).then((result) => {
       if (result.isConfirmed) {
 
-        this.sorteoIniciado = false;
-        this.columnasVisibles = ['position'];
-
-        const registro = { sorteo: this.proyectos[0].sorteo };
-
-        this.service.actualizaProyectoTo(this.tokenSesion, registro).subscribe ({
+        this.service.deleteSorteo(this.tokenSesion, this.idSorteo).subscribe({
           next: (data) => {
-
-            this.service.deleteSorteo(this.tokenSesion, this.proyectos[0].sorteo).subscribe ({
-              next: (data) => { 
-
-                Swal.fire({
-                  title: "Sorteo deshecho con éxito!",
-                  icon: "success",
-                  draggable: false
-                });
-
-                this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
-
-              }, error: (err) => {
-                console.error("Error al actualizar datos del sorteo sorteo", err);
-              }
-            })
-
+            Swal.fire("Sorteo de eliminado con éxito");
           }, error: (err) => {
-
-            console.error("Error al actualizar datos del sorteo sorteo", err);
-
-            if(err.error.code === 160) {
+            console.error("Error al cargar proyectos", err);
+            if (err.error.code === 160) {
               this.servicea.cerrarSesionByToken();
             }
-
-            this.cambiaSorteo = true;
-
-            Swal.fire('Error', 'No se pudo deshacer el sorteo.', 'error')
-          }  
-        });
-
-        this.proyectos = this.proyectos.map(item => ({
-          ...item,
-          numero: ''
-        }));
-
-      }
-    });
-  }
-
-  cambiarOrden() {
-    this.asignarNumerosAleatorios();
-  }
-
-  aceptarSorteo() {
-
-    this.service.insertaSorteo(this.tokenSesion).subscribe({
-      next: (data) => {
-        
-        Swal.fire({
-          title: "Sorteo aplicado con éxito!",
-          icon: "success",
-          draggable: true
-        });
-
-        const idSorteo = data.id;
-        this.guardaProyectosConSorteo(idSorteo);
-        this.guardoSorteo = false;
-
-      }, error: (err) => {
-        console.error("Error al crear sorteo", err);
-
-        if(err.error.code === 160) {
-          this.servicea.cerrarSesionByToken();
-        }
-
-        Swal.fire('Error', 'No se pudo crear el sorteo.', 'error')
-      }
-    });
-
-  }
-
-  guardaProyectosConSorteo(idSorteo: number) {
-    this.proyectos.forEach((proyecto) => {
-      const registro = {
-        folio: proyecto.folio,
-        numero_aleatorio: proyecto.numero,
-        sorteo: idSorteo
-      };
-
-      this.service.actualizaProyecto(this.tokenSesion, registro).subscribe({
-        next: (resp) => {
-          this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
-        }, error: (err) => {
-          console.error("Error al guardar proyecto", registro, err);
-
-          if(err.error.code === 160) {
-            this.servicea.cerrarSesionByToken();
+            if(err.error.code === 100) {
+              this.proyectos = [];
+              this.guardoSorteo = true;
+              Swal.fire("Error al eliminar sorteo");
+            }
           }
-        }
-      });
+        })
+      }
     });
-
-    Swal.fire("Exito", "Sorteo y proyectos guardados correctamente.", "success");
-
-    this.columnasVisibles = ['position'];
-    this.sorteoIniciado = false;
   }
 
   fechaValida = (d: Date | null): boolean => {
     if (!d) return false;
     return d >= this.minFecha && d <= this.maxFecha;
-  }
-
-
-  displayedColumns: string[] = ['año', 'sorteo', 'clave', 'ut', 'fecha', 'total'];
-
+  }   
 }

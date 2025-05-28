@@ -1,15 +1,21 @@
 <mat-card class="sorteo-card" appearance="outlined">
     <mat-card-header class="header-content">
-      <mat-card-title class="label-header">Reasignación de Sorteo de Asignación Directa y Eliminación de Sorteos
-</mat-card-title>
+      <mat-card-title class="label-header">Reasignación de Sorteo de Asignación Directa y Eliminación de Sorteos</mat-card-title>
       
       <div class="form-section">
+        <label class="form-label">Seleccione una Unidad Territorial</label>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Seleccione unidad territorial</mat-label>
-          <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
+          <mat-select placeholder="Seleccione unidad territorial" (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
             <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
           </mat-select>
         </mat-form-field>
+               
+        <label class="form-label">Seleccione el Tipo de Sorteo</label>
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-select placeholder="Seleccione el Tipo de Sorteo" (selectionChange)="onTipoChange($event.value)" disableRipple>
+                <mat-option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo.descripcion }}</mat-option>
+            </mat-select>
+        </mat-form-field>   
       </div>
     </mat-card-header>
 
@@ -17,7 +23,7 @@
         <div *ngIf="mostrarDiv">
             <mat-card-title class="label-header">Inventario de proyectos de la Unidad Territorial</mat-card-title>
             
-            <mat-grid-list cols="3" rowHeight="100px">
+            <mat-grid-list class="marginCards" cols="3" rowHeight="100px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1">
                     <mat-card class="inventario-card" appearance="outlined">
                         <mat-card-content class="inventario-content">
@@ -46,94 +52,95 @@
                     </mat-card>
                 </mat-grid-tile>
             </mat-grid-list>
-            
-            <div class="mat-elevation-z8 padContent">
+
+            <div class="sizeColumns">
+              <div class="mat-elevation-z8">
                 <table mat-table [dataSource]="proyectos" class="custom-table">
 
-                    <ng-container matColumnDef="año">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Año</b> </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell"> {{element.folio}} </td>
+                    <ng-container matColumnDef="year">
+                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Año</b> </th>
+                      <td mat-cell *matCellDef="let element; let i = index"> {{2025}} </td>
                     </ng-container>
 
-                    <ng-container matColumnDef="sorteo" >
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> <b>ID Sorteo</b> </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell"> {{element.numero}} </td>
+                    <ng-container matColumnDef="sorteo">
+                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b> ID Sorteo</b> </th>
+                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.sorteo}} </td>
                     </ng-container>
-                    
+
                     <ng-container matColumnDef="clave">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Clave UT</b> </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell"> {{element.folio}} </td>
+                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Clave UT</b> </th>
+                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.ut}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="ut">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> <b>UT</b> </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell"> {{element.numero}} </td>
+                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>UT</b> </th>
+                      <td mat-cell *matCellDef="let element; let i = index"> {{element.nombreUt}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="fecha">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Fecha del Sorteo</b> </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell"> {{element.folio}} </td>
+                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Fecha del Sorteo</b> </th>
+                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.folio}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="total">
-                        <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Total Proyectos Sorteados</b> </th>
-                        <td mat-cell *matCellDef="let element" class="center-cell"> {{element.numero}} </td>
+                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Total Proyectos Sorteados</b> </th>
+                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.aprobados}} </td>
                     </ng-container>
 
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    <tr mat-header-row *matHeaderRowDef="columnasVisibles"></tr>
+                    <tr mat-row *matRowDef="let row; columns: columnasVisibles;"></tr>
+
                 </table>
-            </div>
+              </div>
+            </div>            
         </div>
     </mat-card-content>
 
     <mat-card-header *ngIf="mostrarDiv" class="header-content padContent">
-        <mat-card-title class="label-header">Detalles de la Asignación Directa</mat-card-title>
+        <mat-card-title class="label-header">Detalles de la cancelación/eliminación</mat-card-title>
         
         <div class="form-section">
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Seleccione el Órgano Jurisdiccional</mat-label>
-                <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
-                    <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
+                <mat-select [(ngModel)]="organoDescripcion" disableRipple>
+                    <mat-option *ngFor="let organo of organos" [value]="organo.id">{{ organo.descripcion }}</mat-option>
                 </mat-select>
             </mat-form-field>
 
             <label class="form-label">Ingrese la fecha de la resolución o sentencia:</label>
             <mat-form-field class="full-width">
                 <mat-label>Selecciona la fecha</mat-label>
-                <input matInput [matDatepicker]="datepicker" [(ngModel)]="fechaSeleccionada" [matDatepickerFilter]="fechaValida">
+                <input [disabled]="llenadoForm" matInput [matDatepicker]="datepicker" [(ngModel)]="fechaSeleccionada" [matDatepickerFilter]="fechaValida">
                 <mat-datepicker #datepicker />
                 <mat-datepicker-toggle [for]="datepicker" matSuffix/>
             </mat-form-field>
 
             <label class="form-label">Ingrese el motivo:</label>
             <mat-form-field class="full-width">
-                <textarea matInput placeholder="Ingrese el motivo"></textarea>
+                <textarea [disabled]="llenadoForm" [(ngModel)]="motivo" matInput placeholder="Ingrese el motivo"></textarea>
             </mat-form-field>
 
             <label class="form-label">Ingrese el Número de Expediente:</label>
             <mat-form-field class="full-width">
-                <input matInput placeholder="Ingrese el Número de Expediente">
+                <input [disabled]="llenadoForm" [(ngModel)]="expediente" matInput placeholder="Ingrese el Número de Expediente">
             </mat-form-field>
 
-            <mat-grid-list cols="2" rowHeight="100px">
-                <mat-grid-tile [colspan]="1" [rowspan]="1" *ngIf="!sorteoIniciado">
-                    <button mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
-                </mat-grid-tile>
-                 <mat-grid-tile [colspan]="1" [rowspan]="1" *ngIf="sorteoIniciado">
-                    <button [disabled]="sorteadosData" mat-fab extended color="accent"  (click)="aceptarSorteo()">
-                        <span *ngIf="sorteoIniciado">Aceptar el Sorteo</span>
+            <mat-grid-list cols="3" rowHeight="100px">
+                <mat-grid-tile [colspan]="1" [rowspan]="1">
+                    <button class="buttonSorteo" mat-fab extended color="primary" (click)="eliminarSorteo()">
+                        <span *ngIf="directa">Cancelar Asignación Directa</span>
+                        <span *ngIf="!directa">Cancelar Asignación</span>
                     </button>
                 </mat-grid-tile>
+                 <mat-grid-tile [colspan]="1" [rowspan]="1">
+                    <button class="buttonAsignar" mat-fab extended color="accent"  (click)="eliminarSorteo()">Eliminar Sorteo</button>
+                </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1">
-                    <button [disabled]="guardoSorteo" mat-fab extended color="warn" *ngIf="sorteoIniciado" (click)="deshacerSorteo()">Deshacer el Sorteo</button>
+                    <button class="buttonSorteoD" mat-fab extended color="warn"  (click)="deshacerSorteo()">Cancelar</button>
                 </mat-grid-tile>
             </mat-grid-list>
         </div>
     </mat-card-header>
 </mat-card>
 
-<div *ngIf="animandoSorteo" class="overlay">
-  <canvas id="canvas" width="400" height="300"></canvas>
-</div>
 <app-footer></app-footer>

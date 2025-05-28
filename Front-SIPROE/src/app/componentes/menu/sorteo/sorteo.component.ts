@@ -156,7 +156,6 @@ export class SorteoComponent {
   }
 
   deshacerSorteo() {
-      // Reset relevant variables to their initial states
     this.sorteoIniciado = false;
     this.guardoSorteo = false;
     this.proyectos = [];

@@ -47,16 +47,16 @@
                 </mat-grid-tile>
             </mat-grid-list>
 
-            <div class="sizeColumns" *ngIf="!ocultaTbla">
+            <div class="sizeColumns" *ngIf="!showDataAsigned">
               <div id="container">
                   <canvas #canvas width="400" height="300"></canvas>
               </div>
 
               <div class="mat-elevation-z8">
-                <table mat-table [dataSource]="datosProyectosSinNumero" class="custom-table">
+                <table mat-table [dataSource]="datosProyectosSinNumero " class="custom-table">
 
-                    <ng-container matColumnDef="consecutivo">
-                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>consecutivo</b> </th>
+                    <ng-container matColumnDef="id">
+                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Consecutivo</b> </th>
                       <td mat-cell *matCellDef="let element; let i = index"> {{ i + 1 }} </td>
                     </ng-container>
 
@@ -76,13 +76,17 @@
               </div>
             </div>
 
-            <div class="sizeColumns" *ngIf="ocultaTbla">
-              
+            <div class="sizeColumns" *ngIf="showDataAsigned">
+
+                <div id="container">
+                  <canvas #canvas width="400" height="300"></canvas>
+              </div>
+
               <div class="mat-elevation-z8">
-                <table mat-table [dataSource]="proyectos" class="custom-table">
+                <table mat-table [dataSource]="proyectos " class="custom-table">
 
                     <ng-container matColumnDef="id">
-                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Id</b> </th>
+                      <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Consecutivo</b> </th>
                       <td mat-cell *matCellDef="let element; let i = index"> {{ i + 1 }} </td>
                     </ng-container>
 
@@ -108,7 +112,7 @@
     <mat-card-header *ngIf="mostrarDiv" class="header-content padContent">
         <mat-card-title *ngIf="!ocultaIfExist" class="label-header">Detalles de la Asignación Directa</mat-card-title>
         
-        <div class="form-section" *ngIf="!ocultaIfExist">
+        <div class="form-section">
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Seleccione el Órgano Jurisdiccional</mat-label>
                 <mat-select [disabled]="llenadoForm" (selectionChange)="onOrganoChange($event.value)" disableRipple>
@@ -134,14 +138,17 @@
                 <input [disabled]="llenadoForm" [(ngModel)]="expediente" matInput placeholder="Ingrese el Número de Expediente">
             </mat-form-field>
 
-            <mat-grid-list cols="1" rowHeight="100px">
+            <mat-grid-list cols="2" rowHeight="100px">
                 <mat-grid-tile *ngIf="!sorteoIniciado" [colspan]="1" [rowspan]="1">
-                    <button [disabled]="!fechaSeleccionada || !id_o || !motivo || !expediente" mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
+                    <button class="buttonSorteo" [disabled]="!fechaSeleccionada || !id_o || !motivo || !expediente" mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
                 </mat-grid-tile>
                  <mat-grid-tile *ngIf="sorteoIniciado" [colspan]="1" [rowspan]="1">
-                    <button mat-fab extended color="accent"  (click)="aceptarSorteo()">
+                    <button [disabled]="creoSorteo" class="buttonAsignar" mat-fab extended color="accent"  (click)="aceptarSorteo()">
                         <span *ngIf="sorteoIniciado">Asignar</span>
                     </button>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="1" [rowspan]="1">
+                    <button class="buttonSorteoD" mat-fab extended color="warn" *ngIf="sorteoIniciado" (click)="deshacerSorteo()">Cancelar</button>
                 </mat-grid-tile>
             </mat-grid-list>
         </div>

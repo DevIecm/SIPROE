@@ -49,6 +49,7 @@ mat-form-field {
     color: #fafafa!important;
     border-radius: none;
     background-color: #6745e0!important;
+    border-radius: 7px;
 }
 
 .buttonSorteo:hover {
@@ -56,23 +57,41 @@ mat-form-field {
     color: #fafafa!important;
 }
 
-.buttonOrden {
+.buttonSorteo:disabled {
+    background-color: #dddee9!important;
     color: #fafafa!important;
-    background-color: #ad6f1e!important;
 }
 
-.buttonOrden:hover {
-    background-color: #be863b!important;
+.buttonAsignar {
+    color: #fafafa!important;
+    border-radius: none;
+    background-color: #27ac8f!important;
+    border-radius: 7px;
+}
+
+.buttonAsignar:hover {
+    background-color: #4fd3b6!important;
+    color: #fafafa!important;
+}
+
+.buttonAsignar:disabled {
+    background-color: #dddee9!important;
     color: #fafafa!important;
 }
 
 .buttonSorteoD {
     color: #fafafa!important;
     background-color: #af2525!important;
+    border-radius: 7px;
 }
 
 .buttonSorteoD:hover {
     background-color: #cc4c4c!important;
+    color: #fafafa!important;
+}
+
+.buttonSorteoD:disabled {
+    background-color: #dddee9!important;
     color: #fafafa!important;
 }
 
