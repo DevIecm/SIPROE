@@ -102,7 +102,7 @@
         <div class="form-section">
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Seleccione el Órgano Jurisdiccional</mat-label>
-                <mat-select [(ngModel)]="organoDescripcion" disableRipple>
+                <mat-select [disabled]="llenadoForm" [(ngModel)]="organoDescripcion" disableRipple>
                     <mat-option *ngFor="let organo of organos" [value]="organo.id">{{ organo.descripcion }}</mat-option>
                 </mat-select>
             </mat-form-field>

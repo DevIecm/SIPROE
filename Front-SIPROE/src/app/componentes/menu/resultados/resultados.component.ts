@@ -11,17 +11,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIcon } from '@angular/material/icon';
-import { SorteoService } from '../../../services/sorteoService/sorteo.service';
 import { AuthService } from '../../../services/auth.service';
-import { provideNativeDateAdapter } from '@angular/material/core';
-import { getSpanishPaginatorIntl } from '../invitacion/mat-paginator-intl-es';
-import { MatPaginatorIntl } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-resultados',

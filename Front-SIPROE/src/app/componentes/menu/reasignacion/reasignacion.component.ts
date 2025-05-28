@@ -89,7 +89,7 @@ export class ReasignacionComponent {
    directa: boolean = false;
    tipoOrgano!: number;
    idSorteo!: number;
-   organoDescripcion: string = '';
+   organoDescripcion!: number;
    
    constructor(
     private http: HttpClient, 
@@ -133,7 +133,6 @@ export class ReasignacionComponent {
    }
  
   onDistritoChange(element: any){
-    console.log(element)
     this.clave_ut = element.clave_ut;
   }
  
@@ -149,7 +148,6 @@ export class ReasignacionComponent {
       next: (data) => {
 
         this.proyectos = data.registrosProyectos;
-        console.log(this.proyectos)
         this.idSorteo = this.proyectos[0].sorteo;
         this.aprobados = this.proyectos[0].aprobados;
         this.sorteados = this.proyectos[0].sorteados;
@@ -160,8 +158,7 @@ export class ReasignacionComponent {
           this.fechaSeleccionada = this.proyectos[0].fecha_sentencia;
           this.motivo = this.proyectos[0].motivo;
           this.organoDescripcion = this.proyectos[0].organo_jurisdiccional;
-
-          console.log(this.organoDescripcion)
+          this.expediente = this.proyectos[0].numero_expediente;
           this.llenadoForm = true;
         }
         
@@ -197,6 +194,7 @@ export class ReasignacionComponent {
     this.motivo = '';
     this.fechaSeleccionada = null;
     this.expediente = '';
+    this.organoDescripcion = 0;
   }
 
   eliminarSorteo() {
