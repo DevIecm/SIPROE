@@ -112,7 +112,6 @@ export class AsignacionComponent {
   }
 
   onDistritoChange(element: any){
-    console.log(element)
     this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
     this.botonUsado = false;
@@ -142,7 +141,6 @@ export class AsignacionComponent {
           this.mostrarAnimacion(this.datosProyectosSinNumero.length, (numero, index) => {});
           this.columnasVisibles = ['id', 'position', 'numero'];
         } else {
-          console.log(this.proyectos)
           this.fechaSeleccionada = this.proyectos[0].fecha_sentencia;
           this.motivo = this.proyectos[0].motivo;
           this.organoDescripcion = this.proyectos[0].organo_jurisdiccional;
