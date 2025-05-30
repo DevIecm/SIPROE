@@ -54,6 +54,7 @@ export class ReasignacionComponent {
    idDistrital = sessionStorage.getItem('dir') || '0';
    tokenSesion = sessionStorage.getItem('key') || '0';
    selectedUnidad: number | null = null;
+   selectedTipo: number | null = null;
    unidades: any[] = [];
    organos: any[] = [];
    tipos: any[] = [];
@@ -66,12 +67,11 @@ export class ReasignacionComponent {
    minFecha = new Date(2025, 6, 5);
    maxFecha = new Date(2025, 6, 9);
    idOrgano!: Number;
-   private canvasId = 'sorteo-canvas';
    pSortear: any[] = [];
    id_o!: Number;
    motivo: string = '';
    expediente: string = '';
- 
+   cambioDistrito: boolean = false;
    botonUsado: boolean = false;
    mostrarDiv: boolean = false;
    cambiaSorteo = false;
@@ -84,8 +84,8 @@ export class ReasignacionComponent {
    llenadoForm: boolean = false;
    showDataAsigned: boolean = false;
    creoSorteo: boolean = false;
-
-
+   mostrarAsignacion: boolean = false;
+   muestraBotones: boolean = false;
    directa: boolean = false;
    tipoOrgano!: number;
    idSorteo!: number;
@@ -98,31 +98,25 @@ export class ReasignacionComponent {
     private serviceReAsignacion: ReasignacionService, private serviceAsignacion: AsignacionService, private cdr: ChangeDetectorRef) {}
  
    ngOnInit(): void {
-     this.servicea.catUnidadFilter(parseInt(this.idDistrital), this.tokenSesion).subscribe({
-       next: (data) => {
-         this.unidades = data.catUnidad;
-       }, error: (err) => {
-         console.error("Error al cargar unidades", err);
-         if(err.error.code === 160) {
-           this.servicea.cerrarSesionByToken();
-         }
-       }
-     });
- 
-     this.serviceReAsignacion.catRipoSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
-       next: (data) => {
-         this.tipos = data.catTipoSorteo;
-       }, error: (err) => {
-         console.error("Error al cargar Organos Jurisiccionales", err);
-         if(err.error.code === 160) {
-           this.servicea.cerrarSesionByToken();
-         }
-       }
-     });
 
-    this.serviceAsignacion.catOrgano(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+    this.mostrarAsignacion = true;
+    this.muestraBotones = true;
+
+    this.servicea.catUnidadFilter(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.organos = data.catOrgano;
+        this.unidades = data.catUnidad;
+        this.selectedTipo = null;
+      }, error: (err) => {
+        console.error("Error al cargar unidades", err);
+        if(err.error.code === 160) {
+          this.servicea.cerrarSesionByToken();
+        }
+      }
+    });
+
+    this.serviceReAsignacion.catRipoSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+      next: (data) => {
+        this.tipos = data.catTipoSorteo;
       }, error: (err) => {
         console.error("Error al cargar Organos Jurisiccionales", err);
         if(err.error.code === 160) {
@@ -130,14 +124,22 @@ export class ReasignacionComponent {
         }
       }
     });
+
+
    }
  
   onDistritoChange(element: any){
     this.clave_ut = element.clave_ut;
+    this.selectedTipo = null;
+    this.proyectos = [];
+    this.mostrarDiv = false;
+    this.cambioDistrito = true;
+    this.mostrarAsignacion = true;
   }
  
   onTipoChange(element: any){
     this.tipoOrgano = element.id;
+    if(element.id === 1 ) { this.directa = true } else { this.directa = false}
     this.mostrarDiv = true;
     this.botonUsado = false;
     this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tipoOrgano, this.tokenSesion);
@@ -155,11 +157,20 @@ export class ReasignacionComponent {
   
         
         if(this.proyectos.length > 0){
-          this.fechaSeleccionada = this.proyectos[0].fecha_sentencia;
-          this.motivo = this.proyectos[0].motivo;
-          this.organoDescripcion = this.proyectos[0].organo_jurisdiccional;
-          this.expediente = this.proyectos[0].numero_expediente;
-          this.llenadoForm = true;
+          if(this.proyectos[0].tipo === 1){
+            this.llenadoForm = true;
+            this.mostrarAsignacion = false;
+            this.muestraBotones = false;
+            this.cambioDistrito =  false;
+          } else {
+            this.fechaSeleccionada = this.proyectos[0].fecha_sentencia;
+            this.motivo = this.proyectos[0].motivo;
+            this.organoDescripcion = this.proyectos[0].organo_jurisdiccional;
+            this.expediente = this.proyectos[0].numero_expediente;
+            this.llenadoForm = true;
+            this.mostrarAsignacion = false;
+            this.muestraBotones = true;
+          }
         }
         
       },
@@ -172,6 +183,7 @@ export class ReasignacionComponent {
           this.proyectos = [];
           this.mostrarDiv = false;
           this.guardoSorteo = true;
+          this.cambioDistrito = true;
           Swal.fire("No se encontraron registros")
         }
       }
@@ -195,6 +207,32 @@ export class ReasignacionComponent {
     this.fechaSeleccionada = null;
     this.expediente = '';
     this.organoDescripcion = 0;
+    this.selectedTipo = null;
+    this.mostrarAsignacion = true;
+  }
+
+  cancelarAsignacion() {
+    if(this.directa){
+
+      const registro = {
+        sorteo: this.idSorteo
+      };
+
+      this.serviceReAsignacion.actualizaProyecto(this.tokenSesion, registro).subscribe({
+              next: (resp) => {
+                Swal.fire("Sorteo de eliminado con éxito");
+                this.deshacerSorteo();
+              }, error: (err) => {
+                console.error("Error al guardar proyecto", registro, err);
+
+                if(err.error.code === 160) {
+                  this.servicea.cerrarSesionByToken();
+                }
+              }
+            });
+    } else {
+      console.log("directa")
+    }
   }
 
   eliminarSorteo() {
@@ -210,11 +248,28 @@ export class ReasignacionComponent {
     }).then((result) => {
       if (result.isConfirmed) {
 
-        this.service.deleteSorteo(this.tokenSesion, this.idSorteo).subscribe({
+        this.serviceReAsignacion.deleteSorteo(this.tokenSesion, this.idSorteo).subscribe({
           next: (data) => {
-            Swal.fire("Sorteo de eliminado con éxito");
+            
+            this.idSorteo = data.id;
+
+            const registro = {
+              sorteo: this.idSorteo
+            };
+
+            this.serviceReAsignacion.actualizaProyecto(this.tokenSesion, registro).subscribe({
+              next: (resp) => {
+                Swal.fire("Sorteo de eliminado con éxito");
+                this.deshacerSorteo();
+              }, error: (err) => {
+                console.error("Error al guardar proyecto", registro, err);
+
+                if(err.error.code === 160) {
+                  this.servicea.cerrarSesionByToken();
+                }
+              }
+            });
           }, error: (err) => {
-            console.error("Error al cargar proyectos", err);
             if (err.error.code === 160) {
               this.servicea.cerrarSesionByToken();
             }

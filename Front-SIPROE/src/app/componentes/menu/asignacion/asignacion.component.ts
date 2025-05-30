@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -63,15 +63,12 @@ export class AsignacionComponent {
   sorteados: any;
   sortear: any;
   fechaSeleccionada : Date | null = null;
-  minFecha = new Date(2025, 6, 5);
-  maxFecha = new Date(2025, 6, 9);
   idOrgano!: Number;
   private canvasId = 'sorteo-canvas';
   pSortear: any[] = [];
   id_o!: Number;
   motivo: string = '';
   expediente: string = '';
-
   botonUsado: boolean = false;
   mostrarDiv: boolean = false;
   cambiaSorteo = false;
@@ -85,11 +82,13 @@ export class AsignacionComponent {
   llenadoForm: boolean = false;
   showDataAsigned: boolean = false;
   creoSorteo: boolean = false;
-  
+  organoDescripcion!: number;
+
+  @ViewChild('canvasContainer', { static: false }) canvasContainerRef!: ElementRef<HTMLDivElement>;
   constructor(private http: HttpClient,  private servicea: AuthService, private service: SorteoService, private serviceAsignacion: AsignacionService,  private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.servicea.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+    this.servicea.catUnidadFilterSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
         this.unidades = data.catUnidad;
       }, error: (err) => {
@@ -113,10 +112,10 @@ export class AsignacionComponent {
   }
 
   onDistritoChange(element: any){
+    console.log(element)
     this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
     this.botonUsado = false;
-
     this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
   }
 
@@ -128,41 +127,40 @@ export class AsignacionComponent {
     this.service.getDataProyectos(ut, distrito, token).subscribe({
       next: (data) => {
         this.proyectos = data.registrosProyectos;
-        this.aprobados = this.proyectos[0].aprobados;
-        this.sorteados = this.proyectos[0].sorteados;
-        this.sortear = this.proyectos[0].sortear;
-  
-        const proyectosSinNumero = this.proyectos.filter(p => !p.numero_aleatorio || p.numero_aleatorio === '');
+        this.aprobados = this.proyectos[0]?.aprobados ?? 0;
+        this.sorteados = this.proyectos[0]?.sorteados ?? 0;
+        this.sortear = this.proyectos[0]?.sortear ?? 0;
+
         this.datosProyectosSinNumero = this.proyectos.filter(p => !p.numero_aleatorio || p.numero_aleatorio === '');
-        
-        if(proyectosSinNumero.length > 0){
+
+        if (this.datosProyectosSinNumero.length > 0) {
           this.showDataAsigned = false;
           this.animandoSorteo = false;
           this.ocultaIfExist = false;
           this.ocultaTbla = false;
           this.llenadoForm = false;
-          this.mostrarAnimacion(proyectosSinNumero.length, (numero, index) => {});
-          this.datosProyectosSinNumero = this.datosProyectosSinNumero .map(p => ({
-            ...p,
-            numero: p.numero_aleatorio
-          }));
-          
+          this.mostrarAnimacion(this.datosProyectosSinNumero.length, (numero, index) => {});
           this.columnasVisibles = ['id', 'position', 'numero'];
         } else {
+          console.log(this.proyectos)
+          this.fechaSeleccionada = this.proyectos[0].fecha_sentencia;
+          this.motivo = this.proyectos[0].motivo;
+          this.organoDescripcion = this.proyectos[0].organo_jurisdiccional;
+          this.expediente = this.proyectos[0].numero_expediente;
+
           this.ocultaIfExist = true;
           this.ocultaTbla = true;
           this.ocultarAnimacion();
           this.animandoSorteo = false;
           this.llenadoForm = true;
+          this.showDataAsigned = true;
+
           this.proyectos = this.proyectos.map(p => ({
             ...p,
             numero: p.numero_aleatorio
           }));
-          this.llenadoForm = true;
-          this.showDataAsigned = true
           this.columnasVisibles = ['position', 'numero'];
         }
-
       },
       error: (err) => {
         console.error("Error al cargar proyectos", err);
@@ -202,9 +200,15 @@ export class AsignacionComponent {
     this.botonUsado = true;
     this.llenadoForm = true;
 
-    this.mostrarAnimacion(this.proyectos.length, (numero, index) => {
-      this.datosProyectosSinNumero[index].numero_aleatorio = numero.toString();
-      this.cdr.detectChanges();
+    this.mostrarAnimacion(this.datosProyectosSinNumero.length, (numero, index) => {
+      const proyectoSinNumero = this.datosProyectosSinNumero[index];
+        const proyecto = this.proyectos.find(p => p.id === proyectoSinNumero.id);
+
+        if (proyecto) {
+          proyecto.numero_aleatorio = numero.toString();
+        }
+
+        this.cdr.detectChanges();
     });
     
     if(this.sortear > 0) {
@@ -232,6 +236,17 @@ export class AsignacionComponent {
         const idSorteo = data.id;
         this.guardaProyectosConSorteo(idSorteo);
         this.guardoSorteo = false;
+        this.deshacerSorteo();
+        this.servicea.catUnidadFilterSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+          next: (data) => {
+            this.unidades = data.catUnidad;
+          }, error: (err) => {
+            console.error("Error al cargar unidades", err);
+            if(err.error.code === 160) {
+              this.servicea.cerrarSesionByToken();
+            }
+          }
+        });
 
       }, error: (err) => {
         console.error("Error al crear sorteo", err);
@@ -272,12 +287,8 @@ export class AsignacionComponent {
     this.creoSorteo = true;
   }
 
-  fechaValida = (d: Date | null): boolean => {
-    if (!d) return false;
-    return d >= this.minFecha && d <= this.maxFecha;
-  }
-
   mostrarAnimacion(cantidad: number, onNumeroAsignado?: (numero: number, index: number) => void) {
+
     const existing = document.getElementById(this.canvasId);
     if (existing) existing.remove();
 
@@ -291,10 +302,14 @@ export class AsignacionComponent {
     canvas.style.transform = 'translate(-50%, -50%)';
     canvas.style.zIndex = '1000';
 
-    const container = document.getElementById('container');
-    if (container) {
+    requestAnimationFrame(() => {
+      const container = document.getElementById('container');
+      if (container) {
         container.appendChild(canvas);
-    }
+      } else {
+        console.warn('No se encontró el contenedor para la animación');
+      }
+    });
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -398,18 +413,20 @@ export class AsignacionComponent {
 
     animar();
 
-    const usados = new Set<number>();
-    let indexActual = 0;
-
     if(this.botonUsado){
+      // const totalNumeros = this.proyectos.length;
+      const posiblesNumeros = Array.from({ length: this.proyectos.length }, (_, i) => i + 1);
 
-      const posiblesNumeros = Array.from({ length: cantidad }, (_, i) => i + 1);
+      if (posiblesNumeros.length < this.datosProyectosSinNumero.length) {
+        console.error('No hay suficientes números disponibles para todos los proyectos sin número.');
+        return;
+      }
 
       this.proyectos.forEach(p => {
         const num = parseInt(p.numero_aleatorio);
-        if (!isNaN(num)) {
+        if (!isNaN(num) && posiblesNumeros.includes(num)) {
           const index = posiblesNumeros.indexOf(num);
-          if (index !== -1) posiblesNumeros.splice(index, 1);
+          posiblesNumeros.splice(index, 1);
         }
       });
 
@@ -432,9 +449,19 @@ export class AsignacionComponent {
         const pelota = pelotas[indexActual];
         pelota.activa = false;
 
-        // Tomar un número disponible aleatoriamente del array restante
+        if (posiblesNumeros.length === 0) {
+          console.warn('No hay más números disponibles para asignar');
+          clearInterval(intervalo);
+          return;
+        }
+
         const randomIndex = Math.floor(Math.random() * posiblesNumeros.length);
-        const numero = posiblesNumeros.splice(randomIndex, 1)[0]; // Remueve y obtiene el número
+        const numero = posiblesNumeros.splice(randomIndex, 1)[0];
+
+        if (numero === undefined) {
+          console.error('Número aleatorio indefinido al asignar', { randomIndex, posiblesNumeros });
+          return;
+        }
 
         if (onNumeroAsignado) {
           onNumeroAsignado(numero, indexActual);

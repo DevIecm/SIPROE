@@ -11,6 +11,27 @@ export class ReasignacionService {
 
   constructor(private router: Router, private http: HttpClient) { }
 
+
+  deleteSorteo(token: string, id: number): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}` 
+    });
+
+    const params = new HttpParams().set('id', id);
+
+    return this.http.delete(this.apiUrl + 'asignacion/deleteSorteo', {params, headers})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
+  }
+
+  actualizaProyecto(token: string, registro: any): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}` 
+    });
+
+    return this.http.patch(this.apiUrl + 'asignacion/actualizaProyecto', registro, {headers})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
+  }
+
   catRipoSorteo(idDistrito: number, token: string): Observable<any> {
 
     const headers = new HttpHeaders({
@@ -37,3 +58,5 @@ export class ReasignacionService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 }
+
+

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -66,6 +66,7 @@ export class SorteoComponent {
   sinRegistro!: boolean;
   botonUsado: boolean = false;
 
+  @ViewChild('canvasContainer', { static: false }) canvasContainerRef!: ElementRef<HTMLDivElement>;
   constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService,  private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -233,10 +234,14 @@ export class SorteoComponent {
     canvas.style.transform = 'translate(-50%, -50%)';
     canvas.style.zIndex = '1000';
 
-    const container = document.getElementById('container');
-    if (container) {
+    requestAnimationFrame(() => {
+      const container = document.getElementById('container');
+      if (container) {
         container.appendChild(canvas);
-    }
+      } else {
+        console.warn('No se encontró el contenedor para la animación');
+      }
+    });
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;

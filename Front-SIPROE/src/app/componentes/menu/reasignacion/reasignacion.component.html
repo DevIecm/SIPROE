@@ -12,7 +12,7 @@
                
         <label class="form-label">Seleccione el Tipo de Sorteo</label>
         <mat-form-field appearance="outline" class="full-width">
-            <mat-select placeholder="Seleccione el Tipo de Sorteo" (selectionChange)="onTipoChange($event.value)" disableRipple>
+            <mat-select placeholder="Seleccione el Tipo de Sorteo" (selectionChange)="onTipoChange($event.value)" disableRipple [(value)]="selectedTipo">
                 <mat-option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo.descripcion }}</mat-option>
             </mat-select>
         </mat-form-field>   
@@ -96,40 +96,40 @@
         </div>
     </mat-card-content>
 
-    <mat-card-header *ngIf="mostrarDiv" class="header-content padContent">
-        <mat-card-title class="label-header">Detalles de la cancelación/eliminación</mat-card-title>
+    <mat-card-header *ngIf="!mostrarAsignacion" class="header-content padContent">
+        <mat-card-title *ngIf="muestraBotones" class="label-header">Detalles de la cancelación/eliminación</mat-card-title>
         
         <div class="form-section">
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field *ngIf="muestraBotones" appearance="outline" class="full-width">
                 <mat-label>Seleccione el Órgano Jurisdiccional</mat-label>
                 <mat-select [disabled]="llenadoForm" [(ngModel)]="organoDescripcion" disableRipple>
                     <mat-option *ngFor="let organo of organos" [value]="organo.id">{{ organo.descripcion }}</mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <label class="form-label">Ingrese la fecha de la resolución o sentencia:</label>
-            <mat-form-field class="full-width">
+            <label *ngIf="muestraBotones" class="form-label">Ingrese la fecha de la resolución o sentencia:</label>
+            <mat-form-field *ngIf="muestraBotones" class="full-width">
                 <mat-label>Selecciona la fecha</mat-label>
                 <input [disabled]="llenadoForm" matInput [matDatepicker]="datepicker" [(ngModel)]="fechaSeleccionada" [matDatepickerFilter]="fechaValida">
                 <mat-datepicker #datepicker />
                 <mat-datepicker-toggle [for]="datepicker" matSuffix/>
             </mat-form-field>
 
-            <label class="form-label">Ingrese el motivo:</label>
-            <mat-form-field class="full-width">
+            <label *ngIf="muestraBotones" class="form-label">Ingrese el motivo:</label>
+            <mat-form-field *ngIf="muestraBotones" class="full-width">
                 <textarea [disabled]="llenadoForm" [(ngModel)]="motivo" matInput placeholder="Ingrese el motivo"></textarea>
             </mat-form-field>
 
-            <label class="form-label">Ingrese el Número de Expediente:</label>
-            <mat-form-field class="full-width">
+            <label *ngIf="muestraBotones" class="form-label">Ingrese el Número de Expediente:</label>
+            <mat-form-field *ngIf="muestraBotones" class="full-width">
                 <input [disabled]="llenadoForm" [(ngModel)]="expediente" matInput placeholder="Ingrese el Número de Expediente">
             </mat-form-field>
 
-            <mat-grid-list cols="3" rowHeight="100px">
+            <mat-grid-list *ngIf="!cambioDistrito" cols="3" rowHeight="100px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1">
-                    <button class="buttonSorteo" mat-fab extended color="primary" (click)="eliminarSorteo()">
-                        <span *ngIf="directa">Cancelar Asignación Directa</span>
-                        <span *ngIf="!directa">Cancelar Asignación</span>
+                    <button class="buttonSorteo" mat-fab extended color="primary" (click)="cancelarAsignacion()">
+                        <span *ngIf="!directa">Cancelar Asignación Directa</span>
+                        <span *ngIf="directa">Cancelar Asignación</span>
                     </button>
                 </mat-grid-tile>
                  <mat-grid-tile [colspan]="1" [rowspan]="1">

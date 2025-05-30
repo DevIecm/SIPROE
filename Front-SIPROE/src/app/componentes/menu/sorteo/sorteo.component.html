@@ -51,7 +51,7 @@
             <mat-card-title *ngIf="sorteoIniciado" class="label-header">Proyectos de la Unidad Territorial sorteados</mat-card-title>
 
             <div class="sizeColumns">
-              <div id="container">
+              <div id="container" #canvasContainer>
                   <canvas #canvas width="400" height="300"></canvas>
               </div>
 
@@ -89,7 +89,7 @@
                     </button>
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1">
-                    <button class="buttonSorteoD" mat-fab extended color="warn" *ngIf="sorteoIniciado" (click)="deshacerSorteo()">Cancelar</button>
+                    <button class="buttonSorteoD" mat-fab extended color="warn" (click)="deshacerSorteo()">Cancelar</button>
                 </mat-grid-tile>
             </mat-grid-list>
         </div>

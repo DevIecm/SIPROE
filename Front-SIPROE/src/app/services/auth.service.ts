@@ -28,6 +28,18 @@ export class AuthService {
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
 
+  catUnidadFilterSorteo(idDistrito: number, token: string): Observable<any> {
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    const params = new HttpParams().set('idDistrito', idDistrito);
+
+    return this.http.get(this.apiUrl + 'catUnidadTerritorial/catunidadFilterSorteo' , {headers, params})
+        .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
+  }
+
   catUnidadFilter(idDistrito: number, token: string): Observable<any> {
 
     const headers = new HttpHeaders({
