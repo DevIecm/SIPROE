@@ -106,6 +106,7 @@ router.delete("/deleteSorteo", verifyToken, async (req, res) => {
         return res.status(200).json({
             message: "Registro eliminado correctamente",
             code: 200,
+            id: id
         });
             
     } catch(err) {
