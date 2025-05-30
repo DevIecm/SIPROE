@@ -212,27 +212,22 @@ export class ReasignacionComponent {
   }
 
   cancelarAsignacion() {
-    if(this.directa){
-
       const registro = {
         sorteo: this.idSorteo
       };
 
       this.serviceReAsignacion.actualizaProyecto(this.tokenSesion, registro).subscribe({
-              next: (resp) => {
-                Swal.fire("Sorteo de eliminado con éxito");
-                this.deshacerSorteo();
-              }, error: (err) => {
-                console.error("Error al guardar proyecto", registro, err);
+        next: (resp) => {
+          Swal.fire("Sorteo de eliminado con éxito");
+          this.deshacerSorteo();
+        }, error: (err) => {
+          console.error("Error al guardar proyecto", registro, err);
 
-                if(err.error.code === 160) {
-                  this.servicea.cerrarSesionByToken();
-                }
-              }
-            });
-    } else {
-      console.log("directa")
-    }
+          if(err.error.code === 160) {
+            this.servicea.cerrarSesionByToken();
+          }
+        }
+      });
   }
 
   eliminarSorteo() {
