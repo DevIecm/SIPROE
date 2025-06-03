@@ -23,6 +23,25 @@ export class ReasignacionService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 
+  deleteSorteoR(fecha_sentencia_del: any, organo_jurisdiccional_del: number, motivo_del: string, numero_expediente_del: string, token: string, id: number): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}` 
+    });
+
+    debugger
+    const params = new HttpParams()
+      .set('fecha_sentencia_del', fecha_sentencia_del)
+      .set('organo_jurisdiccional_del', organo_jurisdiccional_del)
+      .set('motivo_del', motivo_del)
+      .set('numero_expediente_del', numero_expediente_del)
+      .set('id', id)
+
+      console.log(params)
+
+    return this.http.delete(this.apiUrl + 'asignacion/deleteSorteoR', {params, headers})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
+  }
+
   actualizaProyecto(token: string, registro: any): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}` 
@@ -32,13 +51,13 @@ export class ReasignacionService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 
-  catRipoSorteo(idDistrito: number, token: string): Observable<any> {
+  catRipoSorteo(ut: string, token: string): Observable<any> {
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
 
-    const params = new HttpParams().set('idDistrito', idDistrito);
+    const params = new HttpParams().set('ut', ut);
 
     return this.http.get(this.apiUrl + 'catTipoSorteo/catTipoSorteo' , {headers, params})
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))

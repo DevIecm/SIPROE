@@ -95,6 +95,8 @@ export class AsignacionComponent {
         console.error("Error al cargar unidades", err);
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
+        } else if(err.error.code === 125) {
+          Swal.fire("No se encontraron unidades para asignacion directa en este distrito")
         }
       }
     });
@@ -241,8 +243,10 @@ export class AsignacionComponent {
           }, error: (err) => {
             console.error("Error al cargar unidades", err);
             if(err.error.code === 160) {
-              this.servicea.cerrarSesionByToken();
-            }
+                this.servicea.cerrarSesionByToken();
+              } else if(err.error.code === 125) {
+                Swal.fire("No se encontraron unidades para asignacion directa en este distrito")
+              }
           }
         });
 

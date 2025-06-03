@@ -14,10 +14,8 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon } from '@angular/material/icon';
-import { SorteoService } from '../../../services/sorteoService/sorteo.service';
 import { AuthService } from '../../../services/auth.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { getSpanishPaginatorIntl } from '../invitacion/mat-paginator-intl-es';
@@ -43,7 +41,8 @@ import { AsignacionService } from '../../../services/asignacionService/asignacio
       MatProgressSpinnerModule,
       CommonModule,
       MatGridListModule,
-      MatIcon
+      MatIcon,
+      
     ],
     templateUrl: './reasignacion.component.html',
     styleUrl: './reasignacion.component.css',
@@ -64,8 +63,6 @@ export class ReasignacionComponent {
    sorteados: any;
    sortear: any;
    fechaSeleccionada : Date | null = null;
-   minFecha = new Date(2025, 6, 5);
-   maxFecha = new Date(2025, 6, 9);
    idOrgano!: Number;
    pSortear: any[] = [];
    id_o!: Number;
@@ -90,12 +87,13 @@ export class ReasignacionComponent {
    tipoOrgano!: number;
    idSorteo!: number;
    organoDescripcion!: number;
+
+   //Nuevos disclamers
+
+   seleccionoUnidad!: boolean;
+   organoId!: number;
    
-   constructor(
-    private http: HttpClient, 
-    private servicea: AuthService, 
-    private service: SorteoService, 
-    private serviceReAsignacion: ReasignacionService, private serviceAsignacion: AsignacionService, private cdr: ChangeDetectorRef) {}
+   constructor( private serviceAsignacion: AsignacionService, private servicea: AuthService, private serviceReAsignacion: ReasignacionService) {}
  
    ngOnInit(): void {
 
@@ -114,9 +112,9 @@ export class ReasignacionComponent {
       }
     });
 
-    this.serviceReAsignacion.catRipoSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+    this.serviceAsignacion.catOrgano(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.tipos = data.catTipoSorteo;
+        this.organos = data.catOrgano;
       }, error: (err) => {
         console.error("Error al cargar Organos Jurisiccionales", err);
         if(err.error.code === 160) {
@@ -124,8 +122,6 @@ export class ReasignacionComponent {
         }
       }
     });
-
-
    }
  
   onDistritoChange(element: any){
@@ -135,11 +131,27 @@ export class ReasignacionComponent {
     this.mostrarDiv = false;
     this.cambioDistrito = true;
     this.mostrarAsignacion = true;
-  }
+    this.seleccionoUnidad = true;
+
+    this.serviceReAsignacion.catRipoSorteo(this.clave_ut, this.tokenSesion).subscribe({
+      next: (data) => {
+        this.tipos = data.catTipoSorteo;
+      }, error: (err) => {
+        console.error("Error al cargar tipos de sorteo", err);
+        if(err.error.code === 160) {
+          this.servicea.cerrarSesionByToken();
+        }
+      }
+    });
+  };
+
+  onOrganoChange(element: any){
+    this.organoId = element;
+  };
  
   onTipoChange(element: any){
-    this.tipoOrgano = element.id;
-    if(element.id === 1 ) { this.directa = true } else { this.directa = false}
+    this.tipoOrgano = element.tipo;
+    if(element.tipo === 1 ) { this.directa = true } else { this.directa = false}
     this.mostrarDiv = true;
     this.botonUsado = false;
     this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tipoOrgano, this.tokenSesion);
@@ -163,10 +175,7 @@ export class ReasignacionComponent {
             this.muestraBotones = false;
             this.cambioDistrito =  false;
           } else {
-            this.fechaSeleccionada = this.proyectos[0].fecha_sentencia;
-            this.motivo = this.proyectos[0].motivo;
-            this.organoDescripcion = this.proyectos[0].organo_jurisdiccional;
-            this.expediente = this.proyectos[0].numero_expediente;
+           
             this.llenadoForm = true;
             this.mostrarAsignacion = false;
             this.muestraBotones = true;
@@ -193,6 +202,26 @@ export class ReasignacionComponent {
   columnasVisibles = ['year', 'sorteo', 'clave', 'ut', 'fecha', 'total'];
    
   deshacerSorteo() {
+    Swal.fire("No se guardará ninguna información");
+    this.sorteoIniciado = false;
+    this.guardoSorteo = false;
+    this.proyectos = [];
+    this.botonUsado = false;
+    this.selectedUnidad = null;
+    this.mostrarDiv = false;
+    this.ocultaTbla = false;
+    this.datosProyectosSinNumero = [];
+    this.ocultaIfExist = false;
+    this.llenadoForm = false;
+    this.motivo = '';
+    this.fechaSeleccionada = null;
+    this.expediente = '';
+    this.organoDescripcion = 0;
+    this.selectedTipo = null;
+    this.mostrarAsignacion = true;
+  }
+
+  deshacerSorteoR() {
     this.sorteoIniciado = false;
     this.guardoSorteo = false;
     this.proyectos = [];
@@ -212,22 +241,51 @@ export class ReasignacionComponent {
   }
 
   cancelarAsignacion() {
-      const registro = {
-        sorteo: this.idSorteo
-      };
 
-      this.serviceReAsignacion.actualizaProyecto(this.tokenSesion, registro).subscribe({
-        next: (resp) => {
-          Swal.fire("Sorteo de eliminado con éxito");
-          this.deshacerSorteo();
-        }, error: (err) => {
-          console.error("Error al guardar proyecto", registro, err);
 
-          if(err.error.code === 160) {
-            this.servicea.cerrarSesionByToken();
+    Swal.fire({
+      title: "¿Está seguro de cancelar la Asignación Directa?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar"
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        this.serviceReAsignacion.deleteSorteoR(this.fechaSeleccionada, this.organoId, this.motivo, this.expediente, this.tokenSesion, this.idSorteo).subscribe({
+          next: (data) => {
+            
+            console.log(data)
+            this.idSorteo = data.id;
+
+            const registro = {
+              sorteo: this.idSorteo
+            };
+
+            this.serviceReAsignacion.actualizaProyecto(this.tokenSesion, registro).subscribe({
+              next: (resp) => {
+                Swal.fire("Sorteo de eliminado con éxito");
+                this.deshacerSorteoR();
+              }, error: (err) => {
+                console.error("Error al guardar proyecto", registro, err);
+
+                if(err.error.code === 160) {
+                  this.servicea.cerrarSesionByToken();
+                }
+              }
+            });
+          }, error: (err) => {
+            if(err.error.code === 100) {
+              this.proyectos = [];
+              this.guardoSorteo = true;
+              Swal.fire("Error al eliminar sorteo");
+            }
           }
-        }
-      });
+        })
+      }
+    });
   }
 
   eliminarSorteo() {
@@ -243,9 +301,9 @@ export class ReasignacionComponent {
     }).then((result) => {
       if (result.isConfirmed) {
 
-        this.serviceReAsignacion.deleteSorteo(this.tokenSesion, this.idSorteo).subscribe({
+        this.serviceReAsignacion.deleteSorteoR(this.fechaSeleccionada, this.organoId, this.motivo, this.expediente, this.tokenSesion, this.idSorteo).subscribe({
           next: (data) => {
-            
+            console.log(data)
             this.idSorteo = data.id;
 
             const registro = {
@@ -255,7 +313,7 @@ export class ReasignacionComponent {
             this.serviceReAsignacion.actualizaProyecto(this.tokenSesion, registro).subscribe({
               next: (resp) => {
                 Swal.fire("Sorteo de eliminado con éxito");
-                this.deshacerSorteo();
+                this.deshacerSorteoR();
               }, error: (err) => {
                 console.error("Error al guardar proyecto", registro, err);
 
@@ -265,9 +323,6 @@ export class ReasignacionComponent {
               }
             });
           }, error: (err) => {
-            if (err.error.code === 160) {
-              this.servicea.cerrarSesionByToken();
-            }
             if(err.error.code === 100) {
               this.proyectos = [];
               this.guardoSorteo = true;
@@ -277,10 +332,5 @@ export class ReasignacionComponent {
         })
       }
     });
-  }
-
-  fechaValida = (d: Date | null): boolean => {
-    if (!d) return false;
-    return d >= this.minFecha && d <= this.maxFecha;
-  }   
+  } 
 }

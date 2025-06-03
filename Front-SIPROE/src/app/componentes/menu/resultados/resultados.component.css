@@ -13,8 +13,8 @@
 .label-header {
     font-size: 18px;
     font-weight: 600;
-    padding-top: 2px;
     padding-bottom: 30px;
+    text-align: center;
 }
 
 .form-section {
@@ -44,30 +44,34 @@ mat-form-field {
     margin-right: 16px;
 }
 
-.buttonSorteo {
-    color: #fafafa!important;
+.buttonProyectos {
+    color: #000000!important;
     border-radius: none;
-    background-color: #6745e0!important;
+    border-radius: 7px;
+    border: 0.5px solid #000000;
 }
 
-.buttonSorteo:hover {
-    background-color: #7072dd!important;
-    color: #fafafa!important;
+.buttonProyectos:hover {
+    background-color: #d1dcf3!important;
+    color: #000000!important;
 }
 
-.buttonOrden {
-    color: #fafafa!important;
-    background-color: #ad6f1e!important;
+.buttonconstancias {
+    color: #000000!important;
+    border-radius: none;
+    border-radius: 7px;
+    border: 0.5px solid #000000;
 }
 
-.buttonOrden:hover {
-    background-color: #be863b!important;
-    color: #fafafa!important;
+.buttonconstancias:hover {
+    background-color: #d1dcf3!important;
+    color: #000000!important;
 }
 
 .buttonSorteoD {
     color: #fafafa!important;
     background-color: #af2525!important;
+    border-radius: 7px;
 }
 
 .buttonSorteoD:hover {
@@ -75,18 +79,21 @@ mat-form-field {
     color: #fafafa!important;
 }
 
-.overlay {
-  position: fixed;
-  padding-left: 8%;
-  top: 0;
-  left: 10px;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+.buttonSorteoD:disabled {
+    background-color: #dddee9!important;
+    color: #fafafa!important;
+}
+
+.buttonSorteo {
+    color: #fafafa!important;
+    border-radius: none;
+    background-color: #6745e0!important;
+    border-radius: 7px;
+}
+
+.buttonSorteo:hover {
+    background-color: #7072dd!important;
+    color: #fafafa!important;
 }
 
 .inventario-card{
@@ -133,6 +140,36 @@ mat-form-field {
   text-align: center;
 }
 
-.padContent {
-  margin-top: 20px;
+#container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 36px;
+  background-color: #f0f0f0;
+}
+
+.sizeColumns {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: center;
+    padding-bottom: 9% !important;
+}
+
+.marginCards {
+    margin-top: 5%;
+    margin-bottom: 9%;
+}
+
+.buttonSorteo,
+.buttonAsignar,
+.buttonSorteoD {
+  width: 100%;
+    height: 53%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 !important;
 }

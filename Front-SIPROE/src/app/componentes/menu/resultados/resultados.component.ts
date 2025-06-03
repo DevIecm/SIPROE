@@ -4,7 +4,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { FooterComponent } from '../../footer/footer.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -25,7 +24,6 @@ import { AuthService } from '../../../services/auth.service';
     MatDatepickerModule, 
     MatInputModule, 
     MatFormFieldModule, 
-    MatTableModule, 
     MatSelectModule, 
     FormsModule,
     MatButtonModule, 
@@ -43,10 +41,21 @@ import { AuthService } from '../../../services/auth.service';
 export class ResultadosComponent {
   animandoSorteo!: boolean;
   unidades: any[] = [];
+  onBuild: boolean = false;
+  selectedProyectos: boolean = false;
+  selectedConstancias: boolean = false;
+  selectedUnidad: number | null = null;
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
+  ngOnInit() {
+    this.onBuild = true;
+    this.selectedProyectos = false;
+    this.selectedConstancias = false;
+  }
+  
   onDistritoChange(element: any) {
     console.log("assa")
+    
   }
 }

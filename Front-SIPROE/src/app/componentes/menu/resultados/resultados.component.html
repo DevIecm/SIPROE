@@ -1,22 +1,49 @@
 <mat-card class="sorteo-card" appearance="outlined">
-        <mat-card-header class="header-content">
-
-    <mat-card-title class="label-header">Reasignación de Sorteo de Asignación Directa y Eliminación de Sorteos
-</mat-card-title>
-    <mat-grid-list cols="2" rowHeight="100px">
+    <mat-grid-list cols="1" rowHeight="100px">
         <mat-grid-tile [colspan]="1" [rowspan]="1">
-            <button mat-fab extended color="primary">Lista de Proyectos</button>
+            <button class="buttonProyectos" mat-fab extended color="primary">Lista de Proyectos</button>
         </mat-grid-tile>
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
-            <button mat-fab extended color="accent">
-                <span>Generar Constancias</span>
-            </button>
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <button class="buttonconstancias" mat-fab extended color="warn">Generar Constancias</button>
         </mat-grid-tile>
     </mat-grid-list>
-        </mat-card-header>
+
+    <mat-card-header class="header-content">
+      <mat-card-title class="label-header">
+        <span *ngIf="onBuild">Imprimir Resultados</span>
+        <span *ngIf="selectedProyectos">Lista de Proyectos</span>
+        <span *ngIf="selectedConstancias">Generar Constancias</span>
+    </mat-card-title>
+      
+      <div class="form-section">
+        <label class="form-label">Seleccione una Unidad Territorial</label>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-select placeholder="Seleccione unidad territorial" (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
+            <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+    </mat-card-header>
+
+    <mat-card-content class="card-content">
+        
+
+        
+    </mat-card-content>
+
+    <mat-grid-list cols="2" rowHeight="100px">
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <button class="buttonSorteo" mat-fab extended color="primary">
+                <span>Generar Lista</span>
+                <span>Generar Constancia</span>
+            </button>
+        </mat-grid-tile>
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <button class="buttonSorteoD" mat-fab extended color="warn">Cancelar</button>
+        </mat-grid-tile>
+    </mat-grid-list>
+
 </mat-card>
 
-<div *ngIf="animandoSorteo" class="overlay">
-  <canvas id="canvas" width="400" height="300"></canvas>
-</div>
 <app-footer></app-footer>
