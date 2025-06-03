@@ -102,7 +102,7 @@ router.get("/catunidadFilterSorteo", verifyToken, async (req, res) => {
                 SELECT 
                   p2.UT
                 FROM proyectos p2
-                WHERE p.distrito = 1 and p2.sorteo IS NOT NULL)
+                WHERE p.distrito = @idDistrito and p2.sorteo IS NOT NULL)
               AND (p.sorteo IS NULL OR p.numero_aleatorio IS NULL);`)
       
     if (result.recordset.length > 0) {
@@ -110,7 +110,7 @@ router.get("/catunidadFilterSorteo", verifyToken, async (req, res) => {
         catUnidad: result.recordset
       });
     } else {
-      return res.status(404).json({ message: "No se encontraron unidades para ese distrito" });
+      return res.status(404).json({ message: "No se encontraron unidades para ese distrito", code: 125 });
     }
   } catch (error) {
     console.error(error);

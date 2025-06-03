@@ -70,28 +70,6 @@ router.post("/insertaSorteo", verifyToken, async (req, res) => {
     }
 });
 
-router.post("/insertaSorteo", verifyToken, async (req, res) => {
-    try{
-        const pool = await connectToDatabase();
-        const result = await pool.request()
-            .query(`INSERT INTO sorteo (tipo, estado, fecha)
-              OUTPUT INSERTED.id
-              VALUES (1, 1, GETDATE())`);
-
-        const insertedId = result.recordset[0].id;
-
-        return res.status(200).json({
-        message: "Registro creado correctamente",
-        id: insertedId,
-        code: 200,
-        });
-            
-    } catch(err) {
-        console.error(error);
-        return res.status(500).json({ message: "Error de servidor", error})
-    }
-});
-
 router.delete("/deleteSorteo", verifyToken, async (req, res) => {
     try{
 

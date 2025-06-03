@@ -155,6 +155,33 @@ router.delete("/deleteSorteo", verifyToken, async (req, res) => {
     }
 });
 
+router.delete("/deleteSorteoR", verifyToken, async (req, res) => {
+    try{
+
+        const { id, fecha_sentencia_del, organo_jurisdiccional_del, motivo_del, numero_expediente_del } = req.query;
+
+        const pool = await connectToDatabase();
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .input('fecha_sentencia_del', sql.Date, fecha_sentencia_del)
+            .input('organo_jurisdiccional_del', sql.VarChar, organo_jurisdiccional_del)
+            .input('motivo_del', sql.VarChar, motivo_del)
+            .input('numero_expediente_del', sql.VarChar, numero_expediente_del)
+            .query(`UPDATE 
+                sorteo SET fecha_sentencia_del = @fecha_sentencia_del, organo_jurisdiccional_del = @organo_jurisdiccional_del, motivo_del = @motivo_del, numero_expediente_del = @numero_expediente_del, estado = 2 WHERE id = @id;`);
+
+        return res.status(200).json({
+            message: "Registro eliminado correctamente",
+            code: 200,
+            id: id
+        });
+            
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({ message: "Error de servidor", err})
+    }
+});
+
 router.patch("/actualizaProyecto", verifyToken, async (req, res) => {
     try {
 

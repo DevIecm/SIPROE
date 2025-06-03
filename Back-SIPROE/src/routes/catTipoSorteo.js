@@ -9,10 +9,20 @@ const router = express.Router();
 router.get("/catTipoSorteo", verifyToken, async (req, res) => {
 
   try {
+
+    const { ut } = req.query;
+
+    if( !ut ){
+        return res.status(400).json({ message: "Datos requeridos"})
+    }
     
     const pool = await connectToDatabase();
     const result = await pool.request()
-        .query(`SELECT * FROM tipo_sorteo ts`);
+        .input('ut', sql.VarChar, ut)
+        .query(`SELECT DISTINCT descripcion, s.tipo FROM tipo_sorteo ts 
+                    JOIN sorteo s ON ts.id = s.tipo
+                    JOIN proyectos p ON s.id = p.sorteo
+                WHERE p.ut = @ut;`);
 
     if (result.recordset.length > 0) {
       return res.status(200).json({
