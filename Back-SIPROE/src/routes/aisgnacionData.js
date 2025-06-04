@@ -50,28 +50,19 @@ router.get("/getSorteosFilter", verifyToken, async (req, res) => {
             .input('ut', sql.VarChar, ut)
             .input('distrito', sql.Int, distrito)
             .input('tipo', sql.Int, tipo)
-            .query(`SELECT
+            .query(`SELECT DISTINCT 
+                        p2.anio,
                         p.id,
-                        p.nombre,
-                        p.folio,
-                        p.numero_aleatorio,
-                        p.dictamen,
-                        p.distrito,
-                        p.sorteo,
-                        p.anio,
-                        p.ut,
-                        c.organo_jurisdiccional,
-                        c.fecha,
-                        c.tipo,
-                        c.estado,
-                        ut.ut as nombreUt,
+                        p2.ut as clave,
+                        ut.ut as ut,
+                        p.fecha as fecha_sorteo,
                         COUNT(*) OVER() AS aprobados,
-                        SUM(CASE WHEN p.sorteo IS NULL OR p.sorteo = '' THEN 1 ELSE 0 END) OVER() AS sortear,
-                        SUM(CASE WHEN p.sorteo IS NOT NULL AND p.sorteo <> '' THEN 1 ELSE 0 END) OVER() AS sorteados
-                    FROM proyectos p 
-                        JOIN sorteo c ON p.sorteo = c.id
-                        JOIN unidad_territorial ut ON p.ut = ut.clave_ut
-                    WHERE p.ut = @ut and p.distrito = @distrito and c.estado = 1 and c.tipo = @tipo;`)
+                        SUM(CASE WHEN p2.sorteo IS NULL OR p2.sorteo = '' THEN 1 ELSE 0 END) OVER() AS sortear,
+                        SUM(CASE WHEN p2.sorteo IS NOT NULL AND p2.sorteo <> '' THEN 1 ELSE 0 END) OVER() AS sorteados
+                    FROM sorteo p 
+                        JOIN proyectos p2 ON p2.sorteo = p.id
+                        JOIN unidad_territorial ut ON p2.ut = ut.clave_ut
+                    WHERE p2.ut = @ut and p2.distrito = @distrito and p.estado = 1 and p.tipo = @tipo;`)
 
             if (result.recordset.length > 0) {
                 return res.status(200).json({
@@ -87,34 +78,19 @@ router.get("/getSorteosFilter", verifyToken, async (req, res) => {
             .input('ut', sql.VarChar, ut)
             .input('distrito', sql.Int, distrito)
             .input('tipo', sql.Int, tipo)
-            .query(`
-                SELECT TOP 1
+            .query(`SELECT DISTINCT 
+                    p2.anio,
                     p.id,
-                    p.nombre,
-                    p.folio,
-                    p.numero_aleatorio,
-                    p.dictamen,
-                    p.distrito,
-                    p.sorteo,
-                    p.anio,
-                    p.ut,
-                    c.fecha_sentencia,
-                    c.motivo,
-                    c.numero_expediente,
-                    c.organo_jurisdiccional,
-                    c.fecha,
-                    c.tipo,
-                    c.estado,
-                    ut.ut as nombreUt,
+                    p2.ut as clave,
+                    ut.ut as ut,
+                    p.fecha as fecha_sorteo,
                     COUNT(*) OVER() AS aprobados,
-                    oj.descripcion as organo_descrpcion,
-                    SUM(CASE WHEN p.sorteo IS NULL OR p.sorteo = '' THEN 1 ELSE 0 END) OVER() AS sortear,
-                    SUM(CASE WHEN p.sorteo IS NOT NULL AND p.sorteo <> '' THEN 1 ELSE 0 END) OVER() AS sorteados
-                FROM proyectos p 
-                    JOIN sorteo c ON p.sorteo = c.id
-                    JOIN unidad_territorial ut ON p.ut = ut.clave_ut
-                    JOIN organo_jurisdiccional oj ON c.organo_jurisdiccional  = oj.id
-                WHERE p.ut = @ut and p.distrito = @distrito and c.estado = 1 and c.tipo = 2;`
+                    SUM(CASE WHEN p2.sorteo IS NULL OR p2.sorteo = '' THEN 1 ELSE 0 END) OVER() AS sortear,
+                    SUM(CASE WHEN p2.sorteo IS NOT NULL AND p2.sorteo <> '' THEN 1 ELSE 0 END) OVER() AS sorteados
+                from sorteo p 
+                    JOIN proyectos p2 ON p2.sorteo = p.id
+                    JOIN unidad_territorial ut ON p2.ut = ut.clave_ut
+                WHERE p2.ut = @ut and p2.distrito = @distrito and p.estado = 1 and p.tipo = @tipo;`
             )
 
             if (result.recordset.length > 0) {
@@ -128,7 +104,7 @@ router.get("/getSorteosFilter", verifyToken, async (req, res) => {
 
     } catch (error) {
         console.error("Error: ", error);
-        return res.status(500).json({ message: "Error de servidor", error: error.message0});
+        return res.status(500).json({ message: "Error de servidor", error: error.message});
     }
 });
 

@@ -19,7 +19,7 @@ router.get("/catTipoSorteo", verifyToken, async (req, res) => {
     const pool = await connectToDatabase();
     const result = await pool.request()
         .input('ut', sql.VarChar, ut)
-        .query(`SELECT DISTINCT descripcion, s.tipo FROM tipo_sorteo ts 
+        .query(`SELECT DISTINCT ts.descripcion, s.tipo FROM tipo_sorteo ts 
                     JOIN sorteo s ON ts.id = s.tipo
                     JOIN proyectos p ON s.id = p.sorteo
                 WHERE p.ut = @ut;`);

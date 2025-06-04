@@ -14,6 +14,7 @@ import sorteoRoutes from './routes/sorteoData.js';
 import catOrgano from './routes/catOrgano.js';
 import asignacionRoutes from './routes/aisgnacionData.js';
 import catTipoSorteo from './routes/catTipoSorteo.js';
+import resultadosRoutes from './routes/resultadosData.js';
 
 app.use('/api/users', userRoutes);
 app.use('/api/catUnidadTerritorial', unidadRoutes);
@@ -22,6 +23,7 @@ app.use('/api/sorteo', sorteoRoutes);
 app.use('/api/catOrganoJ', catOrgano);
 app.use('/api/asignacion', asignacionRoutes);
 app.use('/api/catTipoSorteo', catTipoSorteo);
+app.use('/api/resultados', resultadosRoutes);
 
 app.listen(port, () => {
     console.log(`El servicio esta corriendo en ${port}`);
