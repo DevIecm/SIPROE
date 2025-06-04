@@ -162,7 +162,7 @@ export class ReasignacionComponent {
       next: (data) => {
 
         this.proyectos = data.registrosProyectos;
-        this.idSorteo = this.proyectos[0].sorteo;
+        this.idSorteo = this.proyectos[0].id;
         this.aprobados = this.proyectos[0].aprobados;
         this.sorteados = this.proyectos[0].sorteados;
         this.sortear = this.proyectos[0].sortear;

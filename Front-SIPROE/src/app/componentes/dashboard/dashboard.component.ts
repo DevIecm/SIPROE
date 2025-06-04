@@ -12,7 +12,15 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [MatSidenav, CommonModule, RouterModule, MatToolbarModule, MatIcon, MatSidenavContainer, MatNavList, MatSidenavContent ],
+  imports: [
+    MatSidenav, 
+    CommonModule, 
+    RouterModule, 
+    MatToolbarModule, 
+    MatIcon, 
+    MatSidenavContainer, 
+    MatNavList, 
+    MatSidenavContent ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })

@@ -17,7 +17,7 @@
                     <mat-option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo.descripcion }}</mat-option>
                 </mat-select>
             </mat-form-field>
-        </div>   
+        </div>
       </div>
     </mat-card-header>
 
@@ -66,22 +66,22 @@
 
                     <ng-container matColumnDef="sorteo">
                       <th mat-header-cell *matHeaderCellDef class="center-header"> <b> ID Sorteo</b> </th>
-                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.sorteo}} </td>
+                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.id}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="clave">
                       <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Clave UT</b> </th>
-                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.ut}} </td>
+                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.clave}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="ut">
                       <th mat-header-cell *matHeaderCellDef class="center-header"> <b>UT</b> </th>
-                      <td mat-cell *matCellDef="let element; let i = index"> {{element.nombreUt}} </td>
+                      <td mat-cell *matCellDef="let element; let i = index"> {{element.ut}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="fecha">
                       <th mat-header-cell *matHeaderCellDef class="center-header"> <b>Fecha del Sorteo</b> </th>
-                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.folio}} </td>
+                      <td mat-cell *matCellDef="let element" class="center-cell"> {{element.fecha_sorteo | date: 'dd/MM/yyyy'}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="total">

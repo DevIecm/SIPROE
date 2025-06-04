@@ -131,8 +131,6 @@ export class InvitacionComponent {
   getDataService(claveIUt: number) {
     this.service.getRegistros(claveIUt, this.tokenSesion).subscribe({
       next: (data) => {
-        
-
         this.dataSource.data = data.registrosCalendario ?? [];
         this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
       }, error: (err) => {

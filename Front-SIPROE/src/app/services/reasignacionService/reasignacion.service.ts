@@ -28,7 +28,6 @@ export class ReasignacionService {
       Authorization: `Bearer ${token}` 
     });
 
-    debugger
     const params = new HttpParams()
       .set('fecha_sentencia_del', fecha_sentencia_del)
       .set('organo_jurisdiccional_del', organo_jurisdiccional_del)
