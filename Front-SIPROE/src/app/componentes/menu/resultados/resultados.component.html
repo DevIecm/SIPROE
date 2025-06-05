@@ -30,7 +30,7 @@
           <div *ngIf="seleccionoUnidad">
             <label class="form-label">Seleccione el Tipo de Sorteo</label>
             <mat-form-field appearance="outline" class="full-width">
-                <mat-select placeholder="Seleccione el Tipo de Sorteo" disableRipple [(value)]="selectedTipo">
+                <mat-select placeholder="Seleccione el Tipo de Sorteo" (selectionChange)="onTipoChange()" disableRipple [(value)]="selectedTipo">
                     <mat-option *ngFor="let tipo of tipos" [value]="tipo.tipo">{{ tipo.descripcion }}</mat-option>
                 </mat-select>
             </mat-form-field>

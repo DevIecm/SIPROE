@@ -57,10 +57,12 @@ export class ResultadosComponent {
   seleccionoUnidad!: boolean;
   tipos: any[] = [];
   proyectos: any[] = [];
+  proyectosFull: any[] = [];
   clave_ut: string = '';
   mostarLista!: boolean;
   loading = false;
   idTipo!: number;
+  documentos: string = '';
 
   constructor(private http: HttpClient, private resultadosService: ResultadosService, private service: AuthService, private serviceReAsignacion: ReasignacionService) {}
 
@@ -82,26 +84,6 @@ export class ResultadosComponent {
       }
     });
   }
-
-  async getDataProyectos(tipo: number) {
-    try{
-
-    this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), tipo, this.tokenSesion).subscribe({
-      next: (data) => {
-        console.log(data.registrosProyectos)
-        this.proyectos = data.registrosProyectos;
-        console.log("Listaaaaa", this.proyectos)
-      }, error: (err) => {
-        console.error("Error al cargar tipos de sorteo", err);
-        if(err.error.code === 160) {
-          this.service.cerrarSesionByToken();
-        }
-      }
-    }); 
-    } catch (error) {
-      console.error(error);
-    }
-  }
   
   onDistritoChange(element: any) {
     this.clave_ut = element.clave_ut;
@@ -117,6 +99,32 @@ export class ResultadosComponent {
         }
       }
     }); 
+
+    this.resultadosService.getDataProyectosFull(this.clave_ut, this.tokenSesion).subscribe({
+      next: (data) => {
+        this.proyectosFull = data.registrosProyectos;
+      }, error: (err) => {
+        console.error("Error al cargar tipos de sorteo", err);
+        if(err.error.code === 160) {
+          this.service.cerrarSesionByToken();
+        }
+      }
+    }); 
+    
+  }
+
+  onTipoChange() {
+    this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.selectedTipo!, this.tokenSesion).subscribe({
+      next: (data) => {
+        this.proyectos = data.registrosProyectos;
+      }, error: (err) => {
+        console.error("Error al cargar tipos de sorteo", err);
+        if(err.error.code === 160) {
+          this.service.cerrarSesionByToken();
+        }
+      }
+    }); 
+   
   }
 
   limpiarFormulario(){
@@ -147,12 +155,28 @@ export class ResultadosComponent {
     this.mostrarForm = true;
   }
 
-  async GeneraConstancia(){
-    debugger
-    
-    this.getDataProyectos(this.selectedTipo!)
+  extraerHoraUTC(iso: string): string {
+    const date = new Date(iso);
+    let hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    const formattedHours = hours.toString().padStart(2, '0');
+    const hrs = "Hrs";
 
-    console.log(this.proyectos);
+    return `${formattedHours}:${minutes} ${hrs}`;
+  }
+
+  extractFecha(fecha: Date) {
+    const date = new Date(fecha);
+
+    const dia = date.getDate();
+    const mes = date.toLocaleString('es-ES', { month: 'long' });
+    const año = date.getFullYear();
+
+    return `${dia} de ${mes} de ${año}`;
+  }
+
+  async GeneraConstancia(){
+    
     this.loading = true;
     const primerRegistro = this.proyectos[0];
 
@@ -160,21 +184,24 @@ export class ResultadosComponent {
       nombre_ut: primerRegistro?.nombre_ut ?? '',
       clave: primerRegistro?.clave ?? '',
       nombre_demarcacion: primerRegistro?.nombre_demarcacion ?? '',
-      fecha: primerRegistro?.fecha ?? '',
+      fecha: this.extractFecha(primerRegistro?.fecha) ?? '',
       distrito: primerRegistro?.distrito ?? '',
       domicilio: primerRegistro?.domicilio ?? '',
+      sod: primerRegistro?.sod ?? '',
+      tod: primerRegistro?.tod ?? '',
+      fecha_sentencia: this.extractFecha(primerRegistro?.fecha_sentencia) ?? '',
+      numero_expediente: primerRegistro?.numero_expediente ?? '',
       proyectos: this.proyectos.map((item, index) => ({
-        identificador: index + 1,
-        folio: item.dt[1],
-        nombre_proyecto: item.ut[0],
-        // ut: item.ut[1],
-        // fecha: this.extractFecha(item.fecha),
-        // hora: this.extraerHoraUTC(item.hora),
+        identificador: item.numero_aleatorio,
+        folio: item.folio,
+        nombre_proyecto: item.nombre,
       }))
     };
 
+    if(this.selectedTipo === 1) { this.documentos = 'assets/ConstanciaSorteo.docx'} else { this.documentos = 'assets/ConstanciaAsignacion.docx'}
+      
     const templateBob = await this.http
-      .get('assets/Anexo-Invitacion.docx', { responseType: 'arraybuffer' })
+      .get(this.documentos, { responseType: 'arraybuffer' })
       .toPromise();
 
       if (!templateBob) {
@@ -198,58 +225,76 @@ export class ResultadosComponent {
       } 
 
       const output = doc.getZip().generate({ type: 'blob' });
-      saveAs(output, 'Anexo Calendario.docx');
+      saveAs(output, 'Constancia.docx');
 
       this.loading = false;
   }
 
   async GeneraLista() {
   
-      this.loading = true;
-      // const primerRegistro = this.dataSource.data[0];
-  
-      // const datos = {
-      //   distrito: primerRegistro?.distrito ?? '',
-      //   domicilio: primerRegistro?.domicilio ?? '',
-      //   sod: primerRegistro?.sod ?? '',
-      //   tod: primerRegistro?.tod ?? '',
-      //   productos: this.dataSource.data.map((item, index) => ({
-      //     id: index + 1,
-      //     dt: item.dt[1],
-      //     clave: item.ut[0],
-      //     ut: item.ut[1],
-      //     fecha: this.extractFecha(item.fecha),
-      //     hora: this.extraerHoraUTC(item.hora),
-      //   }))
-      // };
-  
-      // const templateBob = await this.http
-      //   .get('assets/Anexo-Invitacion.docx', { responseType: 'arraybuffer' })
-      //   .toPromise();
-  
-      //   if (!templateBob) {
-      //     throw new Error("No se pudo cargar el Documento");
-      //   }
-  
-      //   const zip = new PizZip(templateBob);
-      //   const doc = new Docxtemplater(zip, { 
-      //     paragraphLoop: true,
-      //     linebreaks: true,
-      //     delimiters: { start: '[[', end: ']]' }
-      //   });
-  
-      //   doc.setData(datos);
-  
-      //   try{
-      //     doc.render();
-      //   } catch (error) {
-      //     console.error('Error al cargar archivo', error);
-      //     return;
-      //   } 
-  
-      //   const output = doc.getZip().generate({ type: 'blob' });
-      //   saveAs(output, 'Anexo Calendario.docx');
-  
-      //   this.loading = false;
+    this.loading = true;
+
+
+    const fechaHoraActual = new Date();
+
+    const opcionesFecha: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    };
+
+    const opcionesHora: Intl.DateTimeFormatOptions = {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    };
+
+    const fecha = fechaHoraActual.toLocaleDateString('es-ES', opcionesFecha);
+    const hora = fechaHoraActual.toLocaleTimeString('es-ES', opcionesHora);
+    const primerRegistro = this.proyectosFull[0];
+
+    const datos = {
+      fecha: fecha ?? 'Sin registro',
+      hora: hora ?? 'Sin registro',
+      clave: primerRegistro?.clave ?? '',
+      nombre_ut: primerRegistro?.nombre_ut ?? '',
+      proyectos: this.proyectosFull.map((item, index) => ({
+        identificador: item.identificador,
+        nombre: item.nombre,
+        folio: item.folio,
+        descripcion: item.descripcion
+      }))
+    };
+
+    const templateBob = await this.http
+      .get('assets/ProyctosList.docx', { responseType: 'arraybuffer' })
+      .toPromise();
+
+      if (!templateBob) {
+        throw new Error("No se pudo cargar el Documento");
+      }
+
+      const zip = new PizZip(templateBob);
+      const doc = new Docxtemplater(zip, { 
+        paragraphLoop: true,
+        linebreaks: true,
+        delimiters: { start: '[[', end: ']]' }
+      });
+
+      doc.setData(datos);
+
+      try{
+        doc.render();
+      } catch (error) {
+        console.error('Error al cargar archivo', error);
+        return;
+      } 
+
+      const output = doc.getZip().generate({ type: 'blob' });
+      saveAs(output, 'Lista de Proyectos.docx');
+
+      this.loading = false;
   }
 }

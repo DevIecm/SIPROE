@@ -35,8 +35,6 @@ export class ReasignacionService {
       .set('numero_expediente_del', numero_expediente_del)
       .set('id', id)
 
-      console.log(params)
-
     return this.http.delete(this.apiUrl + 'asignacion/deleteSorteoR', {params, headers})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }

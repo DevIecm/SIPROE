@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,7 @@ export class ResultadosService {
   
   getDataProyectos(ut: string, distrito: number, tipo: number, token: string): Observable<any> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}` 
+      Authorization: `Bearer ${token}`
     });
 
     const params = new HttpParams()
@@ -23,6 +25,18 @@ export class ResultadosService {
       .set('tipo', tipo)
 
     return this.http.get(this.apiUrl + 'resultados/getProyectos', {headers, params})
+      .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
+  }
+
+  getDataProyectosFull(ut: string, token: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    const params = new HttpParams()
+      .set('ut', ut)
+
+    return this.http.get(this.apiUrl + 'resultados/getProyectosFull', {headers, params})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 }

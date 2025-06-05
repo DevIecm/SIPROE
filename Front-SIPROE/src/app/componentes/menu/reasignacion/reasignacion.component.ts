@@ -257,7 +257,6 @@ export class ReasignacionComponent {
         this.serviceReAsignacion.deleteSorteoR(this.fechaSeleccionada, this.organoId, this.motivo, this.expediente, this.tokenSesion, this.idSorteo).subscribe({
           next: (data) => {
             
-            console.log(data)
             this.idSorteo = data.id;
 
             const registro = {
@@ -303,7 +302,7 @@ export class ReasignacionComponent {
 
         this.serviceReAsignacion.deleteSorteoR(this.fechaSeleccionada, this.organoId, this.motivo, this.expediente, this.tokenSesion, this.idSorteo).subscribe({
           next: (data) => {
-            console.log(data)
+
             this.idSorteo = data.id;
 
             const registro = {

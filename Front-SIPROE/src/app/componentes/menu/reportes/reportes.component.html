@@ -1,1 +1,23 @@
-<p>reportes works!</p>
+<mat-card class="sorteo-card" appearance="outlined">
+  
+    <div>
+      <mat-grid-list cols="1" rowHeight="100px">
+          <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <button (click)="onSelectedParticipantes()" class="buttonProyectos" mat-fab extended color="primary">Proyectos participantes</button>
+          </mat-grid-tile>
+          <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <button (click)="onSelectedCancelados()" class="buttonconstancias" mat-fab extended color="warn">Concentrado de Sorteos Cancelados</button>
+          </mat-grid-tile>
+          <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <button (click)="GeneraConstanciaExcelDesdeTemplate()" class="buttonconstancias" mat-fab extended color="warn">Proyectos participantes por Asignación Directa</button>
+          </mat-grid-tile>
+      </mat-grid-list>
+    </div>
+
+</mat-card>
+
+<div class="overlay" *ngIf="loading">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+
+<app-footer></app-footer>
