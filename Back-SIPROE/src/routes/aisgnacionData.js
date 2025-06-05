@@ -144,7 +144,7 @@ router.delete("/deleteSorteoR", verifyToken, async (req, res) => {
             .input('motivo_del', sql.VarChar, motivo_del)
             .input('numero_expediente_del', sql.VarChar, numero_expediente_del)
             .query(`UPDATE 
-                sorteo SET fecha_sentencia_del = @fecha_sentencia_del, organo_jurisdiccional_del = @organo_jurisdiccional_del, motivo_del = @motivo_del, numero_expediente_del = @numero_expediente_del, estado = 2 WHERE id = @id;`);
+                sorteo SET fecha_sentencia_del = @fecha_sentencia_del, organo_jurisdiccional_del = @organo_jurisdiccional_del, motivo_del = @motivo_del, numero_expediente_del = @numero_expediente_del, estado = 2, fecha_eliminacion = GETDATE() WHERE id = @id;`);
 
         return res.status(200).json({
             message: "Registro eliminado correctamente",
