@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  front-siproe:
+    build:
+      context: .
+    ports:
+      - "8080:80"  # Accedes por localhost:8080
+    environment:
+      NODE_ENV: production

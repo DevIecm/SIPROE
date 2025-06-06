@@ -90,6 +90,13 @@
                 </mat-select>
             </mat-form-field>
 
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Seleccione el motivo</mat-label>
+                <mat-select [disabled]="llenadoForm" (selectionChange)="onMotivoChange($event.value)" disableRipple [(ngModel)]="motivoSeleccionado">
+                    <mat-option *ngFor="let motivo of motivosCat" [value]="motivo">{{ motivo.motivo }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
             <label class="form-label">Ingrese la fecha de la resolución o sentencia:</label>
             <mat-form-field class="full-width">
                 <mat-label>Selecciona la fecha</mat-label>
@@ -110,7 +117,7 @@
 
             <mat-grid-list cols="2" rowHeight="100px">
                 <mat-grid-tile *ngIf="!sorteoIniciado" [colspan]="1" [rowspan]="1">
-                    <button class="buttonSorteo" [disabled]="!fechaSeleccionada || !id_o || !motivo || !expediente" mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
+                    <button class="buttonSorteo" [disabled]="!motivoSeleccionado || !fechaSeleccionada || !id_o || !motivo || !expediente" mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
                 </mat-grid-tile>
                  <mat-grid-tile *ngIf="sorteoIniciado" [colspan]="1" [rowspan]="1">
                     <button [disabled]="creoSorteo" class="buttonAsignar" mat-fab extended color="accent"  (click)="aceptarSorteo()">

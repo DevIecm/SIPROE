@@ -178,6 +178,10 @@ export class ResultadosComponent {
   async GeneraConstancia(){
     
     this.loading = true;
+    console.log(this.proyectos)
+
+    const motivo = this.proyectos[0].id_motivo;
+
     const primerRegistro = this.proyectos[0];
 
     const datos = {
@@ -198,7 +202,15 @@ export class ResultadosComponent {
       }))
     };
 
-    if(this.selectedTipo === 1) { this.documentos = 'assets/ConstanciaSorteo.docx'} else { this.documentos = 'assets/ConstanciaAsignacion.docx'}
+    if(this.selectedTipo === 1) { 
+      this.documentos = 'assets/ConstanciaSorteo.docx';
+    } else { 
+      if(motivo === 1){
+        this.documentos = 'assets/ConstanciaAsignacion1.docx';
+      }else{
+        this.documentos = 'assets/ConstanciaAsignacion2.docx';
+      }
+    }
       
     const templateBob = await this.http
       .get(this.documentos, { responseType: 'arraybuffer' })

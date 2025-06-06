@@ -57,6 +57,7 @@ export class AsignacionComponent {
   selectedUnidad: number | null = null;
   unidades: any[] = [];
   organos: any[] = [];
+  motivosCat: any[] = [];
   proyectos: any[] = [];
   clave_ut: string = '';
   aprobados: any;
@@ -83,6 +84,8 @@ export class AsignacionComponent {
   showDataAsigned: boolean = false;
   creoSorteo: boolean = false;
   organoDescripcion!: number;
+  motivoSeleccionado!: number;
+  selectedMotivo!: number
 
   @ViewChild('canvasContainer', { static: false }) canvasContainerRef!: ElementRef<HTMLDivElement>;
   constructor(private http: HttpClient,  private servicea: AuthService, private service: SorteoService, private serviceAsignacion: AsignacionService,  private cdr: ChangeDetectorRef) {}
@@ -111,6 +114,17 @@ export class AsignacionComponent {
         }
       }
     });
+
+    this.serviceAsignacion.catMotivo(this.tokenSesion).subscribe({
+      next: (data) => {
+        this.motivosCat = data.catMotivo;
+      }, error: (err) => {
+        console.error("Error al cargar Organos Jurisiccionales", err);
+        if(err.error.code === 160) {
+          this.servicea.cerrarSesionByToken();
+        }
+      }
+    });
   }
 
   onDistritoChange(element: any){
@@ -122,6 +136,9 @@ export class AsignacionComponent {
 
   onOrganoChange(element: any){
     this.id_o = element.id;
+  }
+  onMotivoChange(element: any){
+    this.selectedMotivo = element.id;
   }
 
   getDataProyectos(ut: string, distrito: number, token: string) {
@@ -193,6 +210,7 @@ export class AsignacionComponent {
     this.motivo = '';
     this.fechaSeleccionada = null;
     this.expediente = '';
+    this.motivoSeleccionado = 0;
   }
 
   iniciarSorteo() {
@@ -222,7 +240,8 @@ export class AsignacionComponent {
       id_o: this.id_o,
       fecha_sentencia: this.fechaSeleccionada,
       motivo: this.motivo,
-      numero_expediente: this.expediente
+      numero_expediente: this.expediente, 
+      id_motivo: this.selectedMotivo
     });
 
     this.serviceAsignacion.insertaSorteo(data, this.tokenSesion).subscribe({
@@ -416,7 +435,6 @@ export class AsignacionComponent {
     animar();
 
     if(this.botonUsado){
-      // const totalNumeros = this.proyectos.length;
       const posiblesNumeros = Array.from({ length: this.proyectos.length }, (_, i) => i + 1);
 
       if (posiblesNumeros.length < this.datosProyectosSinNumero.length) {

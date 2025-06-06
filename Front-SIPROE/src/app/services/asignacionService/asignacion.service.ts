@@ -32,4 +32,14 @@ export class AsignacionService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
 
   }
+
+  catMotivo(token: string): Observable<any> {
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    return this.http.get(this.apiUrl + 'catMotivo/catMotivo' , {headers})
+        .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
+  }
 }
