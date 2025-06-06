@@ -35,7 +35,8 @@ router.get("/getProyectos", verifyToken, async (req, res) => {
 	                ct.nombre_tod  as tod,
                     s.fecha_sentencia as fecha_sentencia,
 	                s.numero_expediente as numero_expediente,
-                    p.numero_aleatorio
+                    p.numero_aleatorio,
+                    s.id_motivo 
                 FROM proyectos p
                     JOIN unidad_territorial u ON p.ut = u.clave_ut
                     JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id

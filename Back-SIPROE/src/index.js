@@ -15,6 +15,8 @@ import catOrgano from './routes/catOrgano.js';
 import asignacionRoutes from './routes/aisgnacionData.js';
 import catTipoSorteo from './routes/catTipoSorteo.js';
 import resultadosRoutes from './routes/resultadosData.js';
+import motivoRoutes from './routes/catMotivo.js';
+import reportesRoutes from './routes/reportesData.js';
 
 app.use('/api/users', userRoutes);
 app.use('/api/catUnidadTerritorial', unidadRoutes);
@@ -24,6 +26,8 @@ app.use('/api/catOrganoJ', catOrgano);
 app.use('/api/asignacion', asignacionRoutes);
 app.use('/api/catTipoSorteo', catTipoSorteo);
 app.use('/api/resultados', resultadosRoutes);
+app.use('/api/catMotivo', motivoRoutes);
+app.use('/api/reportes', reportesRoutes);
 
 app.listen(port, () => {
     console.log(`El servicio esta corriendo en ${port}`);
