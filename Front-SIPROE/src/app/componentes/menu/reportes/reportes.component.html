@@ -3,13 +3,13 @@
     <div>
       <mat-grid-list cols="1" rowHeight="100px">
           <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <button (click)="onSelectedParticipantes()" class="buttonProyectos" mat-fab extended color="primary">Proyectos participantes</button>
+              <button [disabled]="bloqueaBotonParticipantes" (click)="GeneraConstanciasProyectosParticipantes()" class="buttonProyectos" mat-fab extended color="primary">Proyectos participantes</button>
           </mat-grid-tile>
           <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <button (click)="onSelectedCancelados()" class="buttonconstancias" mat-fab extended color="warn">Concentrado de Sorteos Cancelados</button>
+              <button [disabled]="bloqueaBotonCancelados" (click)="GeneraConstanciasSorteosCancelados()" class="buttonconstancias" mat-fab extended color="warn">Concentrado de Sorteos Cancelados</button>
           </mat-grid-tile>
           <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <button (click)="GeneraConstanciaExcelDesdeTemplate()" class="buttonconstancias" mat-fab extended color="warn">Proyectos participantes por Asignación Directa</button>
+              <button [disabled]="bloqueaBotonAsignacion" (click)="GeneraConstanciaAsignacionDirecta()" class="buttonconstancias" mat-fab extended color="warn">Proyectos participantes por Asignación Directa</button>
           </mat-grid-tile>
       </mat-grid-list>
     </div>

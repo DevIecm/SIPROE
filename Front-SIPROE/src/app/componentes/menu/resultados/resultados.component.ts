@@ -178,10 +178,7 @@ export class ResultadosComponent {
   async GeneraConstancia(){
     
     this.loading = true;
-    console.log(this.proyectos)
-
     const motivo = this.proyectos[0].id_motivo;
-
     const primerRegistro = this.proyectos[0];
 
     const datos = {

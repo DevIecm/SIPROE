@@ -14,11 +14,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { AuthService } from '../../../services/auth.service';
-import { ReasignacionService } from '../../../services/reasignacionService/reasignacion.service';
-import { ResultadosService } from '../../../services/resultadosService/resultados.service';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import { ReportesService } from '../../../services/reportesService/reportes.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-reportes',
@@ -45,19 +44,197 @@ export class ReportesComponent {
 
   loading = false;
   proyectos: any[] = [];
+  participantes: any[] = [];
+  cancelados: any[] = [];
+  asignacion: any[] = [];
+  idDistrital = sessionStorage.getItem('dir') || '0';
+  tokenSesion = sessionStorage.getItem('key') || '0';
+  bloqueaBotonParticipantes: boolean = false;
+  bloqueaBotonCancelados: boolean = false;
+  bloqueaBotonAsignacion: boolean = false;
 
-  constructor(private http: HttpClient, private resultadosService: ResultadosService, private service: AuthService, private serviceReAsignacion: ReasignacionService) {}
 
-  onSelectedParticipantes(){
-   
+  constructor(private http: HttpClient, private service: AuthService, private reportesSerice: ReportesService) {}
+
+  ngOnInit() {
+    this.reportesSerice.proyectosParticipantes(this.tokenSesion).subscribe({
+      next: (data) => {
+        this.participantes = data.registrosProyectosParticipantes;
+        this.bloqueaBotonParticipantes = false;
+      }, error: (err) => {
+
+        if(err.error.code === 100){
+          this.bloqueaBotonParticipantes = true;
+        }
+        
+        if(err.error.code === 160) {
+          this.service.cerrarSesionByToken();
+        }
+
+        console.error("Error al cargar registros", err);
+      }
+    });
+
+    this.reportesSerice.proyectosCancelados(this.tokenSesion).subscribe({
+      next: (data) => {
+        this.cancelados = data.registrosProyectosCancelados;
+        this.bloqueaBotonCancelados = false;
+      }, error: (err) => {
+
+        if(err.error.code === 100){
+          this.bloqueaBotonCancelados = true;
+        }
+        console.error("Error al cargar registros", err);
+        if(err.error.code === 160) {
+          this.service.cerrarSesionByToken();
+        }
+      }
+    });
+
+    this.reportesSerice.proyectosAsignacion(this.tokenSesion).subscribe({
+      next: (data) => {
+        this.asignacion = data.registrosProyectosAsignacion;
+        this.bloqueaBotonAsignacion = false;
+      }, error: (err) => {
+
+        if(err.error.code === 100){
+          this.bloqueaBotonAsignacion = true;
+        }
+
+        if(err.error.code === 160) {
+          this.service.cerrarSesionByToken();
+        }
+
+        console.error("Error al cargar registros", err);
+      }
+    });
   }
 
-  onSelectedCancelados(){
-   
+  async GeneraConstanciasProyectosParticipantes(){
+
+    const fechaHoraActual = new Date();
+    console.log(fechaHoraActual)
+
+    const opcionesHora: Intl.DateTimeFormatOptions = {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    };
+
+    const fecha = fechaHoraActual;
+    const hora = fechaHoraActual.toLocaleTimeString('es-ES', opcionesHora);
+    
+    this.loading = true;
+    console.log(this.participantes)
+
+    const datos = {
+      participantes: this.participantes.map((item) => ({
+        demarcacion: item.demarcacion,
+        unidad_territorial: item.unidad_territorial,
+        clave: item.clave,
+        identificador: item.identificador,
+        folio: item.folio,
+        nombre: item.nombre
+      }))
+    };
+
+    const templateArrayBuffer = await this.http
+      .get('assets/Concentrado_Proyectos.xlsx', { responseType: 'arraybuffer' })
+      .toPromise();
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(templateArrayBuffer!);
+
+    const sheet = workbook.getWorksheet(1);
+
+    sheet!.getCell('B9').value = this.idDistrital;
+    sheet!.getCell('F10').value = hora;
+    sheet!.getCell('F9').value = fecha;
+
+    let rowIndex = 12;
+    datos.participantes.forEach((participantes) => {
+      const row = sheet!.getRow(rowIndex++);
+      row.getCell(1).value = participantes.demarcacion;
+      row.getCell(2).value = participantes.unidad_territorial;
+      row.getCell(3).value = participantes.clave;
+      row.getCell(4).value = participantes.identificador ? participantes.identificador : 'Sin registro';
+      row.getCell(5).value = participantes.folio;
+      row.getCell(6).value = participantes.nombre;
+      row.commit();
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    saveAs(blob, 'Reporte Proyectos Participantes.xlsx');
+    this.loading = false;
   }
 
-  onSelectedAsignacion(){
+  async GeneraConstanciasSorteosCancelados(){
+    
+    const fechaHoraActual = new Date();
 
+    const opcionesHora: Intl.DateTimeFormatOptions = {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    };
+
+    const fecha = fechaHoraActual;
+    const hora = fechaHoraActual.toLocaleTimeString('es-ES', opcionesHora);
+    
+    this.loading = true;
+
+    const datos = {
+      cancelados: this.cancelados.map((item) => ({
+        demarcacion: item.demarcacion,
+        unidad_territorial: item.unidad_territorial,
+        clave: item.clave,
+        nombre: item.nombre,
+        fecha_eliminacion: item.fecha_eliminacion,
+        motivo_del: item.motivo_del,
+        numero_expediente_del: item.numero_expediente_del,
+        descripcion: item.descripcion
+      }))
+    };
+
+    const templateArrayBuffer = await this.http
+      .get('assets/Sorteos_Cancelados.xlsx', { responseType: 'arraybuffer' })
+      .toPromise();
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(templateArrayBuffer!);
+
+    const sheet = workbook.getWorksheet(1);
+
+    sheet!.getCell('B9').value = this.idDistrital;
+    sheet!.getCell('G10').value = hora;
+    sheet!.getCell('G9').value = fecha;
+
+    let rowIndex = 12;
+    datos.cancelados.forEach((cancelados) => {
+      const row = sheet!.getRow(rowIndex++);
+      row.getCell(1).value = cancelados.demarcacion;
+      row.getCell(2).value = cancelados.clave;
+      row.getCell(3).value = cancelados.unidad_territorial;
+      row.getCell(4).value = cancelados.fecha_eliminacion; 
+      row.getCell(5).value = cancelados.motivo_del;
+      row.getCell(6).value = cancelados.descripcion;
+      row.getCell(7).value = cancelados.numero_expediente_del;
+      row.commit();
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    saveAs(blob, 'Reporte Sorteos Cancelados.xlsx');
+    this.loading = false;
   }
 
   extractFecha(fecha: Date) {
@@ -70,16 +247,9 @@ export class ReportesComponent {
     return `${dia} de ${mes} de ${año}`;
   }
 
-  async GeneraConstanciaExcelDesdeTemplate() {
+  async GeneraConstanciaAsignacionDirecta() {
 
     const fechaHoraActual = new Date();
-
-    const opcionesFecha: Intl.DateTimeFormatOptions = {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    };
 
     const opcionesHora: Intl.DateTimeFormatOptions = {
       hour: 'numeric',
@@ -88,63 +258,58 @@ export class ReportesComponent {
       hour12: true
     };
 
-    const fecha = fechaHoraActual.toLocaleDateString('es-ES', opcionesFecha);
+    const fecha = fechaHoraActual;
     const hora = fechaHoraActual.toLocaleTimeString('es-ES', opcionesHora);
     
     this.loading = true;
-    const primerRegistro = this.proyectos[0];
 
     const datos = {
-      nombre_ut: primerRegistro?.nombre_ut ?? '',
-      clave: primerRegistro?.clave ?? '',
-      nombre_demarcacion: primerRegistro?.nombre_demarcacion ?? '',
-      fecha: this.extractFecha(primerRegistro?.fecha) ?? '',
-      distrito: primerRegistro?.distrito ?? '',
-      domicilio: primerRegistro?.domicilio ?? '',
-      sod: primerRegistro?.sod ?? '',
-      tod: primerRegistro?.tod ?? '',
-      fecha_sentencia: this.extractFecha(primerRegistro?.fecha_sentencia) ?? '',
-      numero_expediente: primerRegistro?.numero_expediente ?? '',
-      proyectos: this.proyectos.map((item) => ({
-        identificador: item.numero_aleatorio,
+      asignacion: this.asignacion.map((item) => ({
+        distrito: item.distrito ,
+        demarcacion: item.demarcacion,
+        unidad_territorial: item.unidad_territorial,
+        clave: item.clave,
         folio: item.folio,
-        nombre_proyecto: item.nombre,
+        identificador: item.identificador,
+        nombre: item.nombre,
+        fecha_asignacion: item.fecha_asignacion,
+        resolucion: item.resolucion,
+        motivo: item.motivo,
+        numero_expediente: item.numero_expediente
       }))
     };
 
-    // Obtener el archivo template
     const templateArrayBuffer = await this.http
-      .get('assets/Concentrado_Proyectos.xlsx', { responseType: 'arraybuffer' })
+      .get('assets/Asignacion_Directa.xlsx', { responseType: 'arraybuffer' })
       .toPromise();
 
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(templateArrayBuffer!);
 
-    const sheet = workbook.getWorksheet(1); // O por nombre: workbook.getWorksheet('Hoja1')
+    const sheet = workbook.getWorksheet(1);
 
-    // Escribir datos en celdas específicas (según tu template)
-    sheet!.getCell('B2').value = datos.nombre_ut;
-    sheet!.getCell('B3').value = datos.clave;
-    sheet!.getCell('B4').value = datos.nombre_demarcacion;
-    sheet!.getCell('B5').value = datos.fecha;
-    sheet!.getCell('B6').value = datos.distrito;
-    sheet!.getCell('B7').value = datos.domicilio;
-    sheet!.getCell('B8').value = datos.sod;
-    sheet!.getCell('B9').value = datos.tod;
-    sheet!.getCell('B10').value = datos.fecha_sentencia;
-    sheet!.getCell('B11').value = datos.numero_expediente;
+    sheet!.getCell('B9').value = this.idDistrital;
+    sheet!.getCell('L10').value = hora;
+    sheet!.getCell('L9').value = fecha;
 
-    // Supongamos que los proyectos empiezan a partir de la fila 14
-    let rowIndex = 14;
-    datos.proyectos.forEach((proyecto) => {
+    let rowIndex = 12;
+    datos.asignacion.forEach((asignacion) => {
       const row = sheet!.getRow(rowIndex++);
-      row.getCell(1).value = proyecto.identificador;
-      row.getCell(2).value = proyecto.folio;
-      row.getCell(3).value = proyecto.nombre_proyecto;
-      row.commit(); // Necesario para algunas versiones de ExcelJS
+      row.getCell(1).value = asignacion.distrito;
+      row.getCell(2).value = asignacion.demarcacion;
+      row.getCell(3).value = asignacion.unidad_territorial;
+      row.getCell(4).value = asignacion.clave; 
+      row.getCell(5).value = asignacion.folio;
+      row.getCell(6).value = asignacion.identificador;
+      row.getCell(7).value = asignacion.nombre;
+      row.getCell(8).value = asignacion.fecha_asignacion;
+      row.getCell(9).value = asignacion.resolucion ? asignacion.resolucion : 'Sin registro';
+      row.getCell(10).value = asignacion.motivo;
+      row.getCell(11).value = asignacion.numero_expediente;
+      row.getCell(12).value = asignacion.fecha_asignacion;
+      row.commit();
     });
 
-    // Generar el archivo final
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
