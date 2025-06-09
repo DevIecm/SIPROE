@@ -26,7 +26,7 @@ router.get("/getProyectosParticipantes", verifyToken, async (req, res) => {
 
         if (result.recordset.length > 0) {
             return res.status(200).json({
-                registrosProyectos: result.recordset
+                registrosProyectosParticipantes: result.recordset
             });
         } else {
             return res.status(404).json({ message: "No se encontraron registros", code: 100})
@@ -49,7 +49,7 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
                     u.clave_ut as clave,
                     u.ut as unidad_territorial,
                     s.fecha_eliminacion,
-                    s.motivo,
+                    s.motivo_del,
                     s.numero_expediente_del,
                     oj.descripcion,
                     p.distrito 
@@ -62,7 +62,7 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
 
         if (result.recordset.length > 0) {
             return res.status(200).json({
-                registrosProyectos: result.recordset
+                registrosProyectosCancelados: result.recordset
             });
         } else {
             return res.status(404).json({ message: "No se encontraron registros", code: 100})
@@ -76,13 +76,7 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
 
 router.get("/getProyectosAsignacion", verifyToken, async (req, res) => {
     try {
-        const { ut, distrito, tipo } = req.query;
-        
-        if(!ut || !distrito || !tipo){
-            return res.status(400).json({ message: "Datos requeridos"})
-        }
 
-        const tipoNum = Number(tipo);
         const pool = await connectToDatabase();
 
         const result = await pool.request()
@@ -96,7 +90,7 @@ router.get("/getProyectosAsignacion", verifyToken, async (req, res) => {
                     p.nombre,
                     s.fecha_sentencia  as fecha_asignacion,
                     s.motivo,
-                    s.numero_expediente_del,
+                    s.numero_expediente,
                     oj.descripcion,
                     p.distrito 
                 FROM proyectos p
@@ -108,7 +102,7 @@ router.get("/getProyectosAsignacion", verifyToken, async (req, res) => {
 
         if (result.recordset.length > 0) {
             return res.status(200).json({
-                registrosProyectos: result.recordset
+                registrosProyectosAsignacion: result.recordset
             });
         } else {
             return res.status(404).json({ message: "No se encontraron registros", code: 100})
