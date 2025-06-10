@@ -256,19 +256,22 @@ export class AsignacionComponent {
         this.guardaProyectosConSorteo(idSorteo);
         this.guardoSorteo = false;
         this.deshacerSorteo();
-        this.servicea.catUnidadFilterSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
-          next: (data) => {
-            this.unidades = data.catUnidad;
-          }, error: (err) => {
-            console.error("Error al cargar unidades", err);
-            if(err.error.code === 160) {
-                this.servicea.cerrarSesionByToken();
-              } else if(err.error.code === 125) {
-                Swal.fire("No se encontraron unidades para asignacion directa en este distrito")
-              }
-          }
-        });
 
+        setTimeout(() => {
+          this.servicea.catUnidadFilterSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+            next: (data) => {
+              this.unidades = data.catUnidad;
+            }, error: (err) => {
+              console.error("Error al cargar unidades", err);
+              if(err.error.code === 160) {
+                  this.servicea.cerrarSesionByToken();
+                } else if(err.error.code === 125) {
+                  this.unidades = [];
+                  Swal.fire("No se encontraron unidades para asignacion directa en este distrito")
+                }
+            }
+          });
+        }, 2000);
       }, error: (err) => {
         console.error("Error al crear sorteo", err);
 

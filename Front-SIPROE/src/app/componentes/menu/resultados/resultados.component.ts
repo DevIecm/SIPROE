@@ -193,9 +193,9 @@ export class ResultadosComponent {
       fecha_sentencia: this.extractFecha(primerRegistro?.fecha_sentencia) ?? '',
       numero_expediente: primerRegistro?.numero_expediente ?? '',
       proyectos: this.proyectos.map((item, index) => ({
-        identificador: item.numero_aleatorio,
-        folio: item.folio,
-        nombre_proyecto: item.nombre,
+        identificador: item.numero_aleatorio ?? '',
+        folio: item.folio ?? '',
+        nombre_proyecto: item.nombre ?? '',
       }))
     };
 
@@ -270,10 +270,10 @@ export class ResultadosComponent {
       clave: primerRegistro?.clave ?? '',
       nombre_ut: primerRegistro?.nombre_ut ?? '',
       proyectos: this.proyectosFull.map((item, index) => ({
-        identificador: item.identificador,
-        nombre: item.nombre,
-        folio: item.folio,
-        descripcion: item.descripcion
+        identificador: item.identificador ?? '',
+        nombre: item.nombre ?? '',
+        folio: item.folio ?? '',
+        descripcion: item.descripcion ?? ''
       }))
     };
 

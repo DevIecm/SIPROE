@@ -12,30 +12,36 @@ export class ReportesService {
 
   constructor(private http: HttpClient) { }
 
-  proyectosParticipantes(token: string): Observable<any> {
+  proyectosParticipantes(idDistrito: number, token: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
 
-    return this.http.get(this.apiUrl + 'reportes/getProyectosParticipantes', {headers})
+    const params = new HttpParams().set('idDistrito', idDistrito);
+
+    return this.http.get(this.apiUrl + 'reportes/getProyectosParticipantes', {headers, params})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 
-  proyectosCancelados(token: string): Observable<any> {
+  proyectosCancelados(idDistrito: number, token: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
 
-    return this.http.get(this.apiUrl + 'reportes/getProyectosCancelados', {headers})
+    const params = new HttpParams().set('idDistrito', idDistrito);
+
+    return this.http.get(this.apiUrl + 'reportes/getProyectosCancelados', {headers, params})
       .pipe(catchError((error: HttpErrorResponse) => {return throwError(() => error);}))
   }
 
-  proyectosAsignacion(token: string): Observable<any> {
+  proyectosAsignacion(idDistrito: number, token: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
 
-    return this.http.get(this.apiUrl + 'reportes/getProyectosAsignacion', {headers})
+    const params = new HttpParams().set('idDistrito', idDistrito);
+
+    return this.http.get(this.apiUrl + 'reportes/getProyectosAsignacion', {headers, params})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 

@@ -5,8 +5,7 @@
       <div class="form-section">
         <label class="form-label">Seleccione una Unidad Territorial</label>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Seleccione unidad territorial</mat-label>
-          <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
+          <mat-select placeholder="Seleccione unidad territorial" (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
             <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -89,7 +88,7 @@
                     </button>
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1">
-                    <button class="buttonSorteoD" mat-fab extended color="warn" (click)="deshacerSorteo()">Cancelar</button>
+                    <button class="buttonSorteoD" mat-fab extended color="warn" (click)="deshacerSorteo()">Regresar</button>
                 </mat-grid-tile>
             </mat-grid-list>
         </div>

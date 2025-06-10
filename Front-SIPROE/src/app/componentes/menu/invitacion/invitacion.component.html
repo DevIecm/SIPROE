@@ -38,10 +38,10 @@
         </div>
 
         <button [disabled]="!fechaSeleccionada || !horaSeleccionada" class="buttonGuardar" (click)="guardaData()" [disabled]="loading || !fechaSeleccionada || !horaSeleccionada" mat-raised-button color="primary">Guardar</button>
-        <mat-card-title class="label-headers">Programación</mat-card-title>
-        <button class="button" (click)="generaDocumento()" mat-raised-button color="primary">Imprimir Calendario</button>
+        <mat-card-title *ngIf="!sinRegistros" class="label-headers">Programación</mat-card-title>
+        <button *ngIf="!sinRegistros"   [disabled]="!dataSource || dataSource.data.length === 0"  class="button" (click)="generaDocumento()" mat-raised-button color="primary">Imprimir Calendario</button>
 
-        <div class="mat-elevation-z8">
+        <div *ngIf="!sinRegistros" class="mat-elevation-z8">
           <table mat-table [dataSource]="dataSource">
 
             <ng-container matColumnDef="cs">
@@ -61,12 +61,12 @@
 
             <ng-container matColumnDef="fecha">
               <th mat-header-cell *matHeaderCellDef> Fecha </th>
-              <td mat-cell *matCellDef="let element"> {{element.fecha | date: 'dd/MM/yyyy'}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.fecha | date: 'dd/MM/yyyy'  : 'UTC'}} </td>
             </ng-container>
 
             <ng-container matColumnDef="hora">
               <th mat-header-cell *matHeaderCellDef> Hora </th>
-              <td mat-cell *matCellDef="let element"> {{element.hora | date: "HH:mm 'Hrs'" :'UTC'}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.hora | date: "HH:mm 'Hrs'" : 'UTC'}} </td>
             </ng-container>
 
             <ng-container matColumnDef="accion">

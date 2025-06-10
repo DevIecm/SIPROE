@@ -134,7 +134,9 @@ export class SorteoComponent {
           this.sinRegistro = true;
           this.proyectos = [];
           this.guardoSorteo = true;
+          
           Swal.fire("No se encontraron registros")
+          this.deshacerSorteo();
         }
       }
     });

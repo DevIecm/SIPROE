@@ -82,6 +82,7 @@ export class InvitacionComponent {
   opcionesHoras: string[] = [];
   minFecha = new Date(2025, 6, 5);
   maxFecha = new Date(2025, 6, 9);
+  sinRegistros: boolean = false;
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
@@ -132,9 +133,11 @@ export class InvitacionComponent {
     this.service.getRegistros(claveIUt, this.tokenSesion).subscribe({
       next: (data) => {
         this.dataSource.data = data.registrosCalendario ?? [];
+        this.sinRegistros = false;
         this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
       }, error: (err) => {
-         if (err.error.code === 160) {
+         if (err.error.code === 100) {
+          this.sinRegistros = true;
           this.dataSource.data = [];
           this.datosRegistros = false;
         } else {
@@ -197,7 +200,7 @@ export class InvitacionComponent {
                     this.horaSeleccionada = '';
                   },
                   error: (err) => {
-                    if (err.error.code === 160) {
+                    if (err.error.code === 100) {
                       this.dataSource.data = [];
                       this.datosRegistros = false;
                     } else {
@@ -222,7 +225,7 @@ export class InvitacionComponent {
         });
       } else {
         Swal.fire({
-          title: "Error al crear la programacíon",
+          title: "No se creo la programacíon",
           icon: "warning"
         });
       }
@@ -243,9 +246,11 @@ export class InvitacionComponent {
 
   extractFecha(fecha: Date) {
     const date = new Date(fecha);
-    const fechaFormatt = (date.toLocaleDateString("en-GB"));
-  
-    return `${fechaFormatt}`;
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+
+    return `${day}/${month}/${year}`;
   }
 
   async generaDocumento() {
@@ -318,11 +323,13 @@ export class InvitacionComponent {
 
              this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
                 next: (data) => {
+                  this.sinRegistros = false;
                   this.dataSource.data = data.registrosCalendario ?? [];
                   this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
                 },
                 error: (err) => {
-                  if (err.error.code === 160) {
+                  if (err.error.code === 100) {
+                    this.sinRegistros = true;
                     this.dataSource.data = [];
                     this.datosRegistros = false;
                   } else {
@@ -346,6 +353,7 @@ export class InvitacionComponent {
     });
   }
 
+  
   onDistritoChange(idDistrito: any) {
     this.actualiza = false;
     this.territorioSelected = true;
@@ -357,6 +365,7 @@ export class InvitacionComponent {
     this.fechaSeleccionada = null;
     this.horaSeleccionada = '';
     this.datosRegistros = this.dataSource.data.some(d => idD === d.ut[0]);
+    this.sinRegistros = false;
   }
 
   actualizaData() {
@@ -426,10 +435,15 @@ export class InvitacionComponent {
   }
 
   editarElemento(element: any) {
-    const fecha = new Date(element.fecha);
-    const hora = new Date(element.hora);
 
-    this.fechaSeleccionada = fecha;
+    const fecha = new Date(element.fecha);
+    const fechaCorrecta = new Date(
+      fecha.getUTCFullYear(),
+      fecha.getUTCMonth(),
+      fecha.getUTCDate()
+    );
+    const hora = new Date(element.hora);
+    this.fechaSeleccionada = fechaCorrecta;
     this.horaSeleccionada = hora.toISOString().substring(11, 16);
     this.distritoChange = element.distrito;
     this.utChange = element.ut[0];

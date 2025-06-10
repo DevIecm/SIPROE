@@ -57,7 +57,7 @@ export class ReportesComponent {
   constructor(private http: HttpClient, private service: AuthService, private reportesSerice: ReportesService) {}
 
   ngOnInit() {
-    this.reportesSerice.proyectosParticipantes(this.tokenSesion).subscribe({
+    this.reportesSerice.proyectosParticipantes(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
         this.participantes = data.registrosProyectosParticipantes;
         this.bloqueaBotonParticipantes = false;
@@ -75,7 +75,7 @@ export class ReportesComponent {
       }
     });
 
-    this.reportesSerice.proyectosCancelados(this.tokenSesion).subscribe({
+    this.reportesSerice.proyectosCancelados(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
         this.cancelados = data.registrosProyectosCancelados;
         this.bloqueaBotonCancelados = false;
@@ -91,7 +91,7 @@ export class ReportesComponent {
       }
     });
 
-    this.reportesSerice.proyectosAsignacion(this.tokenSesion).subscribe({
+    this.reportesSerice.proyectosAsignacion(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
         this.asignacion = data.registrosProyectosAsignacion;
         this.bloqueaBotonAsignacion = false;
@@ -110,10 +110,20 @@ export class ReportesComponent {
     });
   }
 
+
+  extractFecha(fecha: Date) {
+    const date = new Date(fecha);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+
+    return `${day}/${month}/${year}`;
+  }
+
+
   async GeneraConstanciasProyectosParticipantes(){
 
     const fechaHoraActual = new Date();
-    console.log(fechaHoraActual)
 
     const opcionesHora: Intl.DateTimeFormatOptions = {
       hour: 'numeric',
@@ -122,11 +132,9 @@ export class ReportesComponent {
       hour12: true
     };
 
-    const fecha = fechaHoraActual;
-    const hora = fechaHoraActual.toLocaleTimeString('es-ES', opcionesHora);
-    
+    const fecha = "Fecha: "+ this.extractFecha(fechaHoraActual);
+    const hora = "Hora: "+ fechaHoraActual.toLocaleTimeString('es-ES', opcionesHora);
     this.loading = true;
-    console.log(this.participantes)
 
     const datos = {
       participantes: this.participantes.map((item) => ({
@@ -155,12 +163,12 @@ export class ReportesComponent {
     let rowIndex = 12;
     datos.participantes.forEach((participantes) => {
       const row = sheet!.getRow(rowIndex++);
-      row.getCell(1).value = participantes.demarcacion;
-      row.getCell(2).value = participantes.unidad_territorial;
-      row.getCell(3).value = participantes.clave;
-      row.getCell(4).value = participantes.identificador ? participantes.identificador : 'Sin registro';
-      row.getCell(5).value = participantes.folio;
-      row.getCell(6).value = participantes.nombre;
+      row.getCell(1).value = participantes.demarcacion ?? '';
+      row.getCell(2).value = participantes.unidad_territorial ?? '';
+      row.getCell(3).value = participantes.clave ?? '';
+      row.getCell(4).value = participantes.identificador ?? '';
+      row.getCell(5).value = participantes.folio ?? '';
+      row.getCell(6).value = participantes.nombre ?? '';
       row.commit();
     });
 
@@ -218,13 +226,13 @@ export class ReportesComponent {
     let rowIndex = 12;
     datos.cancelados.forEach((cancelados) => {
       const row = sheet!.getRow(rowIndex++);
-      row.getCell(1).value = cancelados.demarcacion;
-      row.getCell(2).value = cancelados.clave;
-      row.getCell(3).value = cancelados.unidad_territorial;
-      row.getCell(4).value = cancelados.fecha_eliminacion; 
-      row.getCell(5).value = cancelados.motivo_del;
-      row.getCell(6).value = cancelados.descripcion;
-      row.getCell(7).value = cancelados.numero_expediente_del;
+      row.getCell(1).value = cancelados.demarcacion ?? '';
+      row.getCell(2).value = cancelados.clave ?? '';
+      row.getCell(3).value = cancelados.unidad_territorial ?? '';
+      row.getCell(4).value = cancelados.fecha_eliminacion ?? '';
+      row.getCell(5).value = cancelados.motivo_del ?? '';
+      row.getCell(6).value = cancelados.descripcion ?? '';
+      row.getCell(7).value = cancelados.numero_expediente_del ?? '';
       row.commit();
     });
 
@@ -237,15 +245,7 @@ export class ReportesComponent {
     this.loading = false;
   }
 
-  extractFecha(fecha: Date) {
-    const date = new Date(fecha);
 
-    const dia = date.getDate();
-    const mes = date.toLocaleString('es-ES', { month: 'long' });
-    const año = date.getFullYear();
-
-    return `${dia} de ${mes} de ${año}`;
-  }
 
   async GeneraConstanciaAsignacionDirecta() {
 
@@ -295,18 +295,18 @@ export class ReportesComponent {
     let rowIndex = 12;
     datos.asignacion.forEach((asignacion) => {
       const row = sheet!.getRow(rowIndex++);
-      row.getCell(1).value = asignacion.distrito;
-      row.getCell(2).value = asignacion.demarcacion;
-      row.getCell(3).value = asignacion.unidad_territorial;
-      row.getCell(4).value = asignacion.clave; 
-      row.getCell(5).value = asignacion.folio;
-      row.getCell(6).value = asignacion.identificador;
-      row.getCell(7).value = asignacion.nombre;
-      row.getCell(8).value = asignacion.fecha_asignacion;
-      row.getCell(9).value = asignacion.resolucion ? asignacion.resolucion : 'Sin registro';
-      row.getCell(10).value = asignacion.motivo;
-      row.getCell(11).value = asignacion.numero_expediente;
-      row.getCell(12).value = asignacion.fecha_asignacion;
+      row.getCell(1).value = asignacion.distrito ?? '';
+      row.getCell(2).value = asignacion.demarcacion ?? '';
+      row.getCell(3).value = asignacion.unidad_territorial ?? '';
+      row.getCell(4).value = asignacion.clave ?? '';
+      row.getCell(5).value = asignacion.folio ?? '';
+      row.getCell(6).value = asignacion.identificador ?? '';
+      row.getCell(7).value = asignacion.nombre ?? '';
+      row.getCell(8).value = asignacion.fecha_asignacion ?? '';
+      row.getCell(9).value = asignacion.resolucion ?? '';
+      row.getCell(10).value = asignacion.motivo ?? '';
+      row.getCell(11).value = asignacion.numero_expediente ?? '';
+      row.getCell(12).value = asignacion.fecha_asignacion ?? '';
       row.commit();
     });
 
