@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
 @Injectable({ providedIn: 'root' })
 
 export class AuthService {
-  private apiUrl = 'http://localhost:4000/api/'
+  private apiUrl = 'http://localhost:4000/api/';
+  //private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
+
 
   constructor(private router: Router, private http: HttpClient) { }
 

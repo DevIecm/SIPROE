@@ -188,7 +188,7 @@ export class InvitacionComponent {
         this.service.guardaRegistros(preue, this.tokenSesion).subscribe({
            next: (data) => {  
                 Swal.fire({
-                  title: "Creación de la programacíon con éxito",
+                  title: "Creación de la programación con éxito",
                   icon: "success"
                 });
 
@@ -214,7 +214,7 @@ export class InvitacionComponent {
                 });
               }, error: (err) => {
               Swal.fire({
-                title: "Error al crear la programacíon con éxito",
+                title: "Error al crear la programación con éxito",
                 icon: "warning"
               });
 
@@ -225,7 +225,7 @@ export class InvitacionComponent {
         });
       } else {
         Swal.fire({
-          title: "No se creo la programacíon",
+          title: "No se creo la programación",
           icon: "warning"
         });
       }
@@ -317,7 +317,7 @@ export class InvitacionComponent {
         this.service.delRegistros(element.ut[0], this.tokenSesion).subscribe({
           next: (data) => {
             Swal.fire({
-              title: "Eliminación de la programacíon con éxito",
+              title: "Eliminación de la programación con éxito",
               icon: "success"
             });
 
@@ -344,7 +344,7 @@ export class InvitacionComponent {
               
           }, error: (err) => {
              Swal.fire({
-              title: "Error al eliminar la programacíon",
+              title: "Error al eliminar la programación",
               icon: "warning"
             });
           }
@@ -393,7 +393,7 @@ export class InvitacionComponent {
           this.service.actualizaRegistros(data, this.tokenSesion).subscribe({
            next: (data) => {  
                 Swal.fire({
-                  title: "Actualización de la programacíon con éxito",
+                  title: "Actualización de la programación con éxito",
                   icon: "success"
                 });
 
@@ -419,14 +419,14 @@ export class InvitacionComponent {
                 });
               }, error: (err) => {
               Swal.fire({
-                title: "Error al actualizar la programacíon con éxito",
+                title: "Error al actualizar la programación con éxito",
                 icon: "warning"
               });
             }
         });
       } else {
         Swal.fire({
-          title: "Error al actualizar la programacíon",
+          title: "Error al actualizar la programación",
           icon: "warning"
         });
       }

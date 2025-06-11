@@ -7,7 +7,8 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class ReasignacionService {
-  private apiUrl = 'http://localhost:4000/api/'
+  private apiUrl = 'http://localhost:4000/api/';
+  // private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
 
   constructor(private router: Router, private http: HttpClient) { }
 

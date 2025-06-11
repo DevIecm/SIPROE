@@ -49,6 +49,7 @@ export class ReportesComponent {
   asignacion: any[] = [];
   idDistrital = sessionStorage.getItem('dir') || '0';
   tokenSesion = sessionStorage.getItem('key') || '0';
+  tipoUsuario = sessionStorage.getItem('tipoUsuario') || '0';
   bloqueaBotonParticipantes: boolean = false;
   bloqueaBotonCancelados: boolean = false;
   bloqueaBotonAsignacion: boolean = false;
@@ -57,7 +58,7 @@ export class ReportesComponent {
   constructor(private http: HttpClient, private service: AuthService, private reportesSerice: ReportesService) {}
 
   ngOnInit() {
-    this.reportesSerice.proyectosParticipantes(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+    this.reportesSerice.proyectosParticipantes(parseInt(this.tipoUsuario), parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
         this.participantes = data.registrosProyectosParticipantes;
         this.bloqueaBotonParticipantes = false;
@@ -75,7 +76,7 @@ export class ReportesComponent {
       }
     });
 
-    this.reportesSerice.proyectosCancelados(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+    this.reportesSerice.proyectosCancelados(parseInt(this.tipoUsuario), parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
         this.cancelados = data.registrosProyectosCancelados;
         this.bloqueaBotonCancelados = false;
@@ -91,7 +92,7 @@ export class ReportesComponent {
       }
     });
 
-    this.reportesSerice.proyectosAsignacion(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+    this.reportesSerice.proyectosAsignacion(parseInt(this.tipoUsuario), parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
         this.asignacion = data.registrosProyectosAsignacion;
         this.bloqueaBotonAsignacion = false;

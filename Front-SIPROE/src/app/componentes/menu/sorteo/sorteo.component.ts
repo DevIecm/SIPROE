@@ -201,7 +201,8 @@ export class SorteoComponent {
       const registro = {
         folio: proyecto.folio,
         numero_aleatorio: proyecto.numero,
-        sorteo: idSorteo
+        sorteo: idSorteo,
+        clave_ut: this.clave_ut
       };
 
       this.service.actualizaProyecto(this.tokenSesion, registro).subscribe({

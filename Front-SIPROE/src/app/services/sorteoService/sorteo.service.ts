@@ -8,8 +8,9 @@ import Swal from 'sweetalert2';
 })
 
 export class SorteoService {
-  private apiUrl = 'http://localhost:4000/api/';
-  private canvasId = 'sorteo-canvas';
+  private apiUrl = 'https://localhost:4000/api/';
+  // private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
+
 
   constructor(private http: HttpClient) { }
 
