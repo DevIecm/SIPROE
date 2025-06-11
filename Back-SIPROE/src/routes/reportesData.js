@@ -9,36 +9,66 @@ const router = express.Router();
 router.get("/getProyectosParticipantes", verifyToken, async (req, res) => {
     try {
 
-        const { idDistrito } = req.query;
+        const { idDistrito, tipoUsuario } = req.query;
         
-        if(!idDistrito){
+        if(!idDistrito || !tipoUsuario){
             return res.status(400).json({ message: "Datos requeridos"})
         }
 
-        const pool = await connectToDatabase();
+        if(tipoUsuario == 2){
+            const pool = await connectToDatabase();
 
-        const result = await pool.request()
-            .input('idDistrito', sql.Int, idDistrito)
-            .query(`SELECT 
-                    dt.dt as demarcacion,
-                    u.ut as unidad_territorial,
-                    u.clave_ut as clave,
-                    p.numero_aleatorio as identificador,
-                    p.folio as folio,
-                    p.nombre,
-                    p.distrito 
-                FROM proyectos p
-                    JOIN unidad_territorial u ON p.ut = u.clave_ut
-                    JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
-                WHERE p.distrito = @idDistrito
-                ORDER BY p.ut ASC;`)
+            const result = await pool.request()
+                .input('idDistrito', sql.Int, idDistrito)
+                .query(`SELECT 
+                        dt.dt as demarcacion,
+                        u.ut as unidad_territorial,
+                        u.clave_ut as clave,
+                        p.numero_aleatorio as identificador,
+                        p.folio as folio,
+                        p.nombre,
+                        p.distrito 
+                    FROM proyectos p
+                        JOIN unidad_territorial u ON p.ut = u.clave_ut
+                        JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
+                    ORDER BY p.ut ASC;`)
 
-        if (result.recordset.length > 0) {
-            return res.status(200).json({
-                registrosProyectosParticipantes: result.recordset
-            });
+            if (result.recordset.length > 0) {
+                return res.status(200).json({
+                    registrosProyectosParticipantes: result.recordset
+                });
+            } else {
+                return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            }
+
         } else {
-            return res.status(404).json({ message: "No se encontraron registros", code: 100})
+
+            const pool = await connectToDatabase();
+
+            const result = await pool.request()
+                .input('idDistrito', sql.Int, idDistrito)
+                .query(`SELECT 
+                        dt.dt as demarcacion,
+                        u.ut as unidad_territorial,
+                        u.clave_ut as clave,
+                        p.numero_aleatorio as identificador,
+                        p.folio as folio,
+                        p.nombre,
+                        p.distrito 
+                    FROM proyectos p
+                        JOIN unidad_territorial u ON p.ut = u.clave_ut
+                        JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
+                    WHERE p.distrito = @idDistrito
+                    ORDER BY p.ut ASC;`)
+
+            if (result.recordset.length > 0) {
+                return res.status(200).json({
+                    registrosProyectosParticipantes: result.recordset
+                });
+            } else {
+                return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            }
+
         }
 
     } catch (error) {
@@ -50,39 +80,71 @@ router.get("/getProyectosParticipantes", verifyToken, async (req, res) => {
 router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
     try {
 
-        const { idDistrito } = req.query;
+        const { idDistrito, tipoUsuario } = req.query;
         
-        if(!idDistrito){
+        if(!idDistrito || !tipoUsuario){
             return res.status(400).json({ message: "Datos requeridos"})
         }
 
-        const pool = await connectToDatabase();
+        if(tipoUsuario == 2){
+            
+            const pool = await connectToDatabase();
 
-        const result = await pool.request()
-            .input('idDistrito', sql.Int, idDistrito)
-            .query(`SELECT 
-                    dt.dt as demarcacion,
-                    u.clave_ut as clave,
-                    u.ut as unidad_territorial,
-                    s.fecha_eliminacion,
-                    s.motivo_del,
-                    s.numero_expediente_del,
-                    oj.descripcion,
-                    p.distrito 
-                FROM proyectos p
-                    JOIN unidad_territorial u ON p.ut = u.clave_ut
-                    JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
-                    JOIN sorteo s ON p.sorteo = s.id
-                    JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
-                WHERE s.estado = 2 and p.distrito = @idDistrito
-                ORDER BY p.ut ASC;`)
+            const result = await pool.request()
+                .input('idDistrito', sql.Int, idDistrito)
+                .query(`SELECT 
+                            dt.dt as demarcacion,
+                            u.clave_ut as clave,
+                            u.ut as unidad_territorial,
+                            s.fecha_eliminacion,
+                            s.motivo_del ,
+                            s.numero_expediente_del,
+                            oj.descripcion,
+                            s.clave_ut
+                        FROM sorteo s 
+                            JOIN unidad_territorial u ON s.clave_ut = u.clave_ut
+                            JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
+                            JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
+                        WHERE s.estado = 2 
+                        ORDER BY s.clave_ut ASC;`)
 
-        if (result.recordset.length > 0) {
-            return res.status(200).json({
-                registrosProyectosCancelados: result.recordset
-            });
+            if (result.recordset.length > 0) {
+                return res.status(200).json({
+                    registrosProyectosCancelados: result.recordset
+                });
+            } else {
+                return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            }
+
         } else {
-            return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            const pool = await connectToDatabase();
+
+            const result = await pool.request()
+                .input('idDistrito', sql.Int, idDistrito)
+                .query(`SELECT 
+                        dt.dt as demarcacion,
+                        u.clave_ut as clave,
+                        u.ut as unidad_territorial,
+                        s.fecha_eliminacion,
+                        s.motivo_del,
+                        s.numero_expediente_del,
+                        oj.descripcion,
+                        s.clave_ut
+                    FROM sorteo s
+                        JOIN unidad_territorial u ON s.clave_ut = u.clave_ut
+                        JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
+                        JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
+                        JOIN proyectos p ON  s.id = p.sorteo
+                    WHERE s.estado = 2 and p.distrito = @idDistrito
+                    ORDER BY s.clave_ut ASC;`)
+
+            if (result.recordset.length > 0) {
+                return res.status(200).json({
+                    registrosProyectosCancelados: result.recordset
+                });
+            } else {
+                return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            }
         }
 
     } catch (error) {
@@ -94,43 +156,80 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
 router.get("/getProyectosAsignacion", verifyToken, async (req, res) => {
     try {
 
-        const { idDistrito } = req.query;
+        const { idDistrito, tipoUsuario } = req.query;
         
-        if(!idDistrito){
+        if(!idDistrito || !tipoUsuario){
             return res.status(400).json({ message: "Datos requeridos"})
         }
+        
+        if(tipoUsuario == 2) {
 
-        const pool = await connectToDatabase();
+            const pool = await connectToDatabase();
 
-        const result = await pool.request()
-            .input('idDistrito', sql.Int, idDistrito)
-            .query(`SELECT 
-                    p.distrito as distrital,
-                    dt.dt as demarcacion,
-                    u.ut as unidad_territorial,
-                    u.clave_ut as clave,
-                    p.folio as folio,
-                    p.numero_aleatorio as identificador,
-                    p.nombre,
-                    s.fecha_sentencia  as fecha_asignacion,
-                    s.motivo,
-                    s.numero_expediente,
-                    oj.descripcion,
-                    p.distrito 
-                FROM proyectos p
-                    JOIN unidad_territorial u ON p.ut = u.clave_ut
-                    JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
-                    JOIN sorteo s ON p.sorteo = s.id
-                    JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
-                WHERE s.tipo = 2 and p.distrito = @idDistrito
-                ORDER BY p.ut ASC;`)
+            const result = await pool.request()
+                .input('idDistrito', sql.Int, idDistrito)
+                .query(`SELECT 
+                        p.distrito as distrital,
+                        dt.dt as demarcacion,
+                        u.ut as unidad_territorial,
+                        u.clave_ut as clave,
+                        p.folio as folio,
+                        p.numero_aleatorio as identificador,
+                        p.nombre,
+                        s.fecha_sentencia  as fecha_asignacion,
+                        s.motivo,
+                        s.numero_expediente,
+                        oj.descripcion,
+                        p.distrito 
+                    FROM proyectos p
+                        JOIN unidad_territorial u ON p.ut = u.clave_ut
+                        JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
+                        JOIN sorteo s ON p.sorteo = s.id
+                        JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
+                    WHERE s.tipo = 2 
+                    ORDER BY p.ut ASC;`)
 
-        if (result.recordset.length > 0) {
-            return res.status(200).json({
-                registrosProyectosAsignacion: result.recordset
-            });
+            if (result.recordset.length > 0) {
+                return res.status(200).json({
+                    registrosProyectosAsignacion: result.recordset
+                });
+            } else {
+                return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            }
+
         } else {
-            return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            const pool = await connectToDatabase();
+
+            const result = await pool.request()
+                .input('idDistrito', sql.Int, idDistrito)
+                .query(`SELECT 
+                        p.distrito as distrital,
+                        dt.dt as demarcacion,
+                        u.ut as unidad_territorial,
+                        u.clave_ut as clave,
+                        p.folio as folio,
+                        p.numero_aleatorio as identificador,
+                        p.nombre,
+                        s.fecha_sentencia  as fecha_asignacion,
+                        s.motivo,
+                        s.numero_expediente,
+                        oj.descripcion,
+                        p.distrito 
+                    FROM proyectos p
+                        JOIN unidad_territorial u ON p.ut = u.clave_ut
+                        JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
+                        JOIN sorteo s ON p.sorteo = s.id
+                        JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
+                    WHERE s.tipo = 2 and p.distrito = @idDistrito
+                    ORDER BY p.ut ASC;`)
+
+            if (result.recordset.length > 0) {
+                return res.status(200).json({
+                    registrosProyectosAsignacion: result.recordset
+                });
+            } else {
+                return res.status(404).json({ message: "No se encontraron registros", code: 100})
+            }
         }
 
     } catch (error) {

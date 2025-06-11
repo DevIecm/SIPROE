@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+
 ['DB_USER', 'DB_PASSWORD', 'DB_SERVER', 'DB_DATABASE', 'DB_PORT'].forEach((key) => {
     if (!process.env[key]) {
         throw new Error(`Variable no encontrada: ${key}`);
