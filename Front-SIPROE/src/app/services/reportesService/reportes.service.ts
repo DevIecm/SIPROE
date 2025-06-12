@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
+import { environment } from '../enviroment/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReportesService {
 
-  private apiUrl = 'http://localhost:4000/api/';
+  private apiUrl = `${environment.apiUrl}`;
   // private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
   
   constructor(private http: HttpClient) { }

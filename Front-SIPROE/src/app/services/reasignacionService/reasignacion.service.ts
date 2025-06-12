@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { environment } from '../enviroment/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReasignacionService {
-  private apiUrl = 'http://localhost:4000/api/';
+  private apiUrl = `${environment.apiUrl}`;
   // private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
 
   constructor(private router: Router, private http: HttpClient) { }

@@ -20,6 +20,7 @@ import { ResultadosService } from '../../../services/resultadosService/resultado
 import saveAs from 'file-saver';
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-resultados',
   standalone: true,
@@ -77,10 +78,11 @@ export class ResultadosComponent {
         this.unidades = data.catUnidad;
         this.selectedTipo = null;
       }, error: (err) => {
-        console.error("Error al cargar unidades", err);
+
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
         }
+
       }
     });
   }
@@ -93,10 +95,11 @@ export class ResultadosComponent {
       next: (data) => {
         this.tipos = data.catTipoSorteo;
       }, error: (err) => {
-        console.error("Error al cargar tipos de sorteo", err);
+
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
         }
+        
       }
     }); 
 
@@ -104,10 +107,11 @@ export class ResultadosComponent {
       next: (data) => {
         this.proyectosFull = data.registrosProyectos;
       }, error: (err) => {
-        console.error("Error al cargar tipos de sorteo", err);
+
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
         }
+        
       }
     }); 
     
@@ -118,10 +122,13 @@ export class ResultadosComponent {
       next: (data) => {
         this.proyectos = data.registrosProyectos;
       }, error: (err) => {
-        console.error("Error al cargar tipos de sorteo", err);
+        
+        Swal.fire("Error al cargar tipos de sorteo");
+
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
         }
+
       }
     }); 
    

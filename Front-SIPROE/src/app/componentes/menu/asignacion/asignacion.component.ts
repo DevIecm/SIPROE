@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { FooterComponent } from '../../footer/footer.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -95,12 +95,13 @@ export class AsignacionComponent {
       next: (data) => {
         this.unidades = data.catUnidad;
       }, error: (err) => {
-        console.error("Error al cargar unidades", err);
+
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         } else if(err.error.code === 125) {
           Swal.fire("No se encontraron unidades para asignacion directa en este distrito")
         }
+
       }
     });
 
@@ -108,10 +109,11 @@ export class AsignacionComponent {
       next: (data) => {
         this.organos = data.catOrgano;
       }, error: (err) => {
-        console.error("Error al cargar Organos Jurisiccionales", err);
+
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+
       }
     });
 
@@ -119,10 +121,11 @@ export class AsignacionComponent {
       next: (data) => {
         this.motivosCat = data.catMotivo;
       }, error: (err) => {
-        console.error("Error al cargar Organos Jurisiccionales", err);
+
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+
       }
     });
   }
@@ -180,7 +183,7 @@ export class AsignacionComponent {
         }
       },
       error: (err) => {
-        console.error("Error al cargar proyectos", err);
+
         if (err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
@@ -189,6 +192,7 @@ export class AsignacionComponent {
           this.guardoSorteo = true;
           Swal.fire("No se encontraron registros")
         }
+        
       }
     });
   }
@@ -241,7 +245,8 @@ export class AsignacionComponent {
       fecha_sentencia: this.fechaSeleccionada,
       motivo: this.motivo,
       numero_expediente: this.expediente, 
-      id_motivo: this.selectedMotivo
+      id_motivo: this.selectedMotivo, 
+      clave_ut: this.clave_ut
     });
 
     this.serviceAsignacion.insertaSorteo(data, this.tokenSesion).subscribe({
@@ -262,18 +267,18 @@ export class AsignacionComponent {
             next: (data) => {
               this.unidades = data.catUnidad;
             }, error: (err) => {
-              console.error("Error al cargar unidades", err);
+
               if(err.error.code === 160) {
-                  this.servicea.cerrarSesionByToken();
-                } else if(err.error.code === 125) {
-                  this.unidades = [];
-                  Swal.fire("No se encontraron unidades para asignacion directa en este distrito")
-                }
+                 this.servicea.cerrarSesionByToken();
+              } else if(err.error.code === 125) {
+                this.unidades = [];
+                Swal.fire("No se encontraron unidades para asignación directa en este distrito")
+              }
+
             }
           });
         }, 2000);
       }, error: (err) => {
-        console.error("Error al crear sorteo", err);
 
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
@@ -296,11 +301,11 @@ export class AsignacionComponent {
         next: (resp) => {
           this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
         }, error: (err) => {
-          console.error("Error al guardar proyecto", registro, err);
 
           if(err.error.code === 160) {
             this.servicea.cerrarSesionByToken();
           }
+
         }
       });
     });

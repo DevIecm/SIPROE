@@ -54,7 +54,6 @@ export class ReportesComponent {
   bloqueaBotonCancelados: boolean = false;
   bloqueaBotonAsignacion: boolean = false;
 
-
   constructor(private http: HttpClient, private service: AuthService, private reportesSerice: ReportesService) {}
 
   ngOnInit() {
@@ -72,7 +71,6 @@ export class ReportesComponent {
           this.service.cerrarSesionByToken();
         }
 
-        console.error("Error al cargar registros", err);
       }
     });
 
@@ -85,10 +83,11 @@ export class ReportesComponent {
         if(err.error.code === 100){
           this.bloqueaBotonCancelados = true;
         }
-        console.error("Error al cargar registros", err);
+
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
         }
+
       }
     });
 
@@ -106,7 +105,6 @@ export class ReportesComponent {
           this.service.cerrarSesionByToken();
         }
 
-        console.error("Error al cargar registros", err);
       }
     });
   }

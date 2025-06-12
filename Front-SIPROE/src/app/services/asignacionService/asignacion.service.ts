@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
-import Swal from 'sweetalert2';
+import { environment } from '../enviroment/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AsignacionService {
-  private apiUrl = 'http://localhost:4000/api/';
+
+  private apiUrl = `${environment.apiUrl}`;
   //private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
 
   constructor(private http: HttpClient) { }

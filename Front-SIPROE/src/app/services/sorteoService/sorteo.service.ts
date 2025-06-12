@@ -1,19 +1,24 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
-import Swal from 'sweetalert2';
+import { environment } from '../enviroment/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class SorteoService {
-  private apiUrl = 'https://localhost:4000/api/';
-  // private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
+  private apiUrl = environment.apiUrl; 
 
-
-  constructor(private http: HttpClient) { }
-
+  constructor (private http: HttpClient) {
+    
+    if (environment.production) {
+      console.log('Modo producción activado');
+    } else {
+      console.log('Modo desarrollo');
+    }
+  }
+  
   getDataProyectos(ut: string, distrito: number, token: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}` 
@@ -27,12 +32,12 @@ export class SorteoService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
 
-  insertaSorteo(token: string): Observable<any> {
+  insertaSorteo(data: any, token: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}` 
     });
 
-    return this.http.post(this.apiUrl + 'sorteo/insertaSorteo', {}, {headers})
+    return this.http.post(this.apiUrl + 'sorteo/insertaSorteo', data, {headers})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
 
   }

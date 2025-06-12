@@ -99,11 +99,10 @@ export class InvitacionComponent {
         this.unidades = data.catUnidad;
       }, error: (err) => {
         
-        console.error("Error al cargar unidades", err);
-
         if(err.error.code === 160) {
          this.service.cerrarSesionByToken();
         }
+        
       }
     });
 
@@ -141,11 +140,11 @@ export class InvitacionComponent {
           this.dataSource.data = [];
           this.datosRegistros = false;
         } else {
-          console.error("Error al cargar registros", err);
 
           if(err.error.code === 160) {
             this.service.cerrarSesionByToken();
           }
+
         }
       }
     })
@@ -204,11 +203,11 @@ export class InvitacionComponent {
                       this.dataSource.data = [];
                       this.datosRegistros = false;
                     } else {
-                      console.error("Error al cargar registros", err);
 
                       if(err.error.code === 160) {
                         this.service.cerrarSesionByToken();
                       }
+
                     }
                   }
                 });
@@ -328,16 +327,17 @@ export class InvitacionComponent {
                   this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
                 },
                 error: (err) => {
+
                   if (err.error.code === 100) {
                     this.sinRegistros = true;
                     this.dataSource.data = [];
                     this.datosRegistros = false;
                   } else {
-                    console.error("Error al cargar registros", err);
 
                     if(err.error.code === 160) {
                       this.service.cerrarSesionByToken();
                     }
+
                   }
                 }
               });
@@ -405,6 +405,7 @@ export class InvitacionComponent {
                     this.horaSeleccionada = '';
                   },
                   error: (err) => {
+
                     if(err.error.code === 160) {
                       this.service.cerrarSesionByToken();
                     }
@@ -412,9 +413,8 @@ export class InvitacionComponent {
                     if (err.error.code === 100) {
                       this.dataSource.data = [];
                       this.datosRegistros = false;
-                    } else {
-                      console.error("Error al cargar registros", err);
                     }
+
                   }
                 });
               }, error: (err) => {

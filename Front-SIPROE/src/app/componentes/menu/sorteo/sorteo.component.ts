@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { FooterComponent } from '../../footer/footer.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -74,10 +74,11 @@ export class SorteoComponent {
       next: (data) => {
         this.unidades = data.catUnidad;
       }, error: (err) => {
-        console.error("Error al cargar unidades", err);
+
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+        
       }
     });
   }
@@ -126,7 +127,7 @@ export class SorteoComponent {
         }
       },
       error: (err) => {
-        console.error("Error al cargar proyectos", err);
+
         if (err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
@@ -138,6 +139,7 @@ export class SorteoComponent {
           Swal.fire("No se encontraron registros")
           this.deshacerSorteo();
         }
+
       }
     });
   }
@@ -170,7 +172,11 @@ export class SorteoComponent {
 
   aceptarSorteo() {
 
-    this.service.insertaSorteo(this.tokenSesion).subscribe({
+    const data = ({
+      clave_ut: this.clave_ut
+    });
+
+    this.service.insertaSorteo(data, this.tokenSesion).subscribe({
       next: (data) => {
         
         Swal.fire({
@@ -184,7 +190,6 @@ export class SorteoComponent {
         this.guardoSorteo = false;
 
       }, error: (err) => {
-        console.error("Error al crear sorteo", err);
 
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
@@ -209,11 +214,11 @@ export class SorteoComponent {
         next: (resp) => {
           this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
         }, error: (err) => {
-          console.error("Error al guardar proyecto", registro, err);
 
           if(err.error.code === 160) {
             this.servicea.cerrarSesionByToken();
           }
+
         }
       });
     });

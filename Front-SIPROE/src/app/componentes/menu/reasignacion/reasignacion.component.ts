@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { FooterComponent } from '../../footer/footer.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -105,10 +105,11 @@ export class ReasignacionComponent {
         this.unidades = data.catUnidad;
         this.selectedTipo = null;
       }, error: (err) => {
-        console.error("Error al cargar unidades", err);
+
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+
       }
     });
 
@@ -116,10 +117,11 @@ export class ReasignacionComponent {
       next: (data) => {
         this.organos = data.catOrgano;
       }, error: (err) => {
-        console.error("Error al cargar Organos Jurisiccionales", err);
+
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+
       }
     });
    }
@@ -137,10 +139,11 @@ export class ReasignacionComponent {
       next: (data) => {
         this.tipos = data.catTipoSorteo;
       }, error: (err) => {
-        console.error("Error al cargar tipos de sorteo", err);
+
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+
       }
     });
   };
@@ -184,10 +187,11 @@ export class ReasignacionComponent {
         
       },
       error: (err) => {
-        console.error("Error al cargar proyectos", err);
+
         if (err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         }
+
         if(err.error.code === 100) {
           this.proyectos = [];
           this.mostrarDiv = false;
@@ -195,6 +199,7 @@ export class ReasignacionComponent {
           this.cambioDistrito = true;
           Swal.fire("No se encontraron registros")
         }
+
       }
     });
   }
@@ -268,11 +273,11 @@ export class ReasignacionComponent {
                 Swal.fire("Sorteo de eliminado con éxito");
                 this.deshacerSorteoR();
               }, error: (err) => {
-                console.error("Error al guardar proyecto", registro, err);
 
                 if(err.error.code === 160) {
                   this.servicea.cerrarSesionByToken();
                 }
+
               }
             });
           }, error: (err) => {
@@ -314,11 +319,11 @@ export class ReasignacionComponent {
                 Swal.fire("Sorteo de eliminado con éxito");
                 this.deshacerSorteoR();
               }, error: (err) => {
-                console.error("Error al guardar proyecto", registro, err);
 
                 if(err.error.code === 160) {
                   this.servicea.cerrarSesionByToken();
                 }
+
               }
             });
           }, error: (err) => {
