@@ -97,15 +97,17 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
                             u.clave_ut as clave,
                             u.ut as unidad_territorial,
                             s.fecha_eliminacion,
-                            s.motivo_del ,
+                            s.motivo_del,
                             s.numero_expediente_del,
                             oj.descripcion,
-                            s.clave_ut
-                        FROM sorteo s 
+                            s.clave_ut,
+                            s.id,
+                            s.clave_ut 
+                        FROM sorteo s
                             JOIN unidad_territorial u ON s.clave_ut = u.clave_ut
                             JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
                             JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
-                        WHERE s.estado = 2 
+                        WHERE s.estado = 2
                         ORDER BY s.clave_ut ASC;`)
 
             if (result.recordset.length > 0) {
@@ -121,22 +123,24 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
 
             const result = await pool.request()
                 .input('idDistrito', sql.Int, idDistrito)
-                .query(`SELECT 
-                        dt.dt as demarcacion,
-                        u.clave_ut as clave,
-                        u.ut as unidad_territorial,
-                        s.fecha_eliminacion,
-                        s.motivo_del,
-                        s.numero_expediente_del,
-                        oj.descripcion,
-                        s.clave_ut
-                    FROM sorteo s
-                        JOIN unidad_territorial u ON s.clave_ut = u.clave_ut
-                        JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
-                        JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
-                        JOIN proyectos p ON  s.id = p.sorteo
-                    WHERE s.estado = 2 and p.distrito = @idDistrito
-                    ORDER BY s.clave_ut ASC;`)
+                .query(`SELECT DISTINCT
+                            dt.dt as demarcacion,
+                            u.clave_ut as clave,
+                            u.ut as unidad_territorial,
+                            s.fecha_eliminacion,
+                            s.motivo_del,
+                            s.numero_expediente_del,
+                            oj.descripcion,
+                            s.clave_ut,
+                            s.id,
+                            s.clave_ut 
+                        FROM sorteo s
+                            JOIN unidad_territorial u ON s.clave_ut = u.clave_ut
+                            JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
+                            JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
+                            JOIN proyectos p ON s.clave_ut = p.ut
+                        WHERE s.estado = 2 and p.distrito = @idDistrito
+                        ORDER BY s.clave_ut ASC;`)
 
             if (result.recordset.length > 0) {
                 return res.status(200).json({

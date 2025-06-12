@@ -50,11 +50,22 @@ router.get("/getSorteos", verifyToken, async (req, res) => {
 
 router.post("/insertaSorteo", verifyToken, async (req, res) => {
     try{
+console.log(req)
+        const { clave_ut } = req.body;
+
+         console.log(clave_ut)
+        
+        if(!clave_ut){
+            return res.status(400).json({ message: "Datos requeridos"})
+        }
+        
         const pool = await connectToDatabase();
+
         const result = await pool.request()
-            .query(`INSERT INTO sorteo (tipo, estado, fecha)
+            .input('clave_ut', sql.VarChar, clave_ut)
+            .query(`INSERT INTO sorteo (tipo, estado, fecha, clave_ut)
               OUTPUT INSERTED.id
-              VALUES (1, 1, GETDATE())`);
+              VALUES (1, 1, GETDATE(), @clave_ut)`);
 
         const insertedId = result.recordset[0].id;
 
@@ -65,8 +76,8 @@ router.post("/insertaSorteo", verifyToken, async (req, res) => {
         });
             
     } catch(err) {
-        console.error(error);
-        return res.status(500).json({ message: "Error de servidor", error})
+        console.error(err);
+        return res.status(500).json({ message: "Error de servidor", err})
     }
 });
 

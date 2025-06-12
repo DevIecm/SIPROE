@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post("/insertaSorteo", verifyToken, async (req, res) => {
     try{
-        const {id_o, fecha_sentencia, motivo, numero_expediente, id_motivo} = req.body;
+        const {id_o, fecha_sentencia, motivo, numero_expediente, id_motivo, clave_ut} = req.body;
 
         const pool = await connectToDatabase();
         const result = await pool.request()
@@ -17,9 +17,10 @@ router.post("/insertaSorteo", verifyToken, async (req, res) => {
             .input('motivo', sql.VarChar, motivo)
             .input('numero_expediente', sql.VarChar, numero_expediente)
             .input('id_motivo', sql.Int, id_motivo)
-            .query(`INSERT INTO sorteo (tipo, estado, fecha, organo_jurisdiccional, fecha_sentencia, motivo, numero_expediente, id_motivo)
+            .input('clave_ut', sql.VarChar, clave_ut)
+            .query(`INSERT INTO sorteo (tipo, estado, fecha, organo_jurisdiccional, fecha_sentencia, motivo, numero_expediente, id_motivo, clave_ut)
               OUTPUT INSERTED.id
-              VALUES (2, 1, GETDATE(), @id_o, @fecha_sentencia, @motivo, @numero_expediente, @id_motivo);`);
+              VALUES (2, 1, GETDATE(), @id_o, @fecha_sentencia, @motivo, @numero_expediente, @id_motivo, @clave_ut);`);
 
         const insertedId = result.recordset[0].id;
 
