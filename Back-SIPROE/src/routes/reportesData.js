@@ -106,7 +106,7 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
                         FROM sorteo s
                             JOIN unidad_territorial u ON s.clave_ut = u.clave_ut
                             JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
-                            JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
+                            JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional_del = oj.id
                         WHERE s.estado = 2
                         ORDER BY s.clave_ut ASC;`)
 
@@ -137,7 +137,7 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
                         FROM sorteo s
                             JOIN unidad_territorial u ON s.clave_ut = u.clave_ut
                             JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
-                            JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional = oj.id
+                            JOIN organo_jurisdiccional oj ON s.organo_jurisdiccional_del = oj.id
                             JOIN proyectos p ON s.clave_ut = p.ut
                         WHERE s.estado = 2 and p.distrito = @idDistrito
                         ORDER BY s.clave_ut ASC;`)
