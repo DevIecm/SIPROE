@@ -178,13 +178,7 @@ export class SorteoComponent {
 
     this.service.insertaSorteo(data, this.tokenSesion).subscribe({
       next: (data) => {
-        
-        Swal.fire({
-          title: "Sorteo aplicado con éxito!",
-          icon: "success",
-          draggable: true
-        });
-
+      
         const idSorteo = data.id;
         this.guardaProyectosConSorteo(idSorteo);
         this.guardoSorteo = false;
@@ -223,7 +217,14 @@ export class SorteoComponent {
       });
     });
 
-    Swal.fire("Exito", "Sorteo aplicado con éxito.", "success");
+    Swal.fire({
+      titleText: "Sorteo aplicado con éxito.",
+      icon: "success",
+      customClass: {
+        title: 'my-swal-title',
+        htmlContainer: 'my-swal-text'
+      }
+    });
 
     this.sorteoIniciado = false;
   }

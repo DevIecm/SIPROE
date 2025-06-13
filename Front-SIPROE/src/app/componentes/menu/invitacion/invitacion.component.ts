@@ -11,7 +11,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -24,6 +24,7 @@ import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import { MatPaginator } from '@angular/material/paginator';
 import { getSpanishPaginatorIntl } from './mat-paginator-intl-es';
+import { CustomDateAdapter } from './custom-date-formats';
 
 @Component({
   selector: 'app-invitacion',
@@ -49,8 +50,13 @@ import { getSpanishPaginatorIntl } from './mat-paginator-intl-es';
   ],
   templateUrl: './invitacion.component.html',
   styleUrl: './invitacion.component.css',
-  providers: [ { provide: MatPaginatorIntl, useValue: getSpanishPaginatorIntl() },  provideNativeDateAdapter() ]
+  providers: [ 
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MAT_DATE_FORMATS },
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },// opcional: español
+    { provide: MatPaginatorIntl, useValue: getSpanishPaginatorIntl() },  provideNativeDateAdapter() ]
 })
+
 
 export class InvitacionComponent {
 
@@ -114,6 +120,19 @@ export class InvitacionComponent {
     return d >= this.minFecha && d <= this.maxFecha;
   }
 
+  blockMonthNavigation(event: any) {
+    setTimeout(() => {
+      const calendar = document.querySelector('.mat-calendar');
+      if (calendar) {
+        const prevButton = calendar.querySelector('.mat-calendar-previous-button') as HTMLButtonElement;
+        const nextButton = calendar.querySelector('.mat-calendar-next-button') as HTMLButtonElement;
+
+        if (prevButton) prevButton.disabled = true;
+        if (nextButton) nextButton.disabled = true;
+      }
+    }, 0);
+  }
+  
   generarOpcionesHoras(inicio: string, fin: string, intervaloMin: number) {
     const [hInicio, mInicio] = inicio.split(':').map(Number);
     const [hFin, mFin] = fin.split(':').map(Number);

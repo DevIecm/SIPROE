@@ -156,3 +156,11 @@ mat-form-field {
     align-items: center;
     padding-bottom: 0px !important;
 }
+
+.my-swal-title {
+  font-size: 26px;
+}
+
+.my-swal-text {
+  font-size: 18px;
+}

@@ -202,7 +202,7 @@ export class ReportesComponent {
         unidad_territorial: item.unidad_territorial,
         clave: item.clave,
         nombre: item.nombre,
-        fecha_eliminacion: item.fecha_eliminacion,
+        fecha_eliminacion: this.extractFecha(item.fecha_eliminacion),
         motivo_del: item.motivo_del,
         numero_expediente_del: item.numero_expediente_del,
         descripcion: item.descripcion

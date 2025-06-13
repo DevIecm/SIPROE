@@ -4,7 +4,7 @@
       
       <div class="form-section">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Seleccione unidad territorial</mat-label>
+          <mat-label>Seleccione Unidad Territorial</mat-label>
           <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
             <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
           </mat-select>
@@ -17,12 +17,25 @@
         
         <div class="datetime-container">
             <mat-form-field>
-                <mat-label>Selecciona la fecha</mat-label>
-                <input [disabled]="datosRegistros || !territorioSelected" matInput [matDatepicker]="datepicker" [(ngModel)]="fechaSeleccionada" [matDatepickerFilter]="fechaValida">
-                <mat-datepicker #datepicker />
-                <mat-datepicker-toggle [for]="datepicker" matSuffix/>
+              <mat-label>Selecciona la fecha</mat-label>
+              <input
+                [disabled]="datosRegistros || !territorioSelected"
+                matInput
+                [matDatepicker]="datepicker"
+                [(ngModel)]="fechaSeleccionada"
+                [matDatepickerFilter]="fechaValida"
+                [min]="minFecha"
+                [max]="maxFecha"
+              >
+              <mat-datepicker-toggle [for]="datepicker" matSuffix></mat-datepicker-toggle>
+              <mat-datepicker
+                #datepicker
+                [startAt]="minFecha"
+                startView="month"
+                (monthSelected)="blockMonthNavigation($event)"
+                (yearSelected)="blockMonthNavigation($event)"
+              ></mat-datepicker>
             </mat-form-field>
-
             <mat-form-field appearance="fill">
               <mat-label>Selecciona la hora</mat-label>
               <mat-select 
