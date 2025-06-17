@@ -31,7 +31,6 @@ import { AuthService } from '../../../services/auth.service';
     MatButtonModule, 
     MatProgressBarModule, 
     MatChipsModule, 
-    FooterComponent,
     MatTimepickerModule,
     MatProgressSpinnerModule,
     CommonModule,
@@ -301,11 +300,11 @@ export class ReportesComponent {
       row.getCell(5).value = asignacion.folio ?? '';
       row.getCell(6).value = asignacion.identificador ?? '';
       row.getCell(7).value = asignacion.nombre ?? '';
-      row.getCell(8).value = asignacion.fecha_asignacion ?? '';
+      row.getCell(8).value = this.extractFecha(asignacion.fecha_asignacion) ?? '';
       row.getCell(9).value = asignacion.resolucion ?? '';
       row.getCell(10).value = asignacion.motivo ?? '';
       row.getCell(11).value = asignacion.numero_expediente ?? '';
-      row.getCell(12).value = asignacion.fecha_asignacion ?? '';
+      row.getCell(12).value = this.extractFecha(asignacion.fecha_asignacion) ?? '';
       row.commit();
     });
 

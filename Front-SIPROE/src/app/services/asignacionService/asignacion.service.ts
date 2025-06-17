@@ -9,7 +9,6 @@ import { environment } from '../enviroment/enviroment';
 export class AsignacionService {
 
   private apiUrl = `${environment.apiUrl}`;
-  //private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
 
   constructor(private http: HttpClient) { }
 

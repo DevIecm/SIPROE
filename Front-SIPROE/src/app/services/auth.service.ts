@@ -8,8 +8,6 @@ import { environment } from './enviroment/enviroment';
 export class AuthService {
   
   private apiUrl = `${environment.apiUrl}`;
-  //private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
-
 
   constructor(private router: Router, private http: HttpClient) { }
 

@@ -34,7 +34,6 @@ import { AuthService } from '../../../services/auth.service';
     MatButtonModule, 
     MatProgressBarModule, 
     MatChipsModule, 
-    FooterComponent,
     MatTimepickerModule,
     MatProgressSpinnerModule,
     CommonModule,

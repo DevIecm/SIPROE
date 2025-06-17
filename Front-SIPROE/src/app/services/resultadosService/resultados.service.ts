@@ -10,8 +10,7 @@ import { environment } from '../enviroment/enviroment';
 export class ResultadosService {
 
   private apiUrl = `${environment.apiUrl}`;
-  // private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
-
+  
   constructor(private http: HttpClient) { }
   
   getDataProyectos(ut: string, distrito: number, tipo: number, token: string): Observable<any> {

@@ -5,9 +5,9 @@
           <mat-grid-tile [colspan]="1" [rowspan]="1">
               <button [disabled]="bloqueaBotonParticipantes" (click)="GeneraConstanciasProyectosParticipantes()" class="buttonProyectos" mat-fab extended color="primary">Proyectos participantes</button>
           </mat-grid-tile>
-          <mat-grid-tile [colspan]="1" [rowspan]="1">
+          <!-- <mat-grid-tile [colspan]="1" [rowspan]="1">
               <button [disabled]="bloqueaBotonCancelados" (click)="GeneraConstanciasSorteosCancelados()" class="buttonconstancias" mat-fab extended color="warn">Concentrado de Sorteos Cancelados</button>
-          </mat-grid-tile>
+          </mat-grid-tile> -->
           <mat-grid-tile [colspan]="1" [rowspan]="1">
               <button [disabled]="bloqueaBotonAsignacion" (click)="GeneraConstanciaAsignacionDirecta()" class="buttonconstancias" mat-fab extended color="warn">Proyectos participantes por Asignación Directa</button>
           </mat-grid-tile>
@@ -19,5 +19,3 @@
 <div class="overlay" *ngIf="loading">
   <mat-spinner diameter="60"></mat-spinner>
 </div>
-
-<app-footer></app-footer>

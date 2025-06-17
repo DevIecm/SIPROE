@@ -10,14 +10,7 @@ import { environment } from '../enviroment/enviroment';
 export class SorteoService {
   private apiUrl = environment.apiUrl; 
 
-  constructor (private http: HttpClient) {
-    
-    if (environment.production) {
-      console.log('Modo producción activado');
-    } else {
-      console.log('Modo desarrollo');
-    }
-  }
+  constructor (private http: HttpClient) {}
   
   getDataProyectos(ut: string, distrito: number, token: string): Observable<any> {
     const headers = new HttpHeaders({

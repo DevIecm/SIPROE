@@ -41,7 +41,6 @@ import { CustomDateAdapter } from './custom-date-formats';
     MatButtonModule, 
     MatProgressBarModule, 
     MatChipsModule, 
-    FooterComponent,
     MatTimepickerModule,
     MatIcon,
     MatProgressSpinnerModule,

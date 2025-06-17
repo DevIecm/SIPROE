@@ -34,7 +34,6 @@ import Swal from 'sweetalert2';
     MatButtonModule, 
     MatProgressBarModule, 
     MatChipsModule, 
-    FooterComponent,
     MatTimepickerModule,
     MatProgressSpinnerModule,
     CommonModule,

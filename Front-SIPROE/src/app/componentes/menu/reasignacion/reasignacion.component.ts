@@ -36,7 +36,6 @@ import { AsignacionService } from '../../../services/asignacionService/asignacio
       MatButtonModule, 
       MatProgressBarModule, 
       MatChipsModule, 
-      FooterComponent,
       MatTimepickerModule,
       MatProgressSpinnerModule,
       CommonModule,

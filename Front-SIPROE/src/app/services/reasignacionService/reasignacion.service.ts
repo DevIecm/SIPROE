@@ -9,10 +9,8 @@ import { environment } from '../enviroment/enviroment';
 })
 export class ReasignacionService {
   private apiUrl = `${environment.apiUrl}`;
-  // private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
 
   constructor(private router: Router, private http: HttpClient) { }
-
 
   deleteSorteo(token: string, id: number): Observable<any> {
     const headers = new HttpHeaders({

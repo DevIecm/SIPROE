@@ -108,6 +108,7 @@ mat-nav-list mat-icon {
 }
 
 .content-body {
+  flex: 1;
   padding: 32px;
   max-width: 1200px;
   margin: auto;
@@ -122,4 +123,25 @@ mat-nav-list mat-icon {
 
 .adaptImage {
   width: 24%;
+}
+
+footer {
+  padding: 16px;
+  text-align: center;
+  color: black;
+  font-size: 8.5px;
+}
+
+mat-sidenav-container.main-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px); /* Considera altura del navbar */
+  margin-top: 64px; /* navbar fija */
+}
+
+mat-sidenav-content.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }

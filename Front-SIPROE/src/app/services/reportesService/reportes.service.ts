@@ -10,7 +10,6 @@ import { environment } from '../enviroment/enviroment';
 export class ReportesService {
 
   private apiUrl = `${environment.apiUrl}`;
-  // private apiUrl = 'https://app.iecm.mx/siproe-aleatorio2025/api/';
   
   constructor(private http: HttpClient) { }
 
