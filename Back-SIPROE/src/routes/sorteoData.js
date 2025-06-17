@@ -50,10 +50,7 @@ router.get("/getSorteos", verifyToken, async (req, res) => {
 
 router.post("/insertaSorteo", verifyToken, async (req, res) => {
     try{
-console.log(req)
         const { clave_ut } = req.body;
-
-         console.log(clave_ut)
         
         if(!clave_ut){
             return res.status(400).json({ message: "Datos requeridos"})
