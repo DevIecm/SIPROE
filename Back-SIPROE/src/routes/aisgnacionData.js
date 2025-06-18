@@ -1,12 +1,12 @@
 import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
-import verifyToken from '../ConfigServices/Midleware.js';
+import Midleware from '../ConfigServices/Midleware.js';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-router.post("/insertaSorteo", verifyToken, async (req, res) => {
+router.post("/insertaSorteo", Midleware.verifyToken, async (req, res) => {
     try{
         const {id_o, fecha_sentencia, motivo, numero_expediente, id_motivo, clave_ut} = req.body;
 
@@ -36,7 +36,7 @@ router.post("/insertaSorteo", verifyToken, async (req, res) => {
     }
 });
 
-router.get("/getSorteosFilter", verifyToken, async (req, res) => {
+router.get("/getSorteosFilter", Midleware.verifyToken, async (req, res) => {
     try {
         const { ut, distrito, tipo } = req.query;
         
@@ -110,7 +110,7 @@ router.get("/getSorteosFilter", verifyToken, async (req, res) => {
     }
 });
 
-router.delete("/deleteSorteo", verifyToken, async (req, res) => {
+router.delete("/deleteSorteo", Midleware.verifyToken, async (req, res) => {
     try{
 
         const { id } = req.query;
@@ -133,7 +133,7 @@ router.delete("/deleteSorteo", verifyToken, async (req, res) => {
     }
 });
 
-router.delete("/deleteSorteoR", verifyToken, async (req, res) => {
+router.delete("/deleteSorteoR", Midleware.verifyToken, async (req, res) => {
     try{
 
         const { id, fecha_sentencia_del, organo_jurisdiccional_del, motivo_del, numero_expediente_del } = req.query;
@@ -160,7 +160,7 @@ router.delete("/deleteSorteoR", verifyToken, async (req, res) => {
     }
 });
 
-router.patch("/actualizaProyecto", verifyToken, async (req, res) => {
+router.patch("/actualizaProyecto", Midleware.verifyToken, async (req, res) => {
     try {
 
         const { sorteo } = req.body;

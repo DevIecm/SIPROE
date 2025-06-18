@@ -1,12 +1,12 @@
 import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
-import verifyToken from '../ConfigServices/Midleware.js';
+import Midleware from '../ConfigServices/Midleware.js';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-router.get("/catTipoSorteo", verifyToken, async (req, res) => {
+router.get("/catTipoSorteo", Midleware.verifyToken, async (req, res) => {
 
   try {
 
@@ -26,10 +26,13 @@ router.get("/catTipoSorteo", verifyToken, async (req, res) => {
 
     if (result.recordset.length > 0) {
       return res.status(200).json({
+        code: 200,
         catTipoSorteo: result.recordset
       });
     } else {
-      return res.status(404).json({ message: "No se encontraron datos de sorteo" });
+      return res.status(404).json({ 
+        code: 100,
+        message: "No se encontraron datos de sorteo" });
     }
   } catch (error) {
     console.error(error);

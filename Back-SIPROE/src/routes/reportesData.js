@@ -1,12 +1,12 @@
 import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
-import verifyToken from '../ConfigServices/Midleware.js';
+import Midleware from '../ConfigServices/Midleware.js';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-router.get("/getProyectosParticipantes", verifyToken, async (req, res) => {
+router.get("/getProyectosParticipantes", Midleware.verifyToken, async (req, res) => {
     try {
 
         const { idDistrito, tipoUsuario } = req.query;
@@ -77,7 +77,7 @@ router.get("/getProyectosParticipantes", verifyToken, async (req, res) => {
     }
 });
 
-router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
+router.get("/getProyectosCancelados", Midleware.verifyToken, async (req, res) => {
     try {
 
         const { idDistrito, tipoUsuario } = req.query;
@@ -157,7 +157,7 @@ router.get("/getProyectosCancelados", verifyToken, async (req, res) => {
     }
 });
 
-router.get("/getProyectosAsignacion", verifyToken, async (req, res) => {
+router.get("/getProyectosAsignacion", Midleware.verifyToken, async (req, res) => {
     try {
 
         const { idDistrito, tipoUsuario } = req.query;
@@ -184,6 +184,7 @@ router.get("/getProyectosAsignacion", verifyToken, async (req, res) => {
                         s.motivo,
                         s.numero_expediente,
                         oj.descripcion,
+                        s.fecha,
                         p.distrito 
                     FROM proyectos p
                         JOIN unidad_territorial u ON p.ut = u.clave_ut
@@ -218,6 +219,7 @@ router.get("/getProyectosAsignacion", verifyToken, async (req, res) => {
                         s.motivo,
                         s.numero_expediente,
                         oj.descripcion,
+                        s.fecha,
                         p.distrito 
                     FROM proyectos p
                         JOIN unidad_territorial u ON p.ut = u.clave_ut

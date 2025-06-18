@@ -1,12 +1,12 @@
 import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
-import verifyToken from '../ConfigServices/Midleware.js';
+import Midleware from '../ConfigServices/Midleware.js';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-router.get("/getSorteos", verifyToken, async (req, res) => {
+router.get("/getSorteos", Midleware.verifyToken, async (req, res) => {
     try {
         const { ut, distrito } = req.query;
         
@@ -48,7 +48,7 @@ router.get("/getSorteos", verifyToken, async (req, res) => {
     }
 });
 
-router.post("/insertaSorteo", verifyToken, async (req, res) => {
+router.post("/insertaSorteo", Midleware.verifyToken, async (req, res) => {
     try{
         const { clave_ut } = req.body;
         
@@ -78,7 +78,7 @@ router.post("/insertaSorteo", verifyToken, async (req, res) => {
     }
 });
 
-router.delete("/deleteSorteo", verifyToken, async (req, res) => {
+router.delete("/deleteSorteo", Midleware.verifyToken, async (req, res) => {
     try{
 
         const { id } = req.query;
@@ -101,7 +101,7 @@ router.delete("/deleteSorteo", verifyToken, async (req, res) => {
     }
 });
 
-router.patch("/actualizaProyecto", verifyToken, async (req, res) => {
+router.patch("/actualizaProyecto", Midleware.verifyToken, async (req, res) => {
     try {
 
         const { folio, numero_aleatorio, sorteo } = req.body;
@@ -124,7 +124,7 @@ router.patch("/actualizaProyecto", verifyToken, async (req, res) => {
     }
 })
 
-router.patch("/actualizaToDelete", verifyToken, async (req, res) => {
+router.patch("/actualizaToDelete", Midleware.verifyToken, async (req, res) => {
     try {
 
         const { sorteo } = req.body;

@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
-import verifyToken from '../ConfigServices/Midleware.js';
+import Midleware from '../ConfigServices/Midleware.js';
 import jwt from 'jsonwebtoken';
 import express from 'express';
 import dotenv from 'dotenv';
@@ -69,7 +69,7 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get("/protected", verifyToken, (req, res) => {
+router.get("/protected", Midleware.verifyToken, (req, res) => {
     return res.status(200).json({ message: "You have access" });
 });
 

@@ -1,12 +1,12 @@
 import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
-import verifyToken from '../ConfigServices/Midleware.js';
+import Midleware from '../ConfigServices/Midleware.js';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-router.get("/getCalendario", verifyToken, async (req, res) => {
+router.get("/getCalendario", Midleware.verifyToken, async (req, res) => {
 
   try {
     const { claveUt } = req.query;
@@ -53,7 +53,7 @@ router.get("/getCalendario", verifyToken, async (req, res) => {
   }
 });
 
-router.post("/guardaCalendario", verifyToken, async (req, res) => {
+router.post("/guardaCalendario", Midleware.verifyToken, async (req, res) => {
   try{
     const {
       dt,
@@ -87,7 +87,7 @@ router.post("/guardaCalendario", verifyToken, async (req, res) => {
     }
 });
 
-router.delete("/delRegistros", verifyToken, async (req, res) => {
+router.delete("/delRegistros", Midleware.verifyToken, async (req, res) => {
   try {
     const { idUt } = req.query;
 
@@ -109,7 +109,7 @@ router.delete("/delRegistros", verifyToken, async (req, res) => {
     }
 });
 
-router.patch("/actualizaRegistros", verifyToken, async (req, res) => {
+router.patch("/actualizaRegistros", Midleware.verifyToken, async (req, res) => {
   try {
 
     const { fecha, hora, ut, distrito } = req.body;

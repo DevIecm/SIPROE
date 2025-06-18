@@ -1,12 +1,12 @@
 import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
-import verifyToken from '../ConfigServices/Midleware.js';
+import Midleware from '../ConfigServices/Midleware.js';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-router.get("/catOrgano", verifyToken, async (req, res) => {
+router.get("/catOrgano", Midleware.verifyToken, async (req, res) => {
 
     try {
         const { idDistrito } = req.query;

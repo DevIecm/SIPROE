@@ -1,12 +1,12 @@
 import { connectToDatabase, sql } from '../ConfigServices/DatabaseConfiguration.js'
-import verifyToken from '../ConfigServices/Midleware.js';
+import Midleware from '../ConfigServices/Midleware.js';
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-router.get("/getProyectos", verifyToken, async (req, res) => {
+router.get("/getProyectos", Midleware.verifyToken, async (req, res) => {
     try{
 
         const { ut, distrito, tipo } = req.query;
@@ -61,7 +61,7 @@ router.get("/getProyectos", verifyToken, async (req, res) => {
     }
 })
 
-router.get("/getProyectosFull", verifyToken, async (req, res) => {
+router.get("/getProyectosFull", Midleware.verifyToken, async (req, res) => {
     try{
 
         const { ut } = req.query;
