@@ -50,19 +50,25 @@ router.get("/getSorteos", Midleware.verifyToken, async (req, res) => {
 
 router.post("/insertaSorteo", Midleware.verifyToken, async (req, res) => {
     try{
-        const { clave_ut } = req.body;
+        const { clave_ut, fecha } = req.body;
         
-        if(!clave_ut){
+        if(!clave_ut || !fecha){
             return res.status(400).json({ message: "Datos requeridos"})
         }
-        
+
+        const original = new Date(fecha);
+
+        const offsetInMs = original.getTimezoneOffset() * 60000;
+        const fechaLocal = new Date(original.getTime() - offsetInMs);
+
         const pool = await connectToDatabase();
 
         const result = await pool.request()
             .input('clave_ut', sql.VarChar, clave_ut)
+            .input('fecha', sql.DateTime, fechaLocal)
             .query(`INSERT INTO sorteo (tipo, estado, fecha, clave_ut)
               OUTPUT INSERTED.id
-              VALUES (1, 1, GETDATE(), @clave_ut)`);
+              VALUES (1, 1, @fecha, @clave_ut)`);
 
         const insertedId = result.recordset[0].id;
 

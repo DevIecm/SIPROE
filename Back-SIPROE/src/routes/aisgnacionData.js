@@ -8,10 +8,20 @@ const router = express.Router();
 
 router.post("/insertaSorteo", Midleware.verifyToken, async (req, res) => {
     try{
-        const {id_o, fecha_sentencia, motivo, numero_expediente, id_motivo, clave_ut} = req.body;
+        const {fecha, id_o, fecha_sentencia, motivo, numero_expediente, id_motivo, clave_ut} = req.body;
+
+        if(!fecha ||!id_o || !fecha_sentencia|| !motivo|| !numero_expediente|| !id_motivo|| !clave_ut){
+            return res.status(400).json({ message: "Datos requeridos"})
+        }
+
+        const original = new Date(fecha);
+
+        const offsetInMs = original.getTimezoneOffset() * 60000;
+        const fechaLocal = new Date(original.getTime() - offsetInMs);
 
         const pool = await connectToDatabase();
         const result = await pool.request()
+            .input('fecha', sql.DateTime, fechaLocal)
             .input('id_o', sql.Int, id_o)
             .input('fecha_sentencia', sql.Date, fecha_sentencia)
             .input('motivo', sql.VarChar, motivo)
