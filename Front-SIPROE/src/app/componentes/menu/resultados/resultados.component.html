@@ -21,11 +21,21 @@
       <mat-card-header class="header-content">
         <div class="form-section">
           <label class="form-label">Seleccione una Unidad Territorial</label>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-select placeholder="Seleccione Unidad Territorial" (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
-              <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div *ngIf="selectedProyectos">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-select placeholder="Seleccione Unidad Territorial" (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
+                <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div *ngIf="selectedConstancias">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-select placeholder="Seleccione Unidad Territorial" (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
+                <mat-option *ngFor="let unidad of unidadesAsignados" [value]="unidad">{{ unidad.ut }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
           <div *ngIf="seleccionoUnidad">
             <label class="form-label">Seleccione el Tipo de Sorteo</label>

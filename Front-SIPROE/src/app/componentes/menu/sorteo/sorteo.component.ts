@@ -64,6 +64,13 @@ export class SorteoComponent {
   private canvasId = 'sorteo-canvas';
   sinRegistro!: boolean;
   botonUsado: boolean = false;
+  SiHayNumeros: boolean = false;
+
+  usados: Set<number> = new Set<number>();
+  indexActual: number = 0;
+  pelotas: any[] = [];
+  cantidad: number = 0;
+  onNumeroAsignado?: (numero: number, index: number) => void;
 
   @ViewChild('canvasContainer', { static: false }) canvasContainerRef!: ElementRef<HTMLDivElement>;
   constructor(private http: HttpClient, private servicea: AuthService, private service: SorteoService,  private cdr: ChangeDetectorRef) {}
@@ -85,7 +92,7 @@ export class SorteoComponent {
   onDistritoChange(element: any){
     this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
-    this.botonUsado = false;
+    this.botonUsado = false;  
     this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
   }
 
@@ -99,7 +106,6 @@ export class SorteoComponent {
         this.sortear = this.proyectos[0].sortear;
         this.sinRegistro = false;
 
-
         if(this.sorteados === 0){
           this.sorteadosData = false;
         } else {
@@ -107,7 +113,7 @@ export class SorteoComponent {
         }
 
         const hayNumeros = this.proyectos.some(p => p.numero_aleatorio && p.numero_aleatorio !== '');
-
+        console.log("Hay números asignados:", hayNumeros);
         if (hayNumeros) {
           this.sorteoIniciado = true;
           this.guardoSorteo = false;
@@ -118,11 +124,15 @@ export class SorteoComponent {
           }));
           this.columnasVisibles = ['position', 'numero'];
         } else {
-           this.animandoSorteo = true;
+            this.animandoSorteo = true;
         
         this.mostrarAnimacion(this.proyectos.length, (numero, index) => {});
         this.sorteoIniciado = false;
         this.columnasVisibles = ['id', 'position', 'numero'];
+        }
+
+        if (hayNumeros) {
+            Swal.fire("Sorteo ya realizado", "El proceso ya se realizó en la unidad territorial seleccionada.", "info");
         }
       },
       error: (err) => {
@@ -169,10 +179,26 @@ export class SorteoComponent {
     this.mostrarDiv = false;    
   }
 
+  extractFechaYHoraISO(fecha: Date) {
+    const date = new Date(fecha);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+
   aceptarSorteo() {
 
+    const hoy = new Date();
+        
     const data = ({
-      clave_ut: this.clave_ut
+      clave_ut: this.clave_ut,
+      fecha: this.extractFechaYHoraISO(hoy)
     });
 
     this.service.insertaSorteo(data, this.tokenSesion).subscribe({
@@ -195,6 +221,10 @@ export class SorteoComponent {
   }
 
   guardaProyectosConSorteo(idSorteo: number) {
+
+    let actualizados = 0;
+    const total = this.proyectos.length;
+
     this.proyectos.forEach((proyecto) => {
       const registro = {
         folio: proyecto.folio,
@@ -205,7 +235,11 @@ export class SorteoComponent {
 
       this.service.actualizaProyecto(this.tokenSesion, registro).subscribe({
         next: (resp) => {
-          this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+          actualizados++;
+
+          if (actualizados === total) {
+            this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+          }
         }, error: (err) => {
 
           if(err.error.code === 160) {
@@ -356,42 +390,86 @@ export class SorteoComponent {
     const usados = new Set<number>();
     let indexActual = 0;
 
-    if(this.botonUsado){
+    this.usados = usados;
+    this.indexActual = indexActual;
+    this.pelotas = pelotas
+    this.cantidad = cantidad;
+    this.usados = usados;
+    this.onNumeroAsignado = onNumeroAsignado;
 
-      const intervalo = setInterval(() => {
-        if (indexActual >= pelotas.length) {
-          clearInterval(intervalo);
+    // if(this.botonUsado){
 
+    //   const intervalo = setInterval(() => {
+    //     if (indexActual >= pelotas.length) {
+    //       clearInterval(intervalo);
+
+    //       setTimeout(() => {
+    //         this.cdr.detectChanges();
+    //         setTimeout(() => {
+    //           this.ocultarAnimacion();
+    //           this.sorteoIniciado = true;
+    //         }, 300);
+    //       }, 100);
+
+    //       return;
+    //     }
+
+    //     const pelota = pelotas[indexActual];
+    //     pelota.activa = false;
+
+    //     let numero: number;
+
+    //     do {
+    //       numero = Math.floor(Math.random() * cantidad) + 1;
+    //     } while (usados.has(numero));
+    //     usados.add(numero);
+
+    //     if (onNumeroAsignado) {
+    //       onNumeroAsignado(numero, indexActual);
+    //     }
+
+    //     this.proyectos[indexActual].numero = numero.toString();
+
+    //     indexActual++;
+    //   }, 600);
+    // }
+  }
+
+  soloClick() {
+    this.sinRegistro = true;
+    const intervalo = setInterval(() => {
+      if (this.indexActual >= this.pelotas.length) {
+        clearInterval(intervalo);
+
+        setTimeout(() => {
+          this.cdr.detectChanges();
           setTimeout(() => {
-            this.cdr.detectChanges();
-            setTimeout(() => {
-              this.ocultarAnimacion();
-              this.sorteoIniciado = true;
-            }, 300);
-          }, 100);
+            this.ocultarAnimacion();
+            this.sorteoIniciado = true;
+          }, 300);
+        }, 100);
 
-          return;
-        }
+        return;
+      }
 
-        const pelota = pelotas[indexActual];
-        pelota.activa = false;
+      const pelota = this.pelotas[this.indexActual];
+      pelota.activa = false;
 
-        let numero: number;
+      let numero: number;
 
-        do {
-          numero = Math.floor(Math.random() * cantidad) + 1;
-        } while (usados.has(numero));
-        usados.add(numero);
+      do {
+        numero = Math.floor(Math.random() * this.cantidad) + 1;
+      } while (this.usados.has(numero));
+      this.usados.add(numero);
 
-        if (onNumeroAsignado) {
-          onNumeroAsignado(numero, indexActual);
-        }
+      if (this.onNumeroAsignado) {
+        this.onNumeroAsignado(numero, this.indexActual);
+      }
 
-        this.proyectos[indexActual].numero = numero.toString();
+      this.proyectos[this.indexActual].numero = numero.toString();
 
-        indexActual++;
-      }, 600);
-    }
+      this.indexActual++;
+    }, 600);
   }
 
   ocultarAnimacion() {

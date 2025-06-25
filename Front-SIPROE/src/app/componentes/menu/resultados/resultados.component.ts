@@ -45,6 +45,7 @@ import Swal from 'sweetalert2';
 export class ResultadosComponent {
   animandoSorteo!: boolean;
   unidades: any[] = [];
+  unidadesAsignados:  any[] = [];
   onBuild: boolean = false;
   selectedProyectos: boolean = false;
   selectedConstancias: boolean = false;
@@ -71,29 +72,23 @@ export class ResultadosComponent {
     this.selectedProyectos = false;
     this.selectedConstancias = false;
     this.mostrarForm = false;
-
-    this.service.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
-      next: (data) => {
-        this.unidades = data.catUnidad;
-        this.selectedTipo = null;
-      }, error: (err) => {
-
-        if(err.error.code === 160) {
-          this.service.cerrarSesionByToken();
-        }
-
-      }
-    });
   }
   
   onDistritoChange(element: any) {
+    this.selectedTipo = null;
     this.clave_ut = element.clave_ut;
-    this.seleccionoUnidad = true;
 
     this.serviceReAsignacion.catRipoSorteo(this.clave_ut, this.tokenSesion).subscribe({
       next: (data) => {
         this.tipos = data.catTipoSorteo;
+
+        if(data.code === 200) {
+          this.seleccionoUnidad = true;
+        }
+
       }, error: (err) => {
+      
+        this.seleccionoUnidad = false;
 
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
@@ -120,6 +115,7 @@ export class ResultadosComponent {
     this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.selectedTipo!, this.tokenSesion).subscribe({
       next: (data) => {
         this.proyectos = data.registrosProyectos;
+        console.log(this.proyectos);
       }, error: (err) => {
         
         Swal.fire("Error al cargar tipos de sorteo");
@@ -146,6 +142,18 @@ export class ResultadosComponent {
   }
 
   onSelectedProyectos(){
+    this.service.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+      next: (data) => {
+        this.unidades = data.catUnidad;
+        this.selectedTipo = null;
+      }, error: (err) => {
+
+        if(err.error.code === 160) {
+          this.service.cerrarSesionByToken();
+        }
+
+      }
+    });
     this.onBuild = false;
     this.selectedProyectos = true;
     this.selectedConstancias = false;
@@ -154,6 +162,18 @@ export class ResultadosComponent {
   }
 
   onSelectedConstancias(){
+    this.service.catUnidadFilter(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+      next: (data) => {
+        this.unidadesAsignados = data.catUnidad;
+        this.selectedTipo = null;
+      }, error: (err) => {
+
+        if(err.error.code === 160) {
+          this.service.cerrarSesionByToken();
+        }
+
+      }
+    });
     this.onBuild = false;
     this.selectedProyectos = false;
     this.selectedConstancias = true;

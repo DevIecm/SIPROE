@@ -243,8 +243,6 @@ export class ReportesComponent {
     this.loading = false;
   }
 
-
-
   async GeneraConstanciaAsignacionDirecta() {
 
     const fechaHoraActual = new Date();
@@ -271,9 +269,10 @@ export class ReportesComponent {
         identificador: item.identificador,
         nombre: item.nombre,
         fecha_asignacion: item.fecha_asignacion,
-        resolucion: item.resolucion,
+        fecha: item.fecha,
+        resolucion: item.descripcion,
         motivo: item.motivo,
-        numero_expediente: item.numero_expediente
+        numero_expediente: item.numero_expediente,
       }))
     };
 
@@ -300,7 +299,7 @@ export class ReportesComponent {
       row.getCell(5).value = asignacion.folio ?? '';
       row.getCell(6).value = asignacion.identificador ?? '';
       row.getCell(7).value = asignacion.nombre ?? '';
-      row.getCell(8).value = this.extractFecha(asignacion.fecha_asignacion) ?? '';
+      row.getCell(8).value = this.extractFecha(asignacion.fecha) ?? '';
       row.getCell(9).value = asignacion.resolucion ?? '';
       row.getCell(10).value = asignacion.motivo ?? '';
       row.getCell(11).value = asignacion.numero_expediente ?? '';

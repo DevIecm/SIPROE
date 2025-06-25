@@ -79,7 +79,7 @@
 
             <mat-grid-list cols="2" rowHeight="100px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" *ngIf="!sorteoIniciado">
-                    <button class="buttonSorteo" [disabled]="sinRegistro" mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
+                    <button class="buttonSorteo" [disabled]="sinRegistro" mat-fab extended color="primary" (click)="soloClick()">Iniciar el Sorteo</button>
                 </mat-grid-tile>
                  <mat-grid-tile [colspan]="1" [rowspan]="1" *ngIf="sorteoIniciado">
                     <button class="buttonAsignar" [ngClass]="" [disabled]="sorteadosData" mat-fab extended color="accent"  (click)="aceptarSorteo()">

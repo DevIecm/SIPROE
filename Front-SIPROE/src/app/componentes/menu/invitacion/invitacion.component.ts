@@ -131,7 +131,14 @@ export class InvitacionComponent {
       }
     }, 0);
   }
-  
+
+  validaHora() {
+    this.existDataSame = this.dataSource.data.some((element: any) => {
+      const horaProcesada = this.extraerHoraUTCToGetData(element.hora);
+      return horaProcesada === this.horaSeleccionada;
+    });
+  }
+
   generarOpcionesHoras(inicio: string, fin: string, intervaloMin: number) {
     const [hInicio, mInicio] = inicio.split(':').map(Number);
     const [hFin, mFin] = fin.split(':').map(Number);
@@ -171,9 +178,7 @@ export class InvitacionComponent {
   guardaData() {
 
     if(this.actualiza) {
-
       this.actualizaData();
-
     } else {
 
     const preue = {
@@ -201,45 +206,50 @@ export class InvitacionComponent {
     }).then((result) => {
       if (result.isConfirmed) {
         this.loading = false;
+        this.validaHora();
 
-        this.service.guardaRegistros(preue, this.tokenSesion).subscribe({
-           next: (data) => {  
-                Swal.fire({
-                  title: "Creación de la programación con éxito",
-                  icon: "success"
-                });
+        if(this.existDataSame) {
+          Swal.fire( "Se encuentra registros con la misma hora, por favor verifique", "", "warning");
+        } else {
+          this.service.guardaRegistros(preue, this.tokenSesion).subscribe({
+            next: (data) => {  
+                  Swal.fire({
+                    title: "Creación de la programación con éxito",
+                    icon: "success"
+                  });
 
-                this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
-                  next: (data) => {
-                    this.dataSource.data = data.registrosCalendario ?? [];
-                    this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
-                    this.fechaSeleccionada = null;
-                    this.horaSeleccionada = '';
-                  },
-                  error: (err) => {
-                    if (err.error.code === 100) {
-                      this.dataSource.data = [];
-                      this.datosRegistros = false;
-                    } else {
+                  this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
+                    next: (data) => {
+                      this.dataSource.data = data.registrosCalendario ?? [];
+                      this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
+                      this.fechaSeleccionada = null;
+                      this.horaSeleccionada = '';
+                    },
+                    error: (err) => {
+                      if (err.error.code === 100) {
+                        this.dataSource.data = [];
+                        this.datosRegistros = false;
+                      } else {
 
-                      if(err.error.code === 160) {
-                        this.service.cerrarSesionByToken();
+                        if(err.error.code === 160) {
+                          this.service.cerrarSesionByToken();
+                        }
+
                       }
-
                     }
-                  }
+                  });
+                }, error: (err) => {
+                Swal.fire({
+                  title: "Error al crear la programación con éxito",
+                  icon: "warning"
                 });
-              }, error: (err) => {
-              Swal.fire({
-                title: "Error al crear la programación con éxito",
-                icon: "warning"
-              });
 
-              if(err.error.code === 160) {
-                this.service.cerrarSesionByToken();
+                if(err.error.code === 160) {
+                  this.service.cerrarSesionByToken();
+                }
               }
-            }
-        });
+          });
+        }
       } else {
         Swal.fire({
           title: "No se creo la programación",
@@ -259,6 +269,16 @@ export class InvitacionComponent {
     const hrs = "Hrs";
 
     return `${formattedHours}:${minutes} ${hrs}`;
+  }
+  
+  extraerHoraUTCToGetData(iso: string): string {
+    const date = new Date(iso);
+    let hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    const formattedHours = hours.toString().padStart(2, '0');
+    const hrs = "Hrs";
+
+    return `${formattedHours}:${minutes}`;
   }
 
   extractFecha(fecha: Date) {
@@ -408,8 +428,13 @@ export class InvitacionComponent {
       if (result.isConfirmed) {
         this.loading = false;
 
+        this.validaHora();
+
+        if(this.existDataSame) {
+          Swal.fire( "Se encuentra registros con la misma hora, por favor verifique", "", "warning");
+        } else {
           this.service.actualizaRegistros(data, this.tokenSesion).subscribe({
-           next: (data) => {  
+            next: (data) => {  
                 Swal.fire({
                   title: "Actualización de la programación con éxito",
                   icon: "success"
@@ -441,7 +466,8 @@ export class InvitacionComponent {
                 icon: "warning"
               });
             }
-        });
+          });
+        }
       } else {
         Swal.fire({
           title: "Error al actualizar la programación",

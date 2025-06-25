@@ -51,7 +51,13 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/app/services/enviroment.ts",
+                  "with": "src/app/services/enviroment.prod.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"

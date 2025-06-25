@@ -98,7 +98,7 @@ export class AsignacionComponent {
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         } else if(err.error.code === 125) {
-          Swal.fire("No se encontraron unidades para asignacion directa en este distrito")
+          Swal.fire("No se cuentan con proyectos para la asignación directa")
         }
 
       }
@@ -197,7 +197,6 @@ export class AsignacionComponent {
   }
 
   columnasVisibles = ['id', 'position', 'numero'];
-
   
   deshacerSorteo() {
     this.sorteoIniciado = false;
@@ -237,9 +236,25 @@ export class AsignacionComponent {
     }
   }
 
+  extractFechaYHoraISO(fecha: Date) {
+    const date = new Date(fecha);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+
   aceptarSorteo() {
 
+    const hoy = new Date();
+
     const data = ({
+      fecha: this.extractFechaYHoraISO(hoy),
       id_o: this.id_o,
       fecha_sentencia: this.fechaSeleccionada,
       motivo: this.motivo,
@@ -271,7 +286,7 @@ export class AsignacionComponent {
                  this.servicea.cerrarSesionByToken();
               } else if(err.error.code === 125) {
                 this.unidades = [];
-                Swal.fire("No se encontraron unidades para asignación directa en este distrito")
+                Swal.fire("No se cuentan con proyectos para la asignación directa")
               }
 
             }
@@ -316,7 +331,7 @@ export class AsignacionComponent {
   }
 
   mostrarAnimacion(cantidad: number, onNumeroAsignado?: (numero: number, index: number) => void) {
-
+debugger
     const existing = document.getElementById(this.canvasId);
     if (existing) existing.remove();
 
