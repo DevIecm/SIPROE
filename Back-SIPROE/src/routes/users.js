@@ -48,7 +48,7 @@ router.post("/login", async (req, res) => {
 
         if (result.recordset.length > 0) {
             if(result.recordset[0].estado_usuario === 1){
-                const token = jwt.sign({ username }, secretKey, { expiresIn: "1h" });
+                const token = jwt.sign({ username }, secretKey, { expiresIn: "5h" });
                 return res.status(200).json({ 
                     token, 
                     userData: result.recordset 

@@ -18,6 +18,7 @@ import resultadosRoutes from './routes/resultadosData.js';
 import motivoRoutes from './routes/catMotivo.js';
 import reportesRoutes from './routes/reportesData.js';
 import reportData from './routes/reportdata.js';
+import monitorData from './routes/monitorData.js';
 
 app.use('/api/users', userRoutes);
 app.use('/api/catUnidadTerritorial', unidadRoutes);
@@ -30,6 +31,7 @@ app.use('/api/resultados', resultadosRoutes);
 app.use('/api/catMotivo', motivoRoutes);
 app.use('/api/reportes', reportesRoutes);
 app.use('/api/reportdata', reportData);
+app.use('/api/monitor', monitorData);
 
 app.listen(port, () => {
     console.log(`El servicio esta corriendo en ${port}`);
