@@ -133,9 +133,18 @@ export class InvitacionComponent {
   }
 
   validaHora() {
+    if (!this.fechaSeleccionada) {
+      this.existDataSame = false;
+      return;
+    }
+
+    const fechaSeleccionadaStr = this.extractFecha(this.fechaSeleccionada);
+
     this.existDataSame = this.dataSource.data.some((element: any) => {
       const horaProcesada = this.extraerHoraUTCToGetData(element.hora);
-      return horaProcesada === this.horaSeleccionada;
+      const fechaProcesada = this.extractFecha(element.fecha);
+
+      return horaProcesada === this.horaSeleccionada && fechaProcesada === fechaSeleccionadaStr;
     });
   }
 

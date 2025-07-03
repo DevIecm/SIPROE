@@ -66,6 +66,7 @@ export class SorteoComponent {
   botonUsado: boolean = false;
   SiHayNumeros: boolean = false;
 
+  mostrarMensaje: boolean = false;
   usados: Set<number> = new Set<number>();
   indexActual: number = 0;
   pelotas: any[] = [];
@@ -90,6 +91,7 @@ export class SorteoComponent {
   }
 
   onDistritoChange(element: any){
+    this.mostrarMensaje = true;
     this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
     this.botonUsado = false;  
@@ -113,7 +115,6 @@ export class SorteoComponent {
         }
 
         const hayNumeros = this.proyectos.some(p => p.numero_aleatorio && p.numero_aleatorio !== '');
-        console.log("Hay números asignados:", hayNumeros);
         if (hayNumeros) {
           this.sorteoIniciado = true;
           this.guardoSorteo = false;
@@ -125,13 +126,12 @@ export class SorteoComponent {
           this.columnasVisibles = ['position', 'numero'];
         } else {
             this.animandoSorteo = true;
-        
         this.mostrarAnimacion(this.proyectos.length, (numero, index) => {});
         this.sorteoIniciado = false;
         this.columnasVisibles = ['id', 'position', 'numero'];
         }
 
-        if (hayNumeros) {
+        if (this.mostrarMensaje && hayNumeros) {
             Swal.fire("Sorteo ya realizado", "El proceso ya se realizó en la unidad territorial seleccionada.", "info");
         }
       },
@@ -207,6 +207,7 @@ export class SorteoComponent {
         const idSorteo = data.id;
         this.guardaProyectosConSorteo(idSorteo);
         this.guardoSorteo = false;
+        this.deshacerSorteo();
 
       }, error: (err) => {
 
@@ -240,6 +241,7 @@ export class SorteoComponent {
           if (actualizados === total) {
             this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
           }
+          this.mostrarMensaje = false;
         }, error: (err) => {
 
           if(err.error.code === 160) {
@@ -396,43 +398,6 @@ export class SorteoComponent {
     this.cantidad = cantidad;
     this.usados = usados;
     this.onNumeroAsignado = onNumeroAsignado;
-
-    // if(this.botonUsado){
-
-    //   const intervalo = setInterval(() => {
-    //     if (indexActual >= pelotas.length) {
-    //       clearInterval(intervalo);
-
-    //       setTimeout(() => {
-    //         this.cdr.detectChanges();
-    //         setTimeout(() => {
-    //           this.ocultarAnimacion();
-    //           this.sorteoIniciado = true;
-    //         }, 300);
-    //       }, 100);
-
-    //       return;
-    //     }
-
-    //     const pelota = pelotas[indexActual];
-    //     pelota.activa = false;
-
-    //     let numero: number;
-
-    //     do {
-    //       numero = Math.floor(Math.random() * cantidad) + 1;
-    //     } while (usados.has(numero));
-    //     usados.add(numero);
-
-    //     if (onNumeroAsignado) {
-    //       onNumeroAsignado(numero, indexActual);
-    //     }
-
-    //     this.proyectos[indexActual].numero = numero.toString();
-
-    //     indexActual++;
-    //   }, 600);
-    // }
   }
 
   soloClick() {

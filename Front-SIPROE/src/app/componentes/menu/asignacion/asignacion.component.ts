@@ -84,7 +84,13 @@ export class AsignacionComponent {
   creoSorteo: boolean = false;
   organoDescripcion!: number;
   motivoSeleccionado!: number;
-  selectedMotivo!: number
+  selectedMotivo!: number;
+
+  usados: Set<number> = new Set<number>();
+  indexActual: number = 0;
+  pelotas: any[] = [];
+  cantidad: number = 0;
+  onNumeroAsignado?: (numero: number, index: number) => void;
 
   @ViewChild('canvasContainer', { static: false }) canvasContainerRef!: ElementRef<HTMLDivElement>;
   constructor(private http: HttpClient,  private servicea: AuthService, private service: SorteoService, private serviceAsignacion: AsignacionService,  private cdr: ChangeDetectorRef) {}
@@ -331,7 +337,6 @@ export class AsignacionComponent {
   }
 
   mostrarAnimacion(cantidad: number, onNumeroAsignado?: (numero: number, index: number) => void) {
-debugger
     const existing = document.getElementById(this.canvasId);
     if (existing) existing.remove();
 
@@ -456,64 +461,74 @@ debugger
 
     animar();
 
-    if(this.botonUsado){
-      const posiblesNumeros = Array.from({ length: this.proyectos.length }, (_, i) => i + 1);
+    const usados = new Set<number>();
+    let indexActual = 0;
 
-      if (posiblesNumeros.length < this.datosProyectosSinNumero.length) {
-        console.error('No hay suficientes números disponibles para todos los proyectos sin número.');
+    this.usados = usados;
+    this.indexActual = indexActual;
+    this.pelotas = pelotas
+    this.cantidad = cantidad;
+    this.usados = usados;
+    this.onNumeroAsignado = onNumeroAsignado;
+  }
+
+  soloClick() {
+    const posiblesNumeros = Array.from({ length: this.proyectos.length }, (_, i) => i + 1);
+
+    if (posiblesNumeros.length < this.datosProyectosSinNumero.length) {
+      console.error('No hay suficientes números disponibles para todos los proyectos sin número.');
+      return;
+    }
+
+    this.proyectos.forEach(p => {
+      const num = parseInt(p.numero_aleatorio);
+      if (!isNaN(num) && posiblesNumeros.includes(num)) {
+        const index = posiblesNumeros.indexOf(num);
+        posiblesNumeros.splice(index, 1);
+      }
+    });
+
+    let indexActual = 0;
+
+    const intervalo = setInterval(() => {
+      if (indexActual >= this.datosProyectosSinNumero.length) {
+        clearInterval(intervalo);
+        setTimeout(() => {
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.ocultarAnimacion();
+            this.sorteoIniciado = true;
+            this.animandoSorteo = false;
+          }, 300);
+        }, 100);
         return;
       }
 
-      this.proyectos.forEach(p => {
-        const num = parseInt(p.numero_aleatorio);
-        if (!isNaN(num) && posiblesNumeros.includes(num)) {
-          const index = posiblesNumeros.indexOf(num);
-          posiblesNumeros.splice(index, 1);
-        }
-      });
+      const pelota = this.pelotas[indexActual];
+      pelota.activa = false;
 
-      let indexActual = 0;
+      if (posiblesNumeros.length === 0) {
+        console.warn('No hay más números disponibles para asignar');
+        clearInterval(intervalo);
+        return;
+      }
 
-      const intervalo = setInterval(() => {
-        if (indexActual >= this.datosProyectosSinNumero.length) {
-          clearInterval(intervalo);
-          setTimeout(() => {
-            this.cdr.detectChanges();
-            setTimeout(() => {
-              this.ocultarAnimacion();
-              this.sorteoIniciado = true;
-              this.animandoSorteo = false;
-            }, 300);
-          }, 100);
-          return;
-        }
+      const randomIndex = Math.floor(Math.random() * posiblesNumeros.length);
+      const numero = posiblesNumeros.splice(randomIndex, 1)[0];
 
-        const pelota = pelotas[indexActual];
-        pelota.activa = false;
+      if (numero === undefined) {
+        console.error('Número aleatorio indefinido al asignar', { randomIndex, posiblesNumeros });
+        return;
+      }
 
-        if (posiblesNumeros.length === 0) {
-          console.warn('No hay más números disponibles para asignar');
-          clearInterval(intervalo);
-          return;
-        }
+      if (this.onNumeroAsignado) {
+        this.onNumeroAsignado(numero, indexActual);
+      }
 
-        const randomIndex = Math.floor(Math.random() * posiblesNumeros.length);
-        const numero = posiblesNumeros.splice(randomIndex, 1)[0];
+      this.datosProyectosSinNumero[indexActual].numero = numero.toString();
+      indexActual++;
 
-        if (numero === undefined) {
-          console.error('Número aleatorio indefinido al asignar', { randomIndex, posiblesNumeros });
-          return;
-        }
-
-        if (onNumeroAsignado) {
-          onNumeroAsignado(numero, indexActual);
-        }
-
-        this.datosProyectosSinNumero[indexActual].numero = numero.toString();
-        indexActual++;
-
-      }, 600);
-    }
+    }, 600);
   }
 
   ocultarAnimacion() {

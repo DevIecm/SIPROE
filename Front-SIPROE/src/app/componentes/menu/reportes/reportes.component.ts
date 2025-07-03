@@ -52,6 +52,7 @@ export class ReportesComponent {
   bloqueaBotonParticipantes: boolean = false;
   bloqueaBotonCancelados: boolean = false;
   bloqueaBotonAsignacion: boolean = false;
+  documentos: string = '';
 
   constructor(private http: HttpClient, private service: AuthService, private reportesSerice: ReportesService) {}
 
@@ -108,7 +109,6 @@ export class ReportesComponent {
     });
   }
 
-
   extractFecha(fecha: Date) {
     const date = new Date(fecha);
     const day = String(date.getUTCDate()).padStart(2, '0');
@@ -117,8 +117,7 @@ export class ReportesComponent {
 
     return `${day}/${month}/${year}`;
   }
-
-
+  
   async GeneraConstanciasProyectosParticipantes(){
 
     const fechaHoraActual = new Date();
@@ -145,8 +144,14 @@ export class ReportesComponent {
       }))
     };
 
+    if(parseInt(this.tipoUsuario) === 2){
+      this.documentos = 'assets/Concentrado_Proyectos_Central.xlsx';
+    } else {
+      this.documentos ='assets/Concentrado_Proyectos.xlsx';
+    }
+
     const templateArrayBuffer = await this.http
-      .get('assets/Concentrado_Proyectos.xlsx', { responseType: 'arraybuffer' })
+      .get(this.documentos, { responseType: 'arraybuffer' })
       .toPromise();
 
     const workbook = new ExcelJS.Workbook();
@@ -154,10 +159,16 @@ export class ReportesComponent {
 
     const sheet = workbook.getWorksheet(1);
 
-    sheet!.getCell('B9').value = this.idDistrital;
-    sheet!.getCell('F10').value = hora;
-    sheet!.getCell('F9').value = fecha;
 
+    if(parseInt(this.tipoUsuario) === 2){
+      sheet!.getCell('F10').value = hora;
+      sheet!.getCell('F9').value = fecha;
+    } else {
+      sheet!.getCell('B9').value = this.idDistrital;
+      sheet!.getCell('F10').value = hora;
+      sheet!.getCell('F9').value = fecha;
+    }
+    
     let rowIndex = 12;
     datos.participantes.forEach((participantes) => {
       const row = sheet!.getRow(rowIndex++);
@@ -209,9 +220,9 @@ export class ReportesComponent {
     };
 
     const templateArrayBuffer = await this.http
-      .get('assets/Sorteos_Cancelados.xlsx', { responseType: 'arraybuffer' })
-      .toPromise();
-
+        .get('assets/Sorteos_Cancelados.xlsx', { responseType: 'arraybuffer' })
+        .toPromise();
+    
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(templateArrayBuffer!);
 
@@ -276,8 +287,14 @@ export class ReportesComponent {
       }))
     };
 
+    if(parseInt(this.tipoUsuario) === 2){
+      this.documentos = 'assets/Asignacion_Directa_Central.xlsx';
+    } else {
+      this.documentos ='assets/Asignacion_Directa.xlsx';
+    }
+
     const templateArrayBuffer = await this.http
-      .get('assets/Asignacion_Directa.xlsx', { responseType: 'arraybuffer' })
+      .get(this.documentos, { responseType: 'arraybuffer' })
       .toPromise();
 
     const workbook = new ExcelJS.Workbook();
@@ -285,9 +302,14 @@ export class ReportesComponent {
 
     const sheet = workbook.getWorksheet(1);
 
-    sheet!.getCell('B9').value = this.idDistrital;
-    sheet!.getCell('L10').value = hora;
-    sheet!.getCell('L9').value = fecha;
+    if(parseInt(this.tipoUsuario) === 2){
+      sheet!.getCell('L10').value = hora;
+      sheet!.getCell('L9').value = fecha;
+    } else {
+      sheet!.getCell('B9').value = this.idDistrital;
+      sheet!.getCell('L10').value = hora;
+      sheet!.getCell('L9').value = fecha;
+    }
 
     let rowIndex = 12;
     datos.asignacion.forEach((asignacion) => {

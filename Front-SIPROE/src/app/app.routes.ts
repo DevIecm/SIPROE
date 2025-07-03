@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { AuthGuard } from './guards/auth.guard';
+import { MonitorComponent } from './componentes/menu/monitor/monitor.component';
 
 export const routes: Routes = [
     {
@@ -20,7 +21,8 @@ export const routes: Routes = [
         { path: 'asignacion', loadComponent: () => import('./componentes/menu/asignacion/asignacion.component').then(m => m.AsignacionComponent),canActivate: [AuthGuard] },
         { path: 'reasignacion', loadComponent: () => import('./componentes/menu/reasignacion/reasignacion.component').then(m => m.ReasignacionComponent),canActivate: [AuthGuard] },
         { path: 'resultados', loadComponent: () => import('./componentes/menu/resultados/resultados.component').then(m => m.ResultadosComponent),canActivate: [AuthGuard] },
-        { path: 'reportes', loadComponent: () => import('./componentes/menu/reportes/reportes.component').then(m => m.ReportesComponent),canActivate: [AuthGuard] }
+        { path: 'reportes', loadComponent: () => import('./componentes/menu/reportes/reportes.component').then(m => m.ReportesComponent),canActivate: [AuthGuard] },
+        { path: 'monitor', loadComponent: () => import('./componentes/menu/monitor/monitor.component').then(m => MonitorComponent), canActivate: [AuthGuard]}
       ]
     }
 ];

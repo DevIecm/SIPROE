@@ -7,7 +7,7 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Seleccione Unidad Territorial</mat-label>
           <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
-            <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }}</mat-option>
+            <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }} - {{ unidad.clave_ut }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -117,7 +117,7 @@
 
             <mat-grid-list cols="2" rowHeight="100px">
                 <mat-grid-tile *ngIf="!sorteoIniciado" [colspan]="1" [rowspan]="1">
-                    <button class="buttonSorteo" [disabled]="!motivoSeleccionado || !fechaSeleccionada || !id_o || !motivo || !expediente" mat-fab extended color="primary" (click)="iniciarSorteo()">Iniciar el Sorteo</button>
+                    <button class="buttonSorteo" [disabled]="!motivoSeleccionado || !fechaSeleccionada || !id_o || !motivo || !expediente" mat-fab extended color="primary" (click)="soloClick()">Iniciar el Sorteo</button>
                 </mat-grid-tile>
                  <mat-grid-tile *ngIf="sorteoIniciado" [colspan]="1" [rowspan]="1">
                     <button [disabled]="creoSorteo" class="buttonAsignar" mat-fab extended color="accent"  (click)="aceptarSorteo()">
