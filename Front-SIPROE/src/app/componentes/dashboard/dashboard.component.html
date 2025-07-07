@@ -37,10 +37,10 @@
           <mat-icon>bar_chart</mat-icon>
           <span>Reportes</span>
         </a>
-        <!-- <a mat-list-item routerLink="monitor" routerLinkActive="active">
-          <mat-icon>bar_chart</mat-icon>
+        <a *ngIf="mostrarMenu" mat-list-item routerLink="monitor" routerLinkActive="active">
+          <mat-icon>desktop_windows</mat-icon>
           <span>Monitor</span>
-        </a> -->
+        </a>
         <a mat-list-item class="logout-button" (click)="cerrarSesion()">
           <mat-icon>logout</mat-icon>
           <span>Cerrar Sesión</span>

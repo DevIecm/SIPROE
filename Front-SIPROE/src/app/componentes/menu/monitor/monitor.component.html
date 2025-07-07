@@ -1,1 +1,27 @@
-<p>monitor works!</p>
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource">
+
+    <ng-container matColumnDef="direccion">
+      <th mat-header-cell *matHeaderCellDef>Dirección Distrital</th>
+      <td mat-cell *matCellDef="let element"> {{element.distrito}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ut">
+      <th mat-header-cell *matHeaderCellDef> Ut por Sortear </th>
+      <td mat-cell *matCellDef="let element"> {{element.total_ut}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="sorteos">
+      <th mat-header-cell *matHeaderCellDef> Sorteos </th>
+      <td mat-cell *matCellDef="let element"> {{element.total_ut_sorteadas}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="avance">
+      <th mat-header-cell *matHeaderCellDef> % Avance </th>
+      <td mat-cell *matCellDef="let element"> % {{element.porcentaje_sorteadas}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

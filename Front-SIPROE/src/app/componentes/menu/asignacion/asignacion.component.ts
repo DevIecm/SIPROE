@@ -27,16 +27,16 @@ import { AsignacionService } from '../../../services/asignacionService/asignacio
 @Component({
   selector: 'app-asignacion',
    standalone: true,
-    imports: [ 
-      MatCardModule, 
-      MatDatepickerModule, 
-      MatInputModule, 
-      MatFormFieldModule, 
-      MatTableModule, 
-      MatSelectModule, 
+    imports: [
+      MatCardModule,
+      MatDatepickerModule,
+      MatInputModule,
+      MatFormFieldModule,
+      MatTableModule,
+      MatSelectModule,
       FormsModule,
-      MatButtonModule, 
-      MatProgressBarModule, 
+      MatButtonModule,
+      MatProgressBarModule,
       MatChipsModule,
       MatTimepickerModule,
       MatProgressSpinnerModule,
@@ -85,7 +85,7 @@ export class AsignacionComponent {
   organoDescripcion!: number;
   motivoSeleccionado!: number;
   selectedMotivo!: number;
-
+  mostrarMensaje: boolean = false;
   usados: Set<number> = new Set<number>();
   indexActual: number = 0;
   pelotas: any[] = [];
@@ -104,7 +104,11 @@ export class AsignacionComponent {
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
         } else if(err.error.code === 125) {
-          Swal.fire("No se cuentan con proyectos para la asignación directa")
+          this.mostrarMensaje = true;
+          if(this.mostrarMensaje){
+          
+          Swal.fire("No se cuentan con proyectos para la asignación directa");
+          }
         }
 
       }
@@ -197,13 +201,13 @@ export class AsignacionComponent {
           this.guardoSorteo = true;
           Swal.fire("No se encontraron registros")
         }
-        
+
       }
     });
   }
 
   columnasVisibles = ['id', 'position', 'numero'];
-  
+
   deshacerSorteo() {
     this.sorteoIniciado = false;
     this.guardoSorteo = false;
@@ -219,27 +223,6 @@ export class AsignacionComponent {
     this.fechaSeleccionada = null;
     this.expediente = '';
     this.motivoSeleccionado = 0;
-  }
-
-  iniciarSorteo() {
-    this.cambiaSorteo = false;
-    this.botonUsado = true;
-    this.llenadoForm = true;
-
-    this.mostrarAnimacion(this.datosProyectosSinNumero.length, (numero, index) => {
-      const proyectoSinNumero = this.datosProyectosSinNumero[index];
-        const proyecto = this.proyectos.find(p => p.id === proyectoSinNumero.id);
-
-        if (proyecto) {
-          proyecto.numero_aleatorio = numero.toString();
-        }
-
-        this.cdr.detectChanges();
-    });
-    
-    if(this.sortear > 0) {
-      this.guardoSorteo = true;
-    }
   }
 
   extractFechaYHoraISO(fecha: Date) {
@@ -264,13 +247,13 @@ export class AsignacionComponent {
       id_o: this.id_o,
       fecha_sentencia: this.fechaSeleccionada,
       motivo: this.motivo,
-      numero_expediente: this.expediente, 
-      id_motivo: this.selectedMotivo, 
+      numero_expediente: this.expediente,
+      id_motivo: this.selectedMotivo,
       clave_ut: this.clave_ut
     });
 
     this.serviceAsignacion.insertaSorteo(data, this.tokenSesion).subscribe({
-      next: (data) => { 
+      next: (data) => {
         Swal.fire({
           title: "Sorteo aplicado con éxito!",
           icon: "success",
@@ -292,9 +275,8 @@ export class AsignacionComponent {
                  this.servicea.cerrarSesionByToken();
               } else if(err.error.code === 125) {
                 this.unidades = [];
-                Swal.fire("No se cuentan con proyectos para la asignación directa")
+                this.mostrarMensaje = false;
               }
-
             }
           });
         }, 2000);
@@ -319,13 +301,13 @@ export class AsignacionComponent {
 
       this.service.actualizaProyecto(this.tokenSesion, registro).subscribe({
         next: (resp) => {
+          this.mostrarMensaje = false;
           this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
         }, error: (err) => {
 
           if(err.error.code === 160) {
             this.servicea.cerrarSesionByToken();
           }
-
         }
       });
     });
@@ -473,6 +455,7 @@ export class AsignacionComponent {
   }
 
   soloClick() {
+    this.llenadoForm = true;
     const posiblesNumeros = Array.from({ length: this.proyectos.length }, (_, i) => i + 1);
 
     if (posiblesNumeros.length < this.datosProyectosSinNumero.length) {
