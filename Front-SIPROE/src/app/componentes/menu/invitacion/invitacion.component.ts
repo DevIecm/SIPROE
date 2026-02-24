@@ -24,6 +24,7 @@ import Docxtemplater from 'docxtemplater';
 import { MatPaginator } from '@angular/material/paginator';
 import { getSpanishPaginatorIntl } from './mat-paginator-intl-es';
 import { CustomDateAdapter } from './custom-date-formats';
+import { D } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-invitacion',
@@ -60,33 +61,39 @@ export class InvitacionComponent {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<any>();
-  datosRegistros!: boolean;
-  loading = false;
   value!: Date;
-  unidades: any[] = [];
-  registros: any[] = [];
+
   selectedUnidad: number | null = null;
   idDistrital = sessionStorage.getItem('dir') || '0';
   tokenSesion = sessionStorage.getItem('key') || '0';
   fechaSeleccionada : Date | null = null;
   horaSeleccionada: string = '';
-  territorioSelected!: boolean;
+  horaSeleccionadas: string = '';
+  
   registrosC!: number;
   dt!: number;
-  modoEdicion: boolean = false;
+  anioSeleccionado!: string;
+
   registroEnEdicion: any = null;
+  dataReport: any[] = [];
+  opcionesHoras: string[] = [];
+  unidades: any[] = [];
+  registros: any[] = [];
+  
   selectedDistrito: boolean = false;
   existDataSame: boolean = false;
-  dataReport: any[] = [];
+  modoEdicion: boolean = false;
   actualiza: boolean = false;
+  sinRegistros: boolean = false;
+  territorioSelected!: boolean;
+  datosRegistros!: boolean;
+  loading = false;
+  
   dataUpdate: any;
   distritoChange: any;
   utChange: any;
-  horaSeleccionadas: string = '';
-  opcionesHoras: string[] = [];
   minFecha = new Date(2025, 6, 5);
   maxFecha = new Date(2025, 6, 9);
-  sinRegistros: boolean = false;
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
@@ -132,18 +139,30 @@ export class InvitacionComponent {
   }
 
   validaHora() {
+    debugger;
     if (!this.fechaSeleccionada) {
       this.existDataSame = false;
       return;
     }
 
     const fechaSeleccionadaStr = this.extractFecha(this.fechaSeleccionada);
-
+    const anioSel = Number(this.anioSeleccionado);
+    
     this.existDataSame = this.dataSource.data.some((element: any) => {
+
+      const mismoAnio = Number(element.anio) === anioSel;
+      
+      if (!mismoAnio) {
+        return false;
+      }
+
       const horaProcesada = this.extraerHoraUTCToGetData(element.hora);
       const fechaProcesada = this.extractFecha(element.fecha);
-
-      return horaProcesada === this.horaSeleccionada && fechaProcesada === fechaSeleccionadaStr;
+      
+      return (
+        horaProcesada === this.horaSeleccionada &&
+        fechaProcesada === fechaSeleccionadaStr
+      );    
     });
   }
 
@@ -194,7 +213,8 @@ export class InvitacionComponent {
       ut: this.registrosC,
       distrito: sessionStorage.getItem('dir'),
       fecha: this.fechaSeleccionada,
-      hora: this.horaSeleccionada
+      hora: this.horaSeleccionada,
+      anio: Number(this.anioSeleccionado)
     }
 
     this.loading = true;
@@ -216,6 +236,8 @@ export class InvitacionComponent {
         this.loading = false;
         this.validaHora();
 
+        debugger;
+
         if(this.existDataSame) {
           Swal.fire( "Se encuentra registros con la misma hora, por favor verifique", "", "warning");
         } else {
@@ -232,6 +254,7 @@ export class InvitacionComponent {
                       this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
                       this.fechaSeleccionada = null;
                       this.horaSeleccionada = '';
+                      this.anioSeleccionado = '';
                     },
                     error: (err) => {
                       if (err.error.code === 100) {
@@ -248,7 +271,7 @@ export class InvitacionComponent {
                   });
                 }, error: (err) => {
                 Swal.fire({
-                  title: "Error al crear la programación con éxito",
+                  title: "Error al crear la programación",
                   icon: "warning"
                 });
 
@@ -315,6 +338,7 @@ export class InvitacionComponent {
         ut: item.ut[1],
         fecha: this.extractFecha(item.fecha),
         hora: this.extraerHoraUTC(item.hora),
+        anio: item.anio
       }))
     };
 
@@ -420,7 +444,8 @@ export class InvitacionComponent {
       distrito: this.distritoChange,
       hora: this.horaSeleccionada,
       ut: this.utChange,
-      fecha: this.fechaSeleccionada
+      fecha: this.fechaSeleccionada,
+      anio: this.anioSeleccionado
     };
 
      Swal.fire({
@@ -454,6 +479,7 @@ export class InvitacionComponent {
                     this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
                     this.fechaSeleccionada = null;
                     this.horaSeleccionada = '';
+                    this.anioSeleccionado = '';
                   },
                   error: (err) => {
 
@@ -493,8 +519,10 @@ export class InvitacionComponent {
       fecha.getUTCMonth(),
       fecha.getUTCDate()
     );
+    const anio = element.anio;
     const hora = new Date(element.hora);
     this.fechaSeleccionada = fechaCorrecta;
+    this.anioSeleccionado = anio;
     this.horaSeleccionada = hora.toISOString().substring(11, 16);
     this.distritoChange = element.distrito;
     this.utChange = element.ut[0];

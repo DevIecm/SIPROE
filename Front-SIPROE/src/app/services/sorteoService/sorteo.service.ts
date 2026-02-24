@@ -12,7 +12,7 @@ export class SorteoService {
 
   constructor (private http: HttpClient) {}
   
-  getDataProyectos(ut: string, distrito: number, token: string): Observable<any> {
+  getDataProyectos(ut: string, distrito: number, anio: number, token: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}` 
     });
@@ -20,6 +20,7 @@ export class SorteoService {
     const params = new HttpParams()
       .set('ut', ut)
       .set('distrito', distrito)
+      .set('anio', anio);
 
     return this.http.get(this.apiUrl + 'sorteo/getSorteos', {headers, params})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))

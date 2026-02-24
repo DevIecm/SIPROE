@@ -86,7 +86,6 @@ export class AuthService {
       Authorization: `Bearer ${token}`
     });
 
-
     return this.http.post(this.apiUrl + 'calendario/guardaCalendario', regData, {headers})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
@@ -103,6 +102,5 @@ export class AuthService {
 
   cerrarSesionByToken() {
     this.router.navigate(['']);
-  }
-  
+  } 
 }

@@ -16,40 +16,63 @@
         <mat-card-title class="label-header">Programar fecha y hora</mat-card-title>
         
         <div class="datetime-container">
-          <mat-form-field>
-            <mat-label>Selecciona la fecha</mat-label>
-            <input
-              [disabled]="datosRegistros || !territorioSelected"
-              matInput
-              [matDatepicker]="datepicker"
-              [(ngModel)]="fechaSeleccionada"
-              [matDatepickerFilter]="fechaValida"
-              [min]="minFecha"
-              [max]="maxFecha"
-            >
-            <mat-datepicker-toggle [for]="datepicker" matSuffix></mat-datepicker-toggle>
-            <mat-datepicker
-              #datepicker
-              [startAt]="minFecha"
-              startView="month"
-              (monthSelected)="blockMonthNavigation($event)"
-              (yearSelected)="blockMonthNavigation($event)"
-            ></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Selecciona la hora</mat-label>
-            <mat-select 
-              [(ngModel)]="horaSeleccionada" 
-              [disabled]="datosRegistros || !territorioSelected"
-              [ngModelOptions]="{updateOn: 'blur'}">
-            <mat-option *ngFor="let hora of opcionesHoras" [value]="hora">
-              {{ hora }}
-            </mat-option>
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field>
+              <mat-label>Selecciona la fecha</mat-label>
+              <input
+                [disabled]="datosRegistros || !territorioSelected"
+                matInput
+                [matDatepicker]="datepicker"
+                [(ngModel)]="fechaSeleccionada"
+                [matDatepickerFilter]="fechaValida"
+                [min]="minFecha"
+                [max]="maxFecha"
+              >
+              <mat-datepicker-toggle [for]="datepicker" matSuffix></mat-datepicker-toggle>
+              <mat-datepicker
+                #datepicker
+                [startAt]="minFecha"
+                startView="month"
+                (monthSelected)="blockMonthNavigation($event)"
+                (yearSelected)="blockMonthNavigation($event)"
+              ></mat-datepicker>
+            </mat-form-field>
+            
+            <mat-form-field appearance="fill">
+              <mat-label>Selecciona la hora</mat-label>
+              <mat-select 
+                [(ngModel)]="horaSeleccionada" 
+                [disabled]="datosRegistros || !territorioSelected"
+                [ngModelOptions]="{updateOn: 'blur'}">
+              <mat-option *ngFor="let hora of opcionesHoras" [value]="hora">
+                {{ hora }}
+              </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Selecciona el año</mat-label>
+              <mat-select 
+                [(ngModel)]="anioSeleccionado" 
+                [disabled]="datosRegistros || !territorioSelected"
+                [ngModelOptions]="{updateOn: 'blur'}">
+              <mat-option [value]="2026">
+                2026
+              </mat-option>
+              <mat-option [value]="2027">
+                2027
+              </mat-option>
+              </mat-select>
+            </mat-form-field>
         </div>
 
-        <button [disabled]="!fechaSeleccionada || !horaSeleccionada" class="buttonGuardar" (click)="guardaData()" [disabled]="loading || !fechaSeleccionada || !horaSeleccionada" mat-raised-button color="primary">Guardar</button>
+        <button 
+          [disabled]="!fechaSeleccionada || !horaSeleccionada" 
+          class="buttonGuardar" 
+          (click)="guardaData()" 
+          [disabled]="loading || !fechaSeleccionada || !horaSeleccionada" 
+          mat-raised-button color="primary">Guardar
+        </button>
+          
         <mat-card-title *ngIf="!sinRegistros" class="label-headers">Programación</mat-card-title>
         <button *ngIf="!sinRegistros"   [disabled]="!dataSource || dataSource.data.length === 0"  class="button" (click)="generaDocumento()" mat-raised-button color="primary">Imprimir Calendario</button>
 

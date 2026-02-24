@@ -89,6 +89,7 @@ export class AsignacionComponent {
   usados: Set<number> = new Set<number>();
   indexActual: number = 0;
   pelotas: any[] = [];
+  selectedAnio: string = '';
   cantidad: number = 0;
   onNumeroAsignado?: (numero: number, index: number) => void;
 
@@ -140,10 +141,18 @@ export class AsignacionComponent {
   }
 
   onDistritoChange(element: any){
-    this.mostrarDiv = true;
+    // this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
+    this.selectedAnio = '';
+    // this.botonUsado = false;
+    // this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+  }
+
+  onChangeAnio() {
+    console.log('Año seleccionado:', this.selectedAnio);
+    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
     this.botonUsado = false;
-    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+    this.mostrarDiv = true;
   }
 
   onOrganoChange(element: any){
@@ -153,8 +162,8 @@ export class AsignacionComponent {
     this.selectedMotivo = element.id;
   }
 
-  getDataProyectos(ut: string, distrito: number, token: string) {
-    this.service.getDataProyectos(ut, distrito, token).subscribe({
+  getDataProyectos(ut: string, distrito: number, anio: number, token: string) {
+    this.service.getDataProyectos(ut, distrito, anio, token).subscribe({
       next: (data) => {
         this.proyectos = data.registrosProyectos;
         this.aprobados = this.proyectos[0]?.aprobados ?? 0;
@@ -302,7 +311,7 @@ export class AsignacionComponent {
       this.service.actualizaProyecto(this.tokenSesion, registro).subscribe({
         next: (resp) => {
           this.mostrarMensaje = false;
-          this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+          this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
         }, error: (err) => {
 
           if(err.error.code === 160) {

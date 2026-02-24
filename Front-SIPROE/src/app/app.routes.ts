@@ -16,13 +16,13 @@ export const routes: Routes = [
       canActivate: [AuthGuard],
       children: [
         { path: '', loadComponent: () => import('./componentes/menu/inicio/inicio.component').then(m => m.InicioComponent), canActivate: [AuthGuard] },
-        { path: 'calendario', loadComponent: () => import('./componentes/menu/invitacion/invitacion.component').then(m => m.InvitacionComponent), canActivate: [AuthGuard] },
-        { path: 'sorteo', loadComponent: () => import('./componentes/menu/sorteo/sorteo.component').then(m => m.SorteoComponent), canActivate: [AuthGuard] },
-        { path: 'asignacion', loadComponent: () => import('./componentes/menu/asignacion/asignacion.component').then(m => m.AsignacionComponent),canActivate: [AuthGuard] },
-        { path: 'reasignacion', loadComponent: () => import('./componentes/menu/reasignacion/reasignacion.component').then(m => m.ReasignacionComponent),canActivate: [AuthGuard] },
-        { path: 'resultados', loadComponent: () => import('./componentes/menu/resultados/resultados.component').then(m => m.ResultadosComponent),canActivate: [AuthGuard] },
-        { path: 'reportes', loadComponent: () => import('./componentes/menu/reportes/reportes.component').then(m => m.ReportesComponent),canActivate: [AuthGuard] },
-        { path: 'monitor', loadComponent: () => import('./componentes/menu/monitor/monitor.component').then(m => MonitorComponent), canActivate: [AuthGuard]}
+        { title: 'SIPROE Aleatorio | Calendario', path: 'calendario', loadComponent: () => import('./componentes/menu/invitacion/invitacion.component').then(m => m.InvitacionComponent), canActivate: [AuthGuard] },
+        { title: 'SIPROE Aleatorio | Sorteo', path: 'sorteo', loadComponent: () => import('./componentes/menu/sorteo/sorteo.component').then(m => m.SorteoComponent), canActivate: [AuthGuard] },
+        { title: 'SIPROE Aleatorio | Asignación', path: 'asignacion', loadComponent: () => import('./componentes/menu/asignacion/asignacion.component').then(m => m.AsignacionComponent),canActivate: [AuthGuard] },
+        { title: 'SIPROE Aleatorio | Reasignación', path: 'reasignacion', loadComponent: () => import('./componentes/menu/reasignacion/reasignacion.component').then(m => m.ReasignacionComponent),canActivate: [AuthGuard] },
+        { title: 'SIPROE Aleatorio | Resultados', path: 'resultados', loadComponent: () => import('./componentes/menu/resultados/resultados.component').then(m => m.ResultadosComponent),canActivate: [AuthGuard] },
+        { title: 'SIPROE Aleatorio | Reportes', path: 'reportes', loadComponent: () => import('./componentes/menu/reportes/reportes.component').then(m => m.ReportesComponent),canActivate: [AuthGuard] },
+        { title: 'SIPROE Aleatorio | Monitor', path: 'monitor', loadComponent: () => import('./componentes/menu/monitor/monitor.component').then(m => MonitorComponent), canActivate: [AuthGuard]}
       ]
     }
 ];

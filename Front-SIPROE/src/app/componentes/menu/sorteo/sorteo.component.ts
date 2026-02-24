@@ -66,6 +66,8 @@ export class SorteoComponent {
   botonUsado: boolean = false;
   SiHayNumeros: boolean = false;
 
+  selectedAnio: string = '';
+
   mostrarMensaje: boolean = false;
   usados: Set<number> = new Set<number>();
   indexActual: number = 0;
@@ -91,15 +93,23 @@ export class SorteoComponent {
   }
 
   onDistritoChange(element: any){
-    this.mostrarMensaje = true;
-    this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
-    this.botonUsado = false;  
-    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+    this.selectedAnio = '';
+    this.mostrarMensaje = false;
+    this.mostrarDiv = false;
   }
 
-  getDataProyectos(ut: string, distrito: number, token: string) {
-    this.service.getDataProyectos(ut, distrito, token).subscribe({
+  onChangeAnio() {
+    // this.selectedAnio = element.value;
+    console.log('Año seleccionado:', this.selectedAnio);
+    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
+    this.mostrarMensaje = true;
+    this.mostrarDiv = true;
+    this.botonUsado = false;
+  }
+
+  getDataProyectos(ut: string, distrito: number, anio: number, token: string) {
+    this.service.getDataProyectos(ut, distrito, anio, token).subscribe({
       next: (data) => {        
         this.proyectos = data.registrosProyectos;
 
@@ -175,7 +185,7 @@ export class SorteoComponent {
     this.proyectos = [];
     this.sinRegistro = false;
     this.botonUsado = false;
-    this.selectedUnidad = null;
+    // this.selectedUnidad = null;
     this.mostrarDiv = false;    
   }
 
@@ -239,7 +249,7 @@ export class SorteoComponent {
           actualizados++;
 
           if (actualizados === total) {
-            this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+            this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
           }
           this.mostrarMensaje = false;
         }, error: (err) => {

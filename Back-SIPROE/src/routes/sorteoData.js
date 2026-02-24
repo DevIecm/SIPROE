@@ -8,9 +8,9 @@ const router = express.Router();
 
 router.get("/getSorteos", Midleware.verifyToken, async (req, res) => {
     try {
-        const { ut, distrito } = req.query;
+        const { ut, distrito, anio } = req.query;
         
-        if(!ut || !distrito){
+        if(!ut || !distrito || !anio){
             return res.status(400).json({ message: "Datos requeridos"})
         }
 
@@ -18,6 +18,7 @@ router.get("/getSorteos", Midleware.verifyToken, async (req, res) => {
         const result = await pool.request()
             .input('ut', sql.VarChar, ut)
             .input('distrito', sql.Int, distrito)
+            .input('anio', sql.Int, anio)
             .query(`
                 SELECT 
                     p.id,
@@ -32,7 +33,10 @@ router.get("/getSorteos", Midleware.verifyToken, async (req, res) => {
                     COUNT(*) OVER() AS aprobados,
                     SUM(CASE WHEN p.sorteo IS NULL OR p.sorteo = '' THEN 1 ELSE 0 END) OVER() AS sortear,
                     SUM(CASE WHEN p.sorteo IS NOT NULL AND p.sorteo <> '' THEN 1 ELSE 0 END) OVER() AS sorteados
-                FROM proyectos p WHERE p.ut = @ut and p.distrito = @distrito;`
+                FROM proyectos p WHERE 
+                    p.ut = @ut and 
+                    p.distrito = @distrito and 
+                    p.anio = @anio;`
             )
 
         if (result.recordset.length > 0) {
