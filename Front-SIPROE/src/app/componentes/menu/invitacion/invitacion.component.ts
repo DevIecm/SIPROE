@@ -1,8 +1,7 @@
-import { AfterViewInit, ChangeDetectionStrategy, ViewChild, Component } from '@angular/core';
+import { ViewChild, Component } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { FooterComponent } from '../../footer/footer.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -488,7 +487,6 @@ export class InvitacionComponent {
   }
 
   editarElemento(element: any) {
-
     const fecha = new Date(element.fecha);
     const fechaCorrecta = new Date(
       fecha.getUTCFullYear(),
