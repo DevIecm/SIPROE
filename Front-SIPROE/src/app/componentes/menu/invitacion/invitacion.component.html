@@ -50,7 +50,14 @@
 
         </div>
 
-        <button [disabled]="!fechaSeleccionada || !horaSeleccionada" class="buttonGuardar" (click)="guardaData()" [disabled]="loading || !fechaSeleccionada || !horaSeleccionada" mat-raised-button color="primary">Guardar</button>
+        <button 
+          [disabled]="!fechaSeleccionada || !horaSeleccionada" 
+          class="buttonGuardar" 
+          (click)="guardaData()" 
+          [disabled]="loading || !fechaSeleccionada || !horaSeleccionada" 
+          mat-raised-button color="primary">Guardar
+        </button>
+          
         <mat-card-title *ngIf="!sinRegistros" class="label-headers">Programación</mat-card-title>
         <button *ngIf="!sinRegistros"   [disabled]="!dataSource || dataSource.data.length === 0"  class="button" (click)="generaDocumento()" mat-raised-button color="primary">Imprimir Calendario</button>
 
