@@ -25,3 +25,7 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 </div>
+
+<div class="overlay" *ngIf="loading">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>  

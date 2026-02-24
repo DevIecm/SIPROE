@@ -37,7 +37,6 @@ router.post("/login", async (req, res) => {
             .input('password', sql.VarChar, ecryptedPass)
             .query(`SELECT
                         cs.id,
-                        cs.password,
                         cs.usuario,
                         cs.tipo_usuario, 
                         tu.tipo_usuario AS tipo,
@@ -77,6 +76,65 @@ router.post("/login", async (req, res) => {
 
     } catch(error) {
         return res.status(500).json({ message: "Error de servidor" , error, code: 500 });
+    }
+});
+
+router.get("/protected", Midleware.verifyToken, (req, res) => {
+    return res.status(200).json({ message: "You have access" });
+});
+
+
+router.post("/logins", async (req, res) => {
+    try{
+
+        const { username, password } = req.body;
+
+        if(!username || !password) {
+            return res.status(400).json({ message: "Datos requeridos"})
+        }
+
+        const ecryptedPass = encryptSHA256(password);
+
+        const pool = await connectToDatabase();
+        const result = await pool.request()
+            .input('username', sql.VarChar, username)
+            .input('password', sql.VarChar, ecryptedPass)
+            .query(`SELECT
+                        cs.id,
+                        cs.password,
+                        cs.usuario,
+                        cs.tipo_usuario,
+                        cs.estado_usuario,
+                        cs.nombre_usuario,
+                        cs.cargo_usuario,
+                        cs.correo_usuario,
+                        cs.area_adscripcion
+                    FROM usuarios cs
+                        JOIN tipo_usuario tu ON cs.tipo_usuario = tu.id 
+                        JOIN estado_usuario es ON cs.estado_usuario = es.id
+                        JOIN adscripcion_usuario cd ON cs.area_adscripcion = cd.id
+                    WHERE cs.usuario = @username AND cs.password = @password`)
+
+        if (result.recordset.length > 0) {
+            if(result.recordset[0].estado_usuario === 1){
+                const token = jwt.sign({ username }, secretKey, { expiresIn: "5h" });
+                return res.status(200).json({ 
+                    token, 
+                    userData: result.recordset 
+                });
+
+            } else {
+            
+            return res.status(401).json({ message: "Fallo autenticación", code: 401 });
+            
+            }
+
+        } else {
+            return res.status(401).json({ message: "Fallo autenticación", code: 101 });
+        }
+
+    } catch(error) {
+        return res.status(500).json({ message: "Error de servidor" , error});
     }
 });
 

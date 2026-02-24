@@ -115,7 +115,6 @@ export class ResultadosComponent {
     this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.selectedTipo!, this.tokenSesion).subscribe({
       next: (data) => {
         this.proyectos = data.registrosProyectos;
-        console.log(this.proyectos);
       }, error: (err) => {
         
         Swal.fire("Error al cargar tipos de sorteo");
@@ -204,7 +203,7 @@ export class ResultadosComponent {
   async GeneraConstancia(){
     
     this.loading = true;
-    const motivo = this.proyectos[0].id_motivo;
+    const motivo = this.proyectos[0].id_motivo || null;
     const primerRegistro = this.proyectos[0];
 
     const datos = {
