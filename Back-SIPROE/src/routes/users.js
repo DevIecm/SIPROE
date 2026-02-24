@@ -19,19 +19,14 @@ router.post("/login", async (req, res) => {
     try{
 
         const { username, password } = req.body;
-        console.log("Username:", username);
-        console.log("   Password:", password ? password : "No proporcionada");
 
         if(!username || !password) {
             return res.status(400).json({ message: "Datos requeridos"})
         }
 
         const ecryptedPass = encryptSHA256(password);
-        console.log("Encrypted Password:", ecryptedPass);
 
         const pool = await connectToDatabase();
-        console.log("Conexión a base de datos establecida");
-        console.log("Ejecutando consulta con parámetros:", { username, password: ecryptedPass });
         const result = await pool.request()
             .input('username', sql.VarChar, username)
             .input('password', sql.VarChar, ecryptedPass)
@@ -50,14 +45,9 @@ router.post("/login", async (req, res) => {
                         JOIN cat_distrito cd ON cs.distrito = cd.id
                     WHERE cs.usuario = @username AND cs.password = @password`)
 
-                    console.log("Resultado de la consulta:", result.recordset.length);
         if (result.recordset.length > 0) {
-            console.log("Usuario encontrado:", result.recordset[0].estado_usuario);
             if(result.recordset[0].estado_usuario === 1){
-                console.log("Usuario activo, generando token...");
-                console.log("Secret Key:", secretKey ? "Disponible" : "No disponible");
                 const token = jwt.sign({ username }, secretKey, { expiresIn: "5h" });
-                console.log("Token generado:", token);
 
                 return res.status(200).json({ 
                     token, 

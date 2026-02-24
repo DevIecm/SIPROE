@@ -9,9 +9,9 @@ const router = express.Router();
 router.get("/getProyectos", Midleware.verifyToken, async (req, res) => {
     try{
 
-        const { ut, distrito, tipo } = req.query;
+        const { ut, distrito, tipo, anio } = req.query;
         
-        if(!ut || !distrito || !tipo){
+        if(!ut || !distrito || !tipo || !anio){
             return res.status(400).json({ message: "Datos requeridos"})
         }
 
@@ -22,6 +22,7 @@ router.get("/getProyectos", Midleware.verifyToken, async (req, res) => {
         .input('ut', sql.VarChar, ut)
         .input('distrito', sql.Int, distrito)
         .input('tipo', sql.Int, tipoNum)
+        .input('anio', sql.Int, anio)
         .query(`SELECT
                     u.clave_ut as clave,
                     u.ut as nombre_ut,
@@ -36,13 +37,14 @@ router.get("/getProyectos", Midleware.verifyToken, async (req, res) => {
                     s.fecha_sentencia as fecha_sentencia,
 	                s.numero_expediente as numero_expediente,
                     p.numero_aleatorio,
+                    p.anio,
                     s.id_motivo 
                 FROM proyectos p
                     JOIN unidad_territorial u ON p.ut = u.clave_ut
                     JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
                     JOIN sorteo s on p.sorteo = s.id
                     JOIN cat_distrito ct ON p.distrito = ct.id 
-                WHERE p.ut = @ut and p.distrito = @distrito and s.tipo = @tipo
+                WHERE p.ut = @ut and p.distrito = @distrito and s.tipo = @tipo and p.anio = @anio
                 ORDER BY numero_aleatorio ASC;
             `)
         
@@ -80,7 +82,8 @@ router.get("/getProyectosFull", Midleware.verifyToken, async (req, res) => {
                     p.nombre as nombre, 
                     p.descripcion as descripcion,
                     u.clave_ut as clave,
-	                u.ut as nombre_ut
+	                u.ut as nombre_ut,
+                    p.anio
                 FROM proyectos p 
                     JOIN unidad_territorial u ON p.ut = u.clave_ut
                 WHERE p.ut = @ut ORDER BY numero_aleatorio ASC;
