@@ -61,9 +61,11 @@ export class ResultadosComponent {
   proyectosFull: any[] = [];
   clave_ut: string = '';
   mostarLista!: boolean;
+  activeButton!: boolean;
   loading = false;
   idTipo!: number;
   documentos: string = '';
+  anioSeleccionado!: number;
 
   constructor(private http: HttpClient, private resultadosService: ResultadosService, private service: AuthService, private serviceReAsignacion: ReasignacionService) {}
 
@@ -112,12 +114,21 @@ export class ResultadosComponent {
   }
 
   onTipoChange() {
-    this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.selectedTipo!, this.tokenSesion).subscribe({
+   console.log('Tipo seleccionado:', this.selectedTipo);
+  }
+
+  onAnioChange() {
+    console.log('Año seleccionado:', this.anioSeleccionado);
+
+     this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.selectedTipo!, this.anioSeleccionado, this.tokenSesion).subscribe({
       next: (data) => {
         this.proyectos = data.registrosProyectos;
+        this.activeButton = true;
       }, error: (err) => {
         
-        Swal.fire("Error al cargar tipos de sorteo");
+        Swal.fire(err.error.message, '', 'error');
+
+        this.activeButton = false;
 
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
@@ -125,7 +136,6 @@ export class ResultadosComponent {
 
       }
     }); 
-   
   }
 
   limpiarFormulario(){
@@ -206,6 +216,8 @@ export class ResultadosComponent {
     const motivo = this.proyectos[0].id_motivo || null;
     const primerRegistro = this.proyectos[0];
 
+    console.log('Primer registro:', primerRegistro);
+
     const datos = {
       nombre_ut: primerRegistro?.nombre_ut ?? '',
       clave: primerRegistro?.clave ?? '',
@@ -217,6 +229,7 @@ export class ResultadosComponent {
       tod: primerRegistro?.tod ?? '',
       fecha_sentencia: this.extractFecha(primerRegistro?.fecha_sentencia) ?? '',
       numero_expediente: primerRegistro?.numero_expediente ?? '',
+      anio: primerRegistro?.anio ?? '',
       proyectos: this.proyectos.map((item, index) => ({
         identificador: item.numero_aleatorio ?? '',
         folio: item.folio ?? '',
@@ -225,7 +238,12 @@ export class ResultadosComponent {
     };
 
     if(this.selectedTipo === 1) { 
-      this.documentos = 'assets/ConstanciaSorteo.docx';
+      console.log('Año seleccionado:', this.anioSeleccionado);
+      if(this.anioSeleccionado === 2026) {
+        this.documentos = 'assets/ConstanciaAsignacionSorteo2026.docx';
+      } else if(this.anioSeleccionado === 2027) { 
+        this.documentos = 'assets/ConstanciaAsignacionSorteo2027.docx';
+      }
     } else { 
       if(motivo === 1){
         this.documentos = 'assets/ConstanciaAsignacion1.docx';

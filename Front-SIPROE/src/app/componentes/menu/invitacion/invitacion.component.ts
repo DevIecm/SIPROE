@@ -92,8 +92,8 @@ export class InvitacionComponent {
   dataUpdate: any;
   distritoChange: any;
   utChange: any;
-  minFecha = new Date(2025, 6, 5);
-  maxFecha = new Date(2025, 6, 9);
+  minFecha = new Date(2026, 2, 20);
+  maxFecha = new Date(2026, 2, 30);
 
   constructor(private http: HttpClient, private service: AuthService) {}
 
@@ -139,7 +139,6 @@ export class InvitacionComponent {
   }
 
   validaHora() {
-    debugger;
     if (!this.fechaSeleccionada) {
       this.existDataSame = false;
       return;
@@ -235,8 +234,6 @@ export class InvitacionComponent {
       if (result.isConfirmed) {
         this.loading = false;
         this.validaHora();
-
-        debugger;
 
         if(this.existDataSame) {
           Swal.fire( "Se encuentra registros con la misma hora, por favor verifique", "", "warning");
@@ -434,7 +431,7 @@ export class InvitacionComponent {
     this.selectedDistrito = true;
     this.fechaSeleccionada = null;
     this.horaSeleccionada = '';
-    this.datosRegistros = this.dataSource.data.some(d => idD === d.ut[0]);
+    // this.datosRegistros = this.dataSource.data.some(d => idD === d.ut[0]);
     this.sinRegistros = false;
   }
 

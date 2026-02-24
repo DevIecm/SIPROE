@@ -40,16 +40,34 @@
           <div *ngIf="seleccionoUnidad">
             <label class="form-label">Seleccione el Tipo de Sorteo</label>
             <mat-form-field appearance="outline" class="full-width">
-                <mat-select placeholder="Seleccione el Tipo de Sorteo" (selectionChange)="onTipoChange()" disableRipple [(value)]="selectedTipo">
+                <mat-select 
+                  placeholder="Seleccione el Tipo de Sorteo" 
+                  (selectionChange)="onTipoChange()" disableRipple [(value)]="selectedTipo">
                     <mat-option *ngFor="let tipo of tipos" [value]="tipo.tipo">{{ tipo.descripcion }}</mat-option>
                 </mat-select>
+            </mat-form-field>
+
+            <label class="form-label">Seleccione el Año</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-select
+                (selectionChange)="onAnioChange()"
+                placeholder="Seleccione el Año"
+                [(value)]="anioSeleccionado" 
+                disableRipple>
+              <mat-option [value]="2026">
+                2026
+              </mat-option>
+              <mat-option [value]="2027">
+                2027
+              </mat-option>
+              </mat-select>
             </mat-form-field>
           </div>   
         </div>
       </mat-card-header>
 
       <div class="button-row">
-        <button [disabled]="!selectedTipo" (click)="GeneraConstancia()" class="buttonSorteo" mat-fab extended color="primary">Generar Constancia</button>
+        <button [disabled]="!activeButton" (click)="GeneraConstancia()" class="buttonSorteo" mat-fab extended color="primary">Generar Constancia</button>
         <button (click)="limpiarFormulario()" class="buttonSorteoD" mat-fab extended color="warn">Cancelar</button>
       </div>
     </div>

@@ -430,11 +430,18 @@ export class SorteoComponent {
       const pelota = this.pelotas[this.indexActual];
       pelota.activa = false;
 
+      const anio = Number(this.selectedAnio);
+      const bloque = anio - 2026;
+      const base = bloque * 50 + 1;
+      const min = base;
+      const max = base + this.cantidad - 1;
+
       let numero: number;
 
       do {
-        numero = Math.floor(Math.random() * this.cantidad) + 1;
+        numero = Math.floor(Math.random() * (max - min + 1)) + min;
       } while (this.usados.has(numero));
+
       this.usados.add(numero);
 
       if (this.onNumeroAsignado) {

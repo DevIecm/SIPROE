@@ -13,7 +13,7 @@ export class ResultadosService {
   
   constructor(private http: HttpClient) { }
   
-  getDataProyectos(ut: string, distrito: number, tipo: number, token: string): Observable<any> {
+  getDataProyectos(ut: string, distrito: number, tipo: number, anio: number, token: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
@@ -22,6 +22,7 @@ export class ResultadosService {
       .set('ut', ut)
       .set('distrito', distrito)
       .set('tipo', tipo)
+      .set('anio', anio)
 
     return this.http.get(this.apiUrl + 'resultados/getProyectos', {headers, params})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))

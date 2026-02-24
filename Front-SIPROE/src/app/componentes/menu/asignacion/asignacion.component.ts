@@ -396,7 +396,22 @@ export class AsignacionComponent {
     }
 
     const pelotas: Pelota[] = [];
-    for (let i = 1; i <= cantidad; i++) pelotas.push(new Pelota(i));
+
+
+    let min = 1;
+    let max = cantidad;
+
+    if (this.selectedAnio === '2026') {
+      min = 1;
+      max = 50;
+    } else if (this.selectedAnio === '2027') {
+      min = 51;
+      max = 100;
+    }
+
+    for (let i = min; i <= max; i++) {
+      pelotas.push(new Pelota(i));
+    }
 
     function detectarColisiones() {
       for (let i = 0; i < pelotas.length; i++) {
@@ -500,7 +515,7 @@ export class AsignacionComponent {
       pelota.activa = false;
 
       if (posiblesNumeros.length === 0) {
-        console.warn('No hay más números disponibles para asignar');
+        console.warn('No hay más números disponibles para asignar'); 
         clearInterval(intervalo);
         return;
       }
