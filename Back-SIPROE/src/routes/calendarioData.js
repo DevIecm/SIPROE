@@ -29,6 +29,7 @@ router.get("/getCalendario", Midleware.verifyToken, async (req, res) => {
           c.hora,
           dt.dt AS dt,
           ut.ut AS ut,
+          c.anio,
           cd.domicilio AS domicilio,
           cd.nombre_sod AS sod,
           cd.nombre_tod AS tod
@@ -60,10 +61,11 @@ router.post("/guardaCalendario", Midleware.verifyToken, async (req, res) => {
       ut,
       distrito,
       fecha,
-      hora
+      hora,
+      anio
     } = req.body;
 
-    if(!dt || !ut || !distrito || !fecha || !hora) {
+    if(!dt || !ut || !distrito || !fecha || !hora || !anio){
       return res.status(400).json({ message: "Datos requeridos"})
     }
 
@@ -74,10 +76,11 @@ router.post("/guardaCalendario", Midleware.verifyToken, async (req, res) => {
         .input('distrito', sql.Int, distrito)
         .input('fecha', sql.Date, fecha)
         .input('hora', sql.VarChar, hora)
+        .input('anio', sql.Int, anio)
         .query('INSERT INTO ' +
                 'siproe_aleatorio2025.dbo.calendario ' +
-                '(dt, ut, distrito, fecha, hora) ' +
-                'VALUES(@dt, @ut, @distrito, @fecha, @hora);')
+                '(dt, ut, distrito, fecha, hora, anio) ' +
+                'VALUES(@dt, @ut, @distrito, @fecha, @hora, @anio);')
         
      return res.status(200).json({ message: "Registro guardado correctamente", code: 200 });
 
@@ -112,9 +115,9 @@ router.delete("/delRegistros", Midleware.verifyToken, async (req, res) => {
 router.patch("/actualizaRegistros", Midleware.verifyToken, async (req, res) => {
   try {
 
-    const { fecha, hora, ut, distrito } = req.body;
+    const { fecha, hora, ut, distrito, anio } = req.body;
 
-    if(!fecha || !hora || !ut || !distrito){
+    if(!fecha || !hora || !ut || !distrito, !anio) {
       return res.status(400).json({ message: "Datos requeridos"});
     }
 
@@ -124,7 +127,8 @@ router.patch("/actualizaRegistros", Midleware.verifyToken, async (req, res) => {
       .input('hora', sql.VarChar, hora)
       .input('ut', sql.VarChar, ut)
       .input('distrito', sql.Int, distrito)
-      .query(`UPDATE calendario set fecha = @fecha , hora = @hora where ut = @ut and distrito = @distrito;`)
+      .input('anio', sql.Int, anio)
+      .query(`UPDATE calendario set fecha = @fecha , anio = @anio, hora = @hora where ut = @ut and distrito = @distrito;`)
 
       return res.status(200).json({ message: "Registro actualizado correctamente", code: 200 });
 
