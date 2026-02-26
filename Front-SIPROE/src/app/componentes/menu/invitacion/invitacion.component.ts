@@ -24,7 +24,6 @@ import Docxtemplater from 'docxtemplater';
 import { MatPaginator } from '@angular/material/paginator';
 import { getSpanishPaginatorIntl } from './mat-paginator-intl-es';
 import { CustomDateAdapter } from './custom-date-formats';
-import { D } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-invitacion',
@@ -365,7 +364,6 @@ export class InvitacionComponent {
 
       const output = doc.getZip().generate({ type: 'blob' });
       saveAs(output, 'Anexo Calendario.docx');
-
       this.loading = false;
   }
 
@@ -419,7 +417,6 @@ export class InvitacionComponent {
       }
     });
   }
-
   
   onDistritoChange(idDistrito: any) {
     this.actualiza = false;
@@ -506,7 +503,6 @@ export class InvitacionComponent {
         });
       }
     });
-
   }
 
   editarElemento(element: any) {
@@ -529,5 +525,5 @@ export class InvitacionComponent {
     this.selectedUnidad = this.unidades.find(ut => ut.clave_ut === element.ut[0]);
   }
 
-  displayedColumns: string[] = ['cs', 'ut', 'nut', 'fecha', 'hora', 'accion'];
+  displayedColumns: string[] = ['cs', 'ut', 'nut', 'fecha', 'anio', 'hora', 'accion'];
 }

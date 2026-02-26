@@ -99,6 +99,11 @@
               <td mat-cell *matCellDef="let element"> {{element.fecha | date: 'dd/MM/yyyy'  : 'UTC'}} </td>
             </ng-container>
 
+            <ng-container matColumnDef="anio">
+              <th mat-header-cell *matHeaderCellDef> Año </th>
+              <td mat-cell *matCellDef="let element"> {{element.anio}} </td>
+            </ng-container>
+            
             <ng-container matColumnDef="hora">
               <th mat-header-cell *matHeaderCellDef> Hora </th>
               <td mat-cell *matCellDef="let element"> {{element.hora | date: "HH:mm 'Hrs'" : 'UTC'}} </td>

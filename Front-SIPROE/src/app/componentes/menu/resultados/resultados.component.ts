@@ -62,6 +62,7 @@ export class ResultadosComponent {
   clave_ut: string = '';
   mostarLista!: boolean;
   activeButton!: boolean;
+  apareceAnios!: boolean;
   loading = false;
   idTipo!: number;
   documentos: string = '';
@@ -78,6 +79,7 @@ export class ResultadosComponent {
   
   onDistritoChange(element: any) {
     this.selectedTipo = null;
+    this.anioSeleccionado = 0;
     this.clave_ut = element.clave_ut;
 
     this.serviceReAsignacion.catRipoSorteo(this.clave_ut, this.tokenSesion).subscribe({
@@ -114,6 +116,7 @@ export class ResultadosComponent {
   }
 
   onTipoChange() {
+    this.apareceAnios  = true;
    console.log('Tipo seleccionado:', this.selectedTipo);
   }
 

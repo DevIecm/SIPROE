@@ -119,6 +119,7 @@ export class ReportesComponent {
   }
   
   async GeneraConstanciasProyectosParticipantes(){
+    console.log(this.participantes);
 
     const fechaHoraActual = new Date();
 
@@ -140,7 +141,8 @@ export class ReportesComponent {
         clave: item.clave,
         identificador: item.identificador,
         folio: item.folio,
-        nombre: item.nombre
+        nombre: item.nombre,
+        anio: item.anio
       }))
     };
 
@@ -176,8 +178,9 @@ export class ReportesComponent {
       row.getCell(2).value = participantes.unidad_territorial ?? '';
       row.getCell(3).value = participantes.clave ?? '';
       row.getCell(4).value = participantes.identificador ?? '';
-      row.getCell(5).value = participantes.folio ?? '';
-      row.getCell(6).value = participantes.nombre ?? '';
+      row.getCell(5).value = participantes.anio ?? '';
+      row.getCell(6).value = participantes.folio ?? '';
+      row.getCell(7).value = participantes.nombre ?? '';
       row.commit();
     });
 
