@@ -16,6 +16,7 @@ router.get("/getProyectosParticipantes", Midleware.verifyToken, async (req, res)
         }
 
         if(tipoUsuario == 2){
+
             const pool = await connectToDatabase();
 
             const result = await pool.request()
@@ -27,11 +28,13 @@ router.get("/getProyectosParticipantes", Midleware.verifyToken, async (req, res)
                         p.numero_aleatorio as identificador,
                         p.folio as folio,
                         p.nombre,
-                        p.distrito 
+                        p.distrito,
+                        p.anio
                     FROM proyectos p
                         JOIN unidad_territorial u ON p.ut = u.clave_ut
                         JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
-                    ORDER BY p.ut, p.numero_aleatorio ASC;`)
+                    WHERE anio IN(2026, 2027)
+                    ORDER p.anio, p.ut, p.numero_aleatorio ASC;`)
 
             if (result.recordset.length > 0) {
                 return res.status(200).json({
@@ -54,12 +57,13 @@ router.get("/getProyectosParticipantes", Midleware.verifyToken, async (req, res)
                         p.numero_aleatorio as identificador,
                         p.folio as folio,
                         p.nombre,
-                        p.distrito 
+                        p.distrito,
+                        p.anio
                     FROM proyectos p
                         JOIN unidad_territorial u ON p.ut = u.clave_ut
                         JOIN demarcacion_territorial dt ON u.demarcacion_territorial = dt.id
-                    WHERE p.distrito = @idDistrito
-                    ORDER BY p.ut ASC;`)
+                    WHERE anio IN(2026, 2027) and p.distrito = @idDistrito
+                    ORDER BY p.anio, p.ut ASC;`)
 
             if (result.recordset.length > 0) {
                 return res.status(200).json({

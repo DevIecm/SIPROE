@@ -32,7 +32,6 @@ function verificarTokenGet(req, res, next) {
   const tokenCliente = req.header("x-api-key");
   
   if(tokenCliente == process.env.API_KEY) {
-    console.log("Token válido");
   }
 
   if (!tokenCliente || tokenCliente !== process.env.API_KEY) {
