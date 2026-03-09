@@ -93,17 +93,18 @@ router.post("/guardaCalendario", Midleware.verifyToken, async (req, res) => {
 
 router.delete("/delRegistros", Midleware.verifyToken, async (req, res) => {
   try {
-    const { idUt } = req.query;
+    const { idUt, anio } = req.query;
 
-    if(!idUt) {
+    if(!idUt, !anio) {
       return res.status(400).json({ message: "Datos requeridos"})
     }
 
     await poolConnect;
     let result =  await pool.request()
         .input('idUt', sql.VarChar, idUt)
+        .input('anio', sql.Int, anio)
         .query('DELETE FROM calendario ' +
-                'where ut = @idUt')
+                'where ut = @idUt and anio = @anio')
 
     return res.status(200).json({ message: "Registro eliminado correctamente", code: 200 });
 
