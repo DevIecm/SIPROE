@@ -20,7 +20,7 @@ export class AsignacionService {
 
     const params = new HttpParams().set('idDistrito', idDistrito);
 
-    return this.http.get(this.apiUrl + 'catOrganoJ/catOrgano' , {headers, params})
+    return this.http.get(this.apiUrl + 'catalogos/catOrgano' , {headers, params})
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
   
@@ -40,7 +40,7 @@ export class AsignacionService {
       Authorization: `Bearer ${token}`
     });
 
-    return this.http.get(this.apiUrl + 'catMotivo/catMotivo' , {headers})
+    return this.http.get(this.apiUrl + 'catalogos/catMotivo' , {headers})
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
 }

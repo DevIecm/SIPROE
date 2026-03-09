@@ -101,7 +101,7 @@ export class ReasignacionComponent {
 
     this.servicea.catUnidadFilter(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.unidades = data.catUnidad;
+        this.unidades = data.data;
         this.selectedTipo = null;
       }, error: (err) => {
 
@@ -136,7 +136,7 @@ export class ReasignacionComponent {
 
     this.serviceReAsignacion.catRipoSorteo(this.clave_ut, this.tokenSesion).subscribe({
       next: (data) => {
-        this.tipos = data.catTipoSorteo;
+        this.tipos = data.data;
       }, error: (err) => {
 
         if(err.error.code === 160) {

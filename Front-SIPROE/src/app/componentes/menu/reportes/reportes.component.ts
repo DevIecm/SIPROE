@@ -119,8 +119,6 @@ export class ReportesComponent {
   }
   
   async GeneraConstanciasProyectosParticipantes(){
-    console.log(this.participantes);
-
     const fechaHoraActual = new Date();
 
     const opcionesHora: Intl.DateTimeFormatOptions = {

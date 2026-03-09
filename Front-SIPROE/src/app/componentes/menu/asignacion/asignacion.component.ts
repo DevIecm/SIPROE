@@ -81,6 +81,7 @@ export class AsignacionComponent {
   ocultaIfExist: boolean = false;
   llenadoForm: boolean = false;
   showDataAsigned: boolean = false;
+  selectedUnidadTerritorial: boolean = false;
   creoSorteo: boolean = false;
   organoDescripcion!: number;
   motivoSeleccionado!: number;
@@ -99,19 +100,17 @@ export class AsignacionComponent {
   ngOnInit(): void {
     this.servicea.catUnidadFilterSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.unidades = data.catUnidad;
+        this.unidades = data.data;
       }, error: (err) => {
-
         if(err.error.code === 160) {
           this.servicea.cerrarSesionByToken();
-        } else if(err.error.code === 125) {
+        } else if(err.error = "No se encontraron datos") {
           this.mostrarMensaje = true;
           if(this.mostrarMensaje){
           
           Swal.fire("No se cuentan con proyectos para la asignación directa");
           }
         }
-
       }
     });
 
@@ -144,12 +143,12 @@ export class AsignacionComponent {
     // this.mostrarDiv = true;
     this.clave_ut = element.clave_ut;
     this.selectedAnio = '';
+    this.selectedUnidadTerritorial = true;
     // this.botonUsado = false;
     // this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
   }
 
   onChangeAnio() {
-    console.log('Año seleccionado:', this.selectedAnio);
     this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
     this.botonUsado = false;
     this.mostrarDiv = true;
@@ -277,7 +276,7 @@ export class AsignacionComponent {
         setTimeout(() => {
           this.servicea.catUnidadFilterSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
             next: (data) => {
-              this.unidades = data.catUnidad;
+              this.unidades = data.data;
             }, error: (err) => {
 
               if(err.error.code === 160) {

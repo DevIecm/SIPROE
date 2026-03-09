@@ -1,10 +1,11 @@
 import { MonitorService } from '../../../services/monitorService/monitor-service.service';
 import { AuthService } from '../../../services/auth.service';
-import {AfterViewInit, Component, ViewChild} from '@angular/core';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatTableDataSource, MatTableModule} from '@angular/material/table';
+import { Component } from '@angular/core';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-monitor',
@@ -24,21 +25,40 @@ export class MonitorComponent {
   dataSource: any[] = [];
   loading = false;
 
-  constructor(private serviceMonitor: MonitorService, private servicea: AuthService) {}
+  subscription!: Subscription;
+
+  constructor(
+    private serviceMonitor: MonitorService, 
+    private servicea: AuthService
+  ) {}
 
   ngOnInit(): void{
-    this.loading = true;
-    this.serviceMonitor.getMonitorData(this.tokenSesion).subscribe({
-          next: (data) => {
-            this.dataSource = data.registrosMonitor;
-            this.loading = false;
-          }, error: (err) => {
-            console.error(err)
-            if(err.error.code === 160) {
-              this.servicea.cerrarSesionByToken();
-            }
-          }
-        });
+    this.getMonitor();
+
+    this.subscription = interval(50000).subscribe(() => {
+      this.getMonitor();
+    });
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  getMonitor() {
+    this.loading = true;
+
+    this.serviceMonitor.getMonitorData(this.tokenSesion).subscribe({
+      next: (data) => {
+        this.dataSource = data.registrosMonitor;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.loading = false;
+
+        if (err.error?.code === 160) {
+          this.servicea.cerrarSesionByToken();
+        }
+      }
+    });
+  }
 }

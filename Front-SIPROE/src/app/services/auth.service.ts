@@ -26,7 +26,7 @@ export class AuthService {
 
     const params = new HttpParams().set('idDistrito', idDistrito);
 
-    return this.http.get(this.apiUrl + 'catUnidadTerritorial/catUnidad' , {headers, params})
+    return this.http.get(this.apiUrl + 'catalogos/catUnidad' , {headers, params})
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
 
@@ -38,7 +38,7 @@ export class AuthService {
 
     const params = new HttpParams().set('idDistrito', idDistrito);
 
-    return this.http.get(this.apiUrl + 'catUnidadTerritorial/catunidadFilterSorteo' , {headers, params})
+    return this.http.get(this.apiUrl + 'catalogos/catunidadFilterSorteo' , {headers, params})
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
 
@@ -50,7 +50,7 @@ export class AuthService {
 
     const params = new HttpParams().set('idDistrito', idDistrito);
 
-    return this.http.get(this.apiUrl + 'catUnidadTerritorial/catUnidadFilter' , {headers, params})
+    return this.http.get(this.apiUrl + 'catalogos/catUnidadFilter' , {headers, params})
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
 
@@ -67,13 +67,18 @@ export class AuthService {
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))
   }
   
-  delRegistros(claveUt: string, token: string): Observable<any> {
+  delRegistros(claveUt: string, anio: number, token: string): Observable<any> {
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
 
-    const params = new HttpParams().set('idUt', claveUt);
+    // const preue = {
+    //   idUt: claveUt,
+    //   anio: anio
+    // }
+
+    const params = new HttpParams().set('idUt', claveUt).set('anio', anio.toString());
 
     return this.http.delete(this.apiUrl + 'calendario/delRegistros', {headers, params})
       .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error); }))

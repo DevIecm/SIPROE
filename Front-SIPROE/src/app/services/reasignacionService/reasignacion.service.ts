@@ -56,7 +56,7 @@ export class ReasignacionService {
 
     const params = new HttpParams().set('ut', ut);
 
-    return this.http.get(this.apiUrl + 'catTipoSorteo/catTipoSorteo' , {headers, params})
+    return this.http.get(this.apiUrl + 'catalogos/catTipoSorteo' , {headers, params})
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
 

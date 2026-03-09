@@ -55,7 +55,7 @@ export class ResultadosComponent {
   selectedTipo: number | null = null;
   ocultaBotones!: boolean;
   mostrarForm!: boolean;
-  seleccionoUnidad!: boolean;
+  seleccionoUnidad: boolean = false;
   tipos: any[] = [];
   proyectos: any[] = [];
   proyectosFull: any[] = [];
@@ -84,11 +84,8 @@ export class ResultadosComponent {
 
     this.serviceReAsignacion.catRipoSorteo(this.clave_ut, this.tokenSesion).subscribe({
       next: (data) => {
-        this.tipos = data.catTipoSorteo;
-
-        if(data.code === 200) {
-          this.seleccionoUnidad = true;
-        }
+        this.tipos = data.data;
+        this.seleccionoUnidad = true;
 
       }, error: (err) => {
       
@@ -117,12 +114,9 @@ export class ResultadosComponent {
 
   onTipoChange() {
     this.apareceAnios  = true;
-   console.log('Tipo seleccionado:', this.selectedTipo);
   }
 
   onAnioChange() {
-    console.log('Año seleccionado:', this.anioSeleccionado);
-
      this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.selectedTipo!, this.anioSeleccionado, this.tokenSesion).subscribe({
       next: (data) => {
         this.proyectos = data.registrosProyectos;
@@ -136,7 +130,6 @@ export class ResultadosComponent {
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
         }
-
       }
     }); 
   }
@@ -151,21 +144,22 @@ export class ResultadosComponent {
     this.selectedTipo = null;
     this.mostarLista = false;    
     this.seleccionoUnidad = false;
+    this.apareceAnios = false;
   }
 
   onSelectedProyectos(){
     this.service.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.unidades = data.catUnidad;
+        this.unidades = data.data;
         this.selectedTipo = null;
       }, error: (err) => {
 
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
         }
-
       }
     });
+
     this.onBuild = false;
     this.selectedProyectos = true;
     this.selectedConstancias = false;
@@ -176,16 +170,16 @@ export class ResultadosComponent {
   onSelectedConstancias(){
     this.service.catUnidadFilter(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.unidadesAsignados = data.catUnidad;
+        this.unidadesAsignados = data.data;
         this.selectedTipo = null;
       }, error: (err) => {
 
         if(err.error.code === 160) {
           this.service.cerrarSesionByToken();
         }
-
       }
     });
+
     this.onBuild = false;
     this.selectedProyectos = false;
     this.selectedConstancias = true;
@@ -219,8 +213,6 @@ export class ResultadosComponent {
     const motivo = this.proyectos[0].id_motivo || null;
     const primerRegistro = this.proyectos[0];
 
-    console.log('Primer registro:', primerRegistro);
-
     const datos = {
       nombre_ut: primerRegistro?.nombre_ut ?? '',
       clave: primerRegistro?.clave ?? '',
@@ -241,7 +233,6 @@ export class ResultadosComponent {
     };
 
     if(this.selectedTipo === 1) { 
-      console.log('Año seleccionado:', this.anioSeleccionado);
       if(this.anioSeleccionado === 2026) {
         this.documentos = 'assets/ConstanciaAsignacionSorteo2026.docx';
       } else if(this.anioSeleccionado === 2027) { 

@@ -14,7 +14,6 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, provideNativeDateAdapte
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
@@ -24,6 +23,8 @@ import Docxtemplater from 'docxtemplater';
 import { MatPaginator } from '@angular/material/paginator';
 import { getSpanishPaginatorIntl } from './mat-paginator-intl-es';
 import { CustomDateAdapter } from './custom-date-formats';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+
 
 @Component({
   selector: 'app-invitacion',
@@ -42,8 +43,8 @@ import { CustomDateAdapter } from './custom-date-formats';
     MatChipsModule, 
     MatTimepickerModule,
     MatIcon,
-    MatProgressSpinnerModule,
     CommonModule,
+    MatProgressSpinnerModule,
     MatPaginator
   ],
   templateUrl: './invitacion.component.html',
@@ -51,7 +52,7 @@ import { CustomDateAdapter } from './custom-date-formats';
   providers: [ 
     { provide: DateAdapter, useClass: CustomDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: MAT_DATE_FORMATS },
-    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },// opcional: español
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
     { provide: MatPaginatorIntl, useValue: getSpanishPaginatorIntl() },  provideNativeDateAdapter() ]
 })
 
@@ -74,12 +75,10 @@ export class InvitacionComponent {
   anioSeleccionado!: string;
 
   registroEnEdicion: any = null;
-  dataReport: any[] = [];
   opcionesHoras: string[] = [];
   unidades: any[] = [];
   registros: any[] = [];
   
-  selectedDistrito: boolean = false;
   existDataSame: boolean = false;
   modoEdicion: boolean = false;
   actualiza: boolean = false;
@@ -106,7 +105,7 @@ export class InvitacionComponent {
 
     this.service.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.unidades = data.catUnidad;
+        this.unidades = data.data;
       }, error: (err) => {
         
         if(err.error.code === 160) {
@@ -138,30 +137,10 @@ export class InvitacionComponent {
   }
 
   validaHora() {
-    if (!this.fechaSeleccionada) {
-      this.existDataSame = false;
-      return;
-    }
-
-    const fechaSeleccionadaStr = this.extractFecha(this.fechaSeleccionada);
-    const anioSel = Number(this.anioSeleccionado);
-    
-    this.existDataSame = this.dataSource.data.some((element: any) => {
-
-      const mismoAnio = Number(element.anio) === anioSel;
-      
-      if (!mismoAnio) {
-        return false;
-      }
-
-      const horaProcesada = this.extraerHoraUTCToGetData(element.hora);
-      const fechaProcesada = this.extractFecha(element.fecha);
-      
-      return (
-        horaProcesada === this.horaSeleccionada &&
-        fechaProcesada === fechaSeleccionadaStr
-      );    
-    });
+    this.existDataSame = this.dataSource.data.some((element: any) =>
+      element.ut[0] === this.registrosC &&
+      Number(element.anio) === Number(this.anioSeleccionado)
+    );
   }
 
   generarOpcionesHoras(inicio: string, fin: string, intervaloMin: number) {
@@ -194,7 +173,6 @@ export class InvitacionComponent {
           if(err.error.code === 160) {
             this.service.cerrarSesionByToken();
           }
-
         }
       }
     })
@@ -235,7 +213,7 @@ export class InvitacionComponent {
         this.validaHora();
 
         if(this.existDataSame) {
-          Swal.fire( "Se encuentra registros con la misma hora, por favor verifique", "", "warning");
+          Swal.fire( "Se encuentra registros con los mismos datos, por favor verifique", "", "warning");
         } else {
           this.service.guardaRegistros(preue, this.tokenSesion).subscribe({
             next: (data) => {  
@@ -246,13 +224,21 @@ export class InvitacionComponent {
 
                   this.service.getRegistros(parseInt(this.idDistrital), this.tokenSesion).subscribe({
                     next: (data) => {
+                      this.loading = false;
                       this.dataSource.data = data.registrosCalendario ?? [];
                       this.datosRegistros = this.dataSource.data.some(d => this.registrosC === d.ut[0]);
                       this.fechaSeleccionada = null;
                       this.horaSeleccionada = '';
                       this.anioSeleccionado = '';
+
+                      this.selectedUnidad = null;
+                      this.territorioSelected = false;
+                      this.registrosC = undefined as any;
+                      this.dt = undefined as any;
                     },
                     error: (err) => {
+                      this.loading = false;
+
                       if (err.error.code === 100) {
                         this.dataSource.data = [];
                         this.datosRegistros = false;
@@ -261,7 +247,6 @@ export class InvitacionComponent {
                         if(err.error.code === 160) {
                           this.service.cerrarSesionByToken();
                         }
-
                       }
                     }
                   });
@@ -368,7 +353,7 @@ export class InvitacionComponent {
   }
 
   eliminarElemento(element: any) {
-
+    console.log(element)
     Swal.fire({
       title: "¿Está seguro de eliminar esta programación?",
       icon: "warning",
@@ -378,7 +363,7 @@ export class InvitacionComponent {
       confirmButtonText: "Aceptar",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.service.delRegistros(element.ut[0], this.tokenSesion).subscribe({
+        this.service.delRegistros(element.ut[0], element.anio, this.tokenSesion).subscribe({
           next: (data) => {
             Swal.fire({
               title: "Eliminación de la programación con éxito",
@@ -397,6 +382,15 @@ export class InvitacionComponent {
                     this.sinRegistros = true;
                     this.dataSource.data = [];
                     this.datosRegistros = false;
+
+                    this.fechaSeleccionada = null;
+                    this.horaSeleccionada = '';
+                    this.anioSeleccionado = '';
+
+                    this.selectedUnidad = null;
+                    this.territorioSelected = false;
+                    this.registrosC = undefined as any;
+                    this.dt = undefined as any;
                   } else {
 
                     if(err.error.code === 160) {
@@ -421,15 +415,40 @@ export class InvitacionComponent {
   onDistritoChange(idDistrito: any) {
     this.actualiza = false;
     this.territorioSelected = true;
-    let idD = idDistrito.clave_ut;
-    this.registrosC = idD;
+    this.registrosC = idDistrito.clave_ut;
     this.dt = idDistrito.idDt;
-    this.dataReport = [];
-    this.selectedDistrito = true;
     this.fechaSeleccionada = null;
     this.horaSeleccionada = '';
-    // this.datosRegistros = this.dataSource.data.some(d => idD === d.ut[0]);
     this.sinRegistros = false;
+
+
+    const registrosUT = this.dataSource.data.filter(
+      (element: any) => element.ut[0] === this.registrosC
+    );
+
+    const anios = registrosUT.map((r: any) => Number(r.anio));
+    const aniosUnicos = [...new Set(anios)];
+
+    if (aniosUnicos.includes(2026) && aniosUnicos.includes(2027)) {
+
+      Swal.fire(
+        "Esta Unidad Territorial ya tiene registros para 2026 y 2027",
+        "",
+        "warning"
+      );
+
+      this.territorioSelected = false;
+      this.anioSeleccionado = "";
+      return;
+    }
+
+    if (aniosUnicos.includes(2026)) {
+      this.anioSeleccionado = "2027";
+    }
+
+    if (aniosUnicos.includes(2027)) {
+      this.anioSeleccionado = "2026";
+    }   
   }
 
   actualizaData() {
@@ -474,6 +493,11 @@ export class InvitacionComponent {
                     this.fechaSeleccionada = null;
                     this.horaSeleccionada = '';
                     this.anioSeleccionado = '';
+
+                    this.selectedUnidad = null;
+                    this.territorioSelected = false;
+                    this.registrosC = undefined as any;
+                    this.dt = undefined as any;
                   },
                   error: (err) => {
 

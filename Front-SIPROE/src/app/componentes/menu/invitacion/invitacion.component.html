@@ -5,7 +5,7 @@
       <div class="form-section">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Seleccione Unidad Territorial</mat-label>
-          <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(value)]="selectedUnidad">
+          <mat-select (selectionChange)="onDistritoChange($event.value)" disableRipple [(ngModel)]="selectedUnidad">
             <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad.ut }} - {{ unidad.clave_ut }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -19,7 +19,7 @@
             <mat-form-field>
               <mat-label>Selecciona la fecha</mat-label>
               <input
-                [disabled]="datosRegistros || !territorioSelected"
+                [disabled]="!territorioSelected"
                 matInput
                 [matDatepicker]="datepicker"
                 [(ngModel)]="fechaSeleccionada"
@@ -41,7 +41,7 @@
               <mat-label>Selecciona la hora</mat-label>
               <mat-select 
                 [(ngModel)]="horaSeleccionada" 
-                [disabled]="datosRegistros || !territorioSelected"
+                [disabled]="!territorioSelected"
                 [ngModelOptions]="{updateOn: 'blur'}">
               <mat-option *ngFor="let hora of opcionesHoras" [value]="hora">
                 {{ hora }}
@@ -53,7 +53,7 @@
               <mat-label>Selecciona el año</mat-label>
               <mat-select 
                 [(ngModel)]="anioSeleccionado" 
-                [disabled]="datosRegistros || !territorioSelected"
+                [disabled]="!territorioSelected"
                 [ngModelOptions]="{updateOn: 'blur'}">
               <mat-option [value]="2026">
                 2026
@@ -130,7 +130,7 @@
         </div>
     </mat-card-content>
   </mat-card>
-  
-  <div class="overlay" *ngIf="loading">
-    <mat-spinner diameter="60"></mat-spinner>
-  </div>
+
+<div class="loading-overlay" *ngIf="loading">
+  <mat-spinner diameter="60" mode="indeterminate"></mat-spinner>
+</div>

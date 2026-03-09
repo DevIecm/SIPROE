@@ -65,6 +65,7 @@ export class SorteoComponent {
   sinRegistro!: boolean;
   botonUsado: boolean = false;
   SiHayNumeros: boolean = false;
+  selectedUnidadTerritorial: boolean = false;
 
   selectedAnio: string = '';
 
@@ -81,7 +82,7 @@ export class SorteoComponent {
   ngOnInit(): void {
     this.servicea.catUnidad(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.unidades = data.catUnidad;
+        this.unidades = data.data;
       }, error: (err) => {
 
         if(err.error.code === 160) {
@@ -97,11 +98,11 @@ export class SorteoComponent {
     this.selectedAnio = '';
     this.mostrarMensaje = false;
     this.mostrarDiv = false;
+    this.selectedUnidadTerritorial = true
   }
 
   onChangeAnio() {
     // this.selectedAnio = element.value;
-    console.log('Año seleccionado:', this.selectedAnio);
     this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
     this.mostrarMensaje = true;
     this.mostrarDiv = true;

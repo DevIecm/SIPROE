@@ -12,6 +12,7 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-select 
             placeholder="Seleccione el año" 
+            [disabled]="!selectedUnidadTerritorial"
             (selectionChange)="onChangeAnio()" 
             disableRipple 
             [(value)]="selectedAnio">
