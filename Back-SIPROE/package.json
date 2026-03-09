@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "nodemon index.js",
     "test": "jest",
     "dev": "nodemon src/index.js",
     "coverage": "jest --collect-coverage"

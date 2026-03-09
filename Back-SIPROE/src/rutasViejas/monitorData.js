@@ -1,6 +1,6 @@
 // import express from 'express';
 // import Midleware from '../ConfigServices/Midleware.js';
-// import { connectToDatabase } from '../ConfigServices/DatabaseConfiguration.js';
+// import { pool, poolConnect } from "../ConfigServices/DatabaseConfiguration.js";
 // import dotenv from 'dotenv';
 
 // dotenv.config();
@@ -8,8 +8,9 @@
 
 // router.get("/dataMonitor", Midleware.verifyToken, async (req, res) => {
 //     try {
-//         const pool = await connectToDatabase();
-//         const result = await pool.request()
+
+//         await poolConnect;
+//         let result =  await pool.request()
 //             .query(`SELECT * FROM (
 //                         SELECT
 //                             CAST(u.distrito AS VARCHAR(100)) AS distrito,
@@ -59,7 +60,7 @@
 //                     ORDER BY
 //                         CASE WHEN distrito = 'TOTAL' THEN 1 ELSE 0 END,
 //                         CASE WHEN distrito = 'TOTAL' THEN NULL ELSE CAST(distrito AS INT) END;`)
-
+                        
 //         if(result.recordset.length > 0) {
 //             return res.status(200).json({
 //                 registrosMonitor: result.recordset

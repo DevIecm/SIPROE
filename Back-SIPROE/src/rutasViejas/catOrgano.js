@@ -18,7 +18,7 @@
 
 //         const pool = await connectToDatabase();
 //         const result = await pool.request()
-//             .query(`SELECT * FROM organo_jurisdiccional ut `);
+//             .query(`SELECT * FROM organo_jurisdiccional ut;`);
 
 //         if (result.recordset.length > 0) {
 //         return res.status(200).json({

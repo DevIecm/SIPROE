@@ -15,7 +15,7 @@
 //         .query(`SELECT 
 //                     cm.id, 
 //                     cm.motivo 
-//                 FROM cat_motivo cm; ;`);
+//                 FROM cat_motivo cm;`);
 
 //     if (result.recordset.length > 0) {
 //       return res.status(200).json({
