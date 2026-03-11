@@ -16,6 +16,10 @@ export const getCatalogo = async (req, res) => {
         else if(catalogo === "catunidadFilterSorteo" && req.query.idDistrito) {
             options.idDistrito = req.query.idDistrito;
         }
+        else if(catalogo === "catunidadFilterSorteoAnio" && req.query.idDistrito && req.query.anio) {
+            options.idDistrito = req.query.idDistrito;
+            options.anio = req.query.anio;
+        }
 
         const result = await catalogService(catalogo, options);
 
@@ -24,9 +28,11 @@ export const getCatalogo = async (req, res) => {
         if (error.message === "Catálogo no válido") {
             return res.status(400).json({ message: error.message });
         }
-        if (error.message === "No se encontraron datos") {
-            return res.status(404).json({ message: error.message });
+
+        if (error.message === "No se encontraron datos" && error.code === "450") {
+            return res.status(404).json({ message: error.message, code: error.code });
         }
+
         return res.status(500).json({ message: "Error de servidor", error: error.message });
     }
 }; 

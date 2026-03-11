@@ -75,7 +75,7 @@ router.get("/getSorteosFilter", Midleware.verifyToken, async (req, res) => {
                     FROM sorteo p 
                         JOIN proyectos p2 ON p2.sorteo = p.id
                         JOIN unidad_territorial ut ON p2.ut = ut.clave_ut
-                    WHERE p2.ut = @ut and p2.distrito = @distrito and p.estado = 1 and p.tipo = @tipo;`)
+                    WHERE p2.ut = @ut and p2.distrito = @ distrito and p.estado = 1 and p.tipo = @tipo;`)
 
             if (result.recordset.length > 0) {
                 return res.status(200).json({

@@ -41,6 +41,19 @@ const queries = {
                             WHERE p.UT IN (
                                 SELECT 
                                 p2.UT
+                                FROM proyectos p2`,
+
+    catunidadFilterSorteoAnio: `SELECT DISTINCT 
+                                p.UT,
+                                ut.id AS id_ut,
+                                ut.clave_ut,
+                                ut.ut,
+                                p.distrito 
+                            FROM proyectos p
+                                JOIN unidad_territorial ut on ut.clave_ut = p.ut
+                            WHERE p.UT IN (
+                                SELECT 
+                                p2.UT
                                 FROM proyectos p2`
 }
 
@@ -65,6 +78,11 @@ export const getCatalogFromDb = async (catalogo, options = {}) => {
     } else if(catalogo === "catunidadFilterSorteo" && options.idDistrito) {
         request.input("idDistrito", options.idDistrito);
         return (await request.query(`${queries[catalogo]} WHERE p.distrito = @idDistrito and p2.sorteo IS NOT NULL) AND (p.sorteo IS NULL OR p.numero_aleatorio IS NULL)`)).recordset;
+
+    } else if(catalogo === "catunidadFilterSorteoAnio" && options.idDistrito && options.anio) {
+        request.input("idDistrito", options.idDistrito);
+        request.input("anio", options.anio)
+        return (await request.query(`${queries[catalogo]} WHERE p.distrito = @idDistrito and p2.sorteo IS NOT NULL AND p2.anio = @anio) AND (p.sorteo IS NULL OR p.numero_aleatorio IS NULL)`)).recordset;
     }
 
     const result = await request.query(queries[catalogo]);
