@@ -42,6 +42,18 @@ export class AuthService {
         .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
   }
 
+  catUnidadFilterSorteoAnio(idDistrito: number, anio: number, token: string): Observable<any> {
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    const params = new HttpParams().set('idDistrito', idDistrito).set('anio', anio.toString());
+
+    return this.http.get(this.apiUrl + 'catalogos/catunidadFilterSorteoAnio' , {headers, params})
+        .pipe(catchError((error: HttpErrorResponse) => { return throwError(() => error);}))
+  }
+
   catUnidadFilter(idDistrito: number, token: string): Observable<any> {
 
     const headers = new HttpHeaders({

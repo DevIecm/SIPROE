@@ -1,5 +1,5 @@
 .invitacion-card {
-    max-width: 800px;
+    max-width: 950px;
     margin: 32px auto;
     padding: 16px;
 }
@@ -88,10 +88,11 @@ mat-form-field {
 
 table{
     td{
-        font-size: 9px;
+        font-size: 15px;
         text-align: center;
     }
     th{
+        font-size: 15px;
         text-align: center;
     }
 }

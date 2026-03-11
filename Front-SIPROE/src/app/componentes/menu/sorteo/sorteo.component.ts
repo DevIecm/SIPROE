@@ -344,8 +344,14 @@ export class SorteoComponent {
     }
 
     const pelotas: Pelota[] = [];
-    for (let i = 1; i <= cantidad; i++) pelotas.push(new Pelota(i));
+    const anio = Number(this.selectedAnio);
+    const bloque = anio - 2026;
+    const base = bloque * 50 + 1;
 
+    for (let i = 0; i < cantidad; i++) {
+      pelotas.push(new Pelota(base + i));
+    }
+    
     function detectarColisiones() {
       for (let i = 0; i < pelotas.length; i++) {
         const p1 = pelotas[i];

@@ -353,7 +353,6 @@ export class InvitacionComponent {
   }
 
   eliminarElemento(element: any) {
-    console.log(element)
     Swal.fire({
       title: "¿Está seguro de eliminar esta programación?",
       icon: "warning",

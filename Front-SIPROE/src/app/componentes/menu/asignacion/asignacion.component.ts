@@ -116,7 +116,7 @@ export class AsignacionComponent {
 
     this.serviceAsignacion.catOrgano(parseInt(this.idDistrital), this.tokenSesion).subscribe({
       next: (data) => {
-        this.organos = data.catOrgano;
+        this.organos = data.data;
       }, error: (err) => {
 
         if(err.error.code === 160) {
@@ -128,7 +128,7 @@ export class AsignacionComponent {
 
     this.serviceAsignacion.catMotivo(this.tokenSesion).subscribe({
       next: (data) => {
-        this.motivosCat = data.catMotivo;
+        this.motivosCat = data.data;
       }, error: (err) => {
 
         if(err.error.code === 160) {
@@ -149,9 +149,26 @@ export class AsignacionComponent {
   }
 
   onChangeAnio() {
-    this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
-    this.botonUsado = false;
-    this.mostrarDiv = true;
+    this.servicea.catUnidadFilterSorteoAnio(parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion).subscribe({
+      next: (data) => {
+        // this.unidades = data.data;
+        this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
+        this.botonUsado = false;
+        this.mostrarDiv = true;
+      }, error: (err) => {
+        if(err.error.code === 160) {
+          this.servicea.cerrarSesionByToken();
+        } else if(err.error = "No se encontraron datos") {
+
+          this.mostrarMensaje = true;
+          this.mostrarDiv = false;
+
+          if(this.mostrarMensaje){
+            Swal.fire("No se encuentran sorteos en este año");
+          }
+        }
+      }
+    });
   }
 
   onOrganoChange(element: any){
@@ -326,7 +343,7 @@ export class AsignacionComponent {
     this.creoSorteo = true;
   }
 
-  mostrarAnimacion(cantidad: number, onNumeroAsignado?: (numero: number, index: number) => void) {
+  mostrarAnimacion(cantidad: number = 10, onNumeroAsignado?: (numero: number, index: number) => void) {
     const existing = document.getElementById(this.canvasId);
     if (existing) existing.remove();
 
@@ -395,23 +412,14 @@ export class AsignacionComponent {
     }
 
     const pelotas: Pelota[] = [];
+    const anio = Number(this.selectedAnio);
+    const bloque = anio - 2026;
+    const base = bloque * 50 + 1;
 
-
-    let min = 1;
-    let max = cantidad;
-
-    if (this.selectedAnio === '2026') {
-      min = 1;
-      max = 50;
-    } else if (this.selectedAnio === '2027') {
-      min = 51;
-      max = 100;
+    for (let i = 0; i < cantidad; i++) {
+      pelotas.push(new Pelota(base + i));
     }
-
-    for (let i = min; i <= max; i++) {
-      pelotas.push(new Pelota(i));
-    }
-
+    
     function detectarColisiones() {
       for (let i = 0; i < pelotas.length; i++) {
         const p1 = pelotas[i];
@@ -476,6 +484,157 @@ export class AsignacionComponent {
     this.usados = usados;
     this.onNumeroAsignado = onNumeroAsignado;
   }
+
+  // mostrarAnimacion(cantidad: number, onNumeroAsignado?: (numero: number, index: number) => void) {
+  //   const existing = document.getElementById(this.canvasId);
+  //   if (existing) existing.remove();
+
+  //   const canvas = document.createElement('canvas');
+  //   canvas.id = this.canvasId;
+  //   canvas.width = 300;
+  //   canvas.height = 300;
+  //   canvas.style.position = 'absolute';
+  //   canvas.style.top = '50%';
+  //   canvas.style.left = '50%';
+  //   canvas.style.transform = 'translate(-50%, -50%)';
+  //   canvas.style.zIndex = '1000';
+
+  //   requestAnimationFrame(() => {
+  //     const container = document.getElementById('container');
+  //     if (container) {
+  //       container.appendChild(canvas);
+  //     } else {
+  //       console.warn('No se encontró el contenedor para la animación');
+  //     }
+  //   });
+
+  //   const ctx = canvas.getContext('2d');
+  //   if (!ctx) return;
+
+  //   class Pelota {
+  //     x: number;
+  //     y: number;
+  //     vx: number;
+  //     vy: number;
+  //     radio = 20;
+  //     color: string;
+  //     activa = true;
+
+  //     constructor(public numero: number) {
+  //       this.x = Math.random() * (canvas.width - 40) + 20;
+  //       this.y = Math.random() * (canvas.height - 40) + 20;
+  //       this.vx = (Math.random() * 2 - 1) * 2;
+  //       this.vy = (Math.random() * 2 - 1) * 2;
+  //       this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+  //     }
+
+  //     mover() {
+  //       if (!this.activa) return;
+  //       this.x += this.vx;
+  //       this.y += this.vy;
+
+  //       if (this.x + this.radio > canvas.width || this.x - this.radio < 0) this.vx *= -1;
+  //       if (this.y + this.radio > canvas.height || this.y - this.radio < 0) this.vy *= -1;
+  //     }
+
+  //     dibujar(ctx: CanvasRenderingContext2D) {
+  //       if (!this.activa) return;
+  //       ctx.beginPath();
+  //       ctx.arc(this.x, this.y, this.radio, 0, Math.PI * 2);
+  //       ctx.fillStyle = this.color;
+  //       ctx.fill();
+  //       ctx.closePath();
+
+  //       ctx.fillStyle = 'black';
+  //       ctx.font = '15px Arial';
+  //       ctx.textAlign = 'center';
+  //       ctx.textBaseline = 'middle';
+  //       ctx.fillText(this.numero.toString(), this.x, this.y);
+  //     }
+  //   }
+
+  //   const pelotas: Pelota[] = [];
+
+
+  //   let min = 1;
+  //   let max = cantidad;
+
+  //   if (this.selectedAnio === '2026') {
+  //     min = 1;
+  //     max = 50;
+  //   } else if (this.selectedAnio === '2027') {
+  //     min = 51;
+  //     max = 100;
+  //   }
+
+  //   for (let i = min; i <= max; i++) {
+  //     pelotas.push(new Pelota(i));
+  //   }
+
+  //   function detectarColisiones() {
+  //     for (let i = 0; i < pelotas.length; i++) {
+  //       const p1 = pelotas[i];
+  //       if (!p1.activa) continue;
+
+  //       for (let j = i + 1; j < pelotas.length; j++) {
+  //         const p2 = pelotas[j];
+  //         if (!p2.activa) continue;
+
+  //         const dx = p2.x - p1.x;
+  //         const dy = p2.y - p1.y;
+  //         const dist = Math.sqrt(dx * dx + dy * dy);
+  //         const minDist = p1.radio + p2.radio;
+
+  //         if (dist < minDist) {
+  //           const angle = Math.atan2(dy, dx);
+  //           const sin = Math.sin(angle);
+  //           const cos = Math.cos(angle);
+
+  //           const v1 = { x: p1.vx * cos + p1.vy * sin, y: p1.vy * cos - p1.vx * sin };
+  //           const v2 = { x: p2.vx * cos + p2.vy * sin, y: p2.vy * cos - p2.vx * sin };
+
+  //           [v1.x, v2.x] = [v2.x, v1.x];
+
+  //           p1.vx = v1.x * cos - v1.y * sin;
+  //           p1.vy = v1.y * cos + v1.x * sin;
+  //           p2.vx = v2.x * cos - v2.y * sin;
+  //           p2.vy = v2.y * cos + v2.x * sin;
+
+  //           const overlap = minDist - dist;
+  //           const separation = overlap / 2;
+
+  //           p1.x -= cos * separation;
+  //           p1.y -= sin * separation;
+  //           p2.x += cos * separation;
+  //           p2.y += sin * separation;
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   function animar() {
+  //     if (!ctx) return;
+  //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+  //     detectarColisiones();
+  //     pelotas.forEach((p) => {
+  //       p.mover();
+  //       p.dibujar(ctx);
+  //     });
+  //     requestAnimationFrame(animar);
+  //   }
+
+  //   animar();
+
+  //   const usados = new Set<number>();
+  //   let indexActual = 0;
+
+  //   this.usados = usados;
+  //   this.indexActual = indexActual;
+  //   this.pelotas = pelotas
+  //   this.cantidad = cantidad;
+  //   this.usados = usados;
+  //   this.onNumeroAsignado = onNumeroAsignado;
+  // }
 
   soloClick() {
     this.llenadoForm = true;
