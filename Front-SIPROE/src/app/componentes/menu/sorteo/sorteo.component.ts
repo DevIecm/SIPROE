@@ -281,8 +281,8 @@ export class SorteoComponent {
 
     const canvas = document.createElement('canvas');
     canvas.id = this.canvasId;
-    canvas.width = 300;
-    canvas.height = 300;
+    canvas.width = 450;
+    canvas.height = 500;
     canvas.style.position = 'absolute';
     canvas.style.top = '50%';
     canvas.style.left = '50%';
