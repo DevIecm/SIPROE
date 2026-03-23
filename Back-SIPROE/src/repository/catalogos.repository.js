@@ -7,7 +7,7 @@ const queries = {
                 FROM cat_motivo cm`,
 
     catOrgano: `SELECT * FROM organo_jurisdiccional ut`,
-    
+
     catTipoSorteo: `SELECT DISTINCT ts.descripcion, s.tipo FROM tipo_sorteo ts 
                         JOIN sorteo s ON ts.id = s.tipo 
                         JOIN proyectos p ON s.id = p.sorteo`,
@@ -83,7 +83,7 @@ export const getCatalogFromDb = async (catalogo, options = {}) => {
 
     } else if(catalogo === "catunidadFilterSorteo" && options.idDistrito) {
         request.input("idDistrito", options.idDistrito);
-        return (await request.query(`${queries[catalogo]} WHERE p.distrito = @idDistrito and p2.sorteo IS NOT NULL) AND (p.sorteo IS NULL OR p.numero_aleatorio IS NULL)`)).recordset;
+        return (await request.query(`${queries[catalogo]} WHERE p.distrito = @idDistrito and p2.sorteo IS NOT NULL and p2.anio = p.anio) AND (p.sorteo IS NULL OR p.numero_aleatorio IS NULL)`)).recordset;
 
     } else if(catalogo === "catunidadFilterSorteoAnio" && options.idDistrito && options.anio) {
         request.input("idDistrito", options.idDistrito);

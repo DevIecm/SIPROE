@@ -38,7 +38,7 @@ router.get("/getSorteos", Midleware.verifyToken, async (req, res) => {
                 FROM proyectos p WHERE 
                     p.ut = @ut and 
                     p.distrito = @distrito and 
-                    p.anio = @anio;`
+                    p.anio = @anio`
             )
 
         if (result.recordset.length > 0) {
