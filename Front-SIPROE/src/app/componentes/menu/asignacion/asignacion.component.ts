@@ -82,6 +82,7 @@ export class AsignacionComponent {
   llenadoForm: boolean = false;
   showDataAsigned: boolean = false;
   selectedUnidadTerritorial: boolean = false;
+  sinRegistros: boolean = false;
   creoSorteo: boolean = false;
   organoDescripcion!: number;
   motivoSeleccionado!: number;
@@ -140,12 +141,13 @@ export class AsignacionComponent {
   }
 
   onDistritoChange(element: any){
-    // this.mostrarDiv = true;
+    this.mostrarDiv = false;
+    this.sinRegistros = false;
     this.clave_ut = element.clave_ut;
     this.selectedAnio = '';
     this.selectedUnidadTerritorial = true;
     // this.botonUsado = false;
-    // this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.tokenSesion);
+    // this.getDataProyectos(this.clave_ut,  parseInt(this.idDistrital), this.tokenSesion);
   }
 
   onChangeAnio() {
@@ -154,6 +156,7 @@ export class AsignacionComponent {
         // this.unidades = data.data;
         this.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), Number(this.selectedAnio), this.tokenSesion);
         this.botonUsado = false;
+        this.sinRegistros = true;
         this.mostrarDiv = true;
       }, error: (err) => {
         if(err.error.code === 160) {
@@ -185,6 +188,12 @@ export class AsignacionComponent {
         this.aprobados = this.proyectos[0]?.aprobados ?? 0;
         this.sorteados = this.proyectos[0]?.sorteados ?? 0;
         this.sortear = this.proyectos[0]?.sortear ?? 0;
+
+        if(this.sortear == 0){
+          this.mostrarDiv = false;
+          this.sinRegistros = true;
+          Swal.fire("Sin proyectos por sortear")
+        }
 
         this.datosProyectosSinNumero = this.proyectos.filter(p => !p.numero_aleatorio || p.numero_aleatorio === '');
 
@@ -224,9 +233,9 @@ export class AsignacionComponent {
         if(err.error.code === 100) {
           this.proyectos = [];
           this.guardoSorteo = true;
-          Swal.fire("No se encontraron registros")
+          Swal.fire("Sin proyectos por sortear")
+          this.mostrarDiv = false;
         }
-
       }
     });
   }
@@ -289,6 +298,7 @@ export class AsignacionComponent {
         this.guardaProyectosConSorteo(idSorteo);
         this.guardoSorteo = false;
         this.deshacerSorteo();
+        this.selectedAnio = '';
 
         setTimeout(() => {
           this.servicea.catUnidadFilterSorteo(parseInt(this.idDistrital), this.tokenSesion).subscribe({
@@ -336,7 +346,6 @@ export class AsignacionComponent {
         }
       });
     });
-
 
     Swal.fire("Exito", " Sorteo de Asignación Directa aplicado con éxito.", "success");
     this.sorteoIniciado = true;
