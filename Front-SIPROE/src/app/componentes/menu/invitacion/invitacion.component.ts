@@ -137,10 +137,33 @@ export class InvitacionComponent {
   }
 
   validaHora() {
-    this.existDataSame = this.dataSource.data.some((element: any) =>
-      element.ut[0] === this.registrosC &&
-      Number(element.anio) === Number(this.anioSeleccionado)
-    );
+    const nuevaHora = this.horaSeleccionada;
+    const nuevoAnio = this.anioSeleccionado;
+    const nuevaUT = this.registrosC;
+
+    this.existDataSame = this.dataSource.data.some((element: any) => {
+      const horaExistente = new Date(element.hora).toISOString().substr(11, 5);
+      const anioExistente = element.anio;
+      const utExistente = element.ut[0];
+     
+      //misma UT y mismo año no guardar
+      if (utExistente === nuevaUT && anioExistente === nuevoAnio) {
+        return true;
+      }
+
+      //UT diferente y hora y año iguales → no guardar
+      if (utExistente !== nuevaUT && horaExistente === nuevaHora && anioExistente === nuevoAnio) {
+        return true;
+      }
+
+      return false;
+    });
+
+    if (this.existDataSame) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   generarOpcionesHoras(inicio: string, fin: string, intervaloMin: number) {
@@ -201,6 +224,7 @@ export class InvitacionComponent {
       Swal.fire({
       title: "¿Está seguro de guardar esta programación?",
       icon: "warning",
+
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
