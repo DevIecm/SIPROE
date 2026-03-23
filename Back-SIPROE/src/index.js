@@ -2,7 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { login } from "../src/controllers/auth.controller.js";
 import { monitor } from './controllers/monitor.controller.js';
-import catalogoRoutes from './routess/catalogo.routes.js';
+import catalogoRoutes from './catalogoRoutes/catalogo.routes.js';
 import Middleware from "./ConfigServices/Midleware.js";
 import reportData from './routes/reportdata.js';
 import calendarioRoutes from './routes/calendarioData.js';

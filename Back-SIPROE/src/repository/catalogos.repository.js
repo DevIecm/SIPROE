@@ -1,11 +1,17 @@
 import { pool, poolConnect } from "../ConfigServices/DatabaseConfiguration.js";
 
 const queries = {
-    catMotivo: `SELECT cm.id, cm.motivo FROM cat_motivo cm`,
+    catMotivo: `SELECT 
+                    cm.id, 
+                    cm.motivo 
+                FROM cat_motivo cm`,
+
     catOrgano: `SELECT * FROM organo_jurisdiccional ut`,
-    catTipoSorteo: `SELECT DISTINCT p.ut, p.descripcion, ts.descripcion, s.tipo FROM tipo_sorteo ts JOIN sorteo s ON ts.id = s.tipo JOIN proyectos p ON s.id = p.sorteo`,
     
-    //Catalogo unidad con filtros
+    catTipoSorteo: `SELECT DISTINCT ts.descripcion, s.tipo FROM tipo_sorteo ts 
+                        JOIN sorteo s ON ts.id = s.tipo 
+                        JOIN proyectos p ON s.id = p.sorteo`,
+    
     catUnidad: `SELECT 
                     ut.id, 
                     ut.clave_ut, 
