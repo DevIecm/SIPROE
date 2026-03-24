@@ -136,35 +136,35 @@ export class InvitacionComponent {
     }, 0);
   }
 
-  validaHora() {
-    const nuevaHora = this.horaSeleccionada;
-    const nuevoAnio = this.anioSeleccionado;
-    const nuevaUT = this.registrosC;
+  // validaHora() {
+  //   const nuevaHora = this.horaSeleccionada;
+  //   const nuevoAnio = this.anioSeleccionado;
+  //   const nuevaUT = this.registrosC;
 
-    this.existDataSame = this.dataSource.data.some((element: any) => {
-      const horaExistente = new Date(element.hora).toISOString().substr(11, 5);
-      const anioExistente = element.anio;
-      const utExistente = element.ut[0];
+  //   this.existDataSame = this.dataSource.data.some((element: any) => {
+  //     const horaExistente = new Date(element.hora).toISOString().substr(11, 5);
+  //     const anioExistente = element.anio;
+  //     const utExistente = element.ut[0];
      
-      //misma UT y mismo año no guardar
-      if (utExistente === nuevaUT && anioExistente === nuevoAnio) {
-        return true;
-      }
+  //     //misma UT y mismo año no guardar
+  //     if (utExistente === nuevaUT && anioExistente === nuevoAnio) {
+  //       return true;
+  //     }
 
-      //UT diferente y hora y año iguales → no guardar
-      if (utExistente !== nuevaUT && horaExistente === nuevaHora && anioExistente === nuevoAnio) {
-        return true;
-      }
+  //     //UT diferente y hora y año iguales → no guardar
+  //     if (utExistente !== nuevaUT && horaExistente === nuevaHora && anioExistente === nuevoAnio) {
+  //       return true;
+  //     }
 
-      return false;
-    });
+  //     return false;
+  //   });
 
-    if (this.existDataSame) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  //   if (this.existDataSame) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
   generarOpcionesHoras(inicio: string, fin: string, intervaloMin: number) {
     const [hInicio, mInicio] = inicio.split(':').map(Number);
@@ -234,11 +234,11 @@ export class InvitacionComponent {
     }).then((result) => {
       if (result.isConfirmed) {
         this.loading = false;
-        this.validaHora();
+        // this.validaHora();
 
-        if(this.existDataSame) {
-          Swal.fire( "Se encuentra registros con los mismos datos, por favor verifique", "", "warning");
-        } else {
+        // if(this.existDataSame) {
+        //   Swal.fire( "Se encuentra registros con los mismos datos, por favor verifique", "", "warning");
+        // } else {
           this.service.guardaRegistros(preue, this.tokenSesion).subscribe({
             next: (data) => {  
                   Swal.fire({
@@ -286,12 +286,12 @@ export class InvitacionComponent {
               }
           });
         }
-      } else {
-        Swal.fire({
-          title: "No se creo la programación",
-          icon: "warning"
-        });
-      }
+      // } else {
+      //   Swal.fire({
+      //     title: "No se creo la programación",
+      //     icon: "warning"
+      //   });
+      // }
     });
     }, 2000);
     }
@@ -497,11 +497,11 @@ export class InvitacionComponent {
       if (result.isConfirmed) {
         this.loading = false;
 
-        this.validaHora();
+        // this.validaHora();
 
-        if(this.existDataSame) {
-          Swal.fire( "Se encuentra registros con la misma hora, por favor verifique", "", "warning");
-        } else {
+        // if(this.existDataSame) {
+        //   Swal.fire( "Se encuentra registros con la misma hora, por favor verifique", "", "warning");
+        // } else {
           this.service.actualizaRegistros(data, this.tokenSesion).subscribe({
             next: (data) => {  
                 Swal.fire({
@@ -543,12 +543,12 @@ export class InvitacionComponent {
             }
           });
         }
-      } else {
-        Swal.fire({
-          title: "Error al actualizar la programación",
-          icon: "warning"
-        });
-      }
+      // } else {
+      //   Swal.fire({
+      //     title: "Error al actualizar la programación",
+      //     icon: "warning"
+      //   });
+      // }
     });
   }
 
