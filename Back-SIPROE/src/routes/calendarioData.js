@@ -130,7 +130,7 @@ router.patch("/actualizaRegistros", Midleware.verifyToken, async (req, res) => {
       .input('ut', sql.VarChar, ut)
       .input('distrito', sql.Int, distrito)
       .input('anio', sql.Int, anio)
-      .query(`UPDATE calendario set fecha = @fecha , anio = @anio, hora = @hora where ut = @ut and distrito = @distrito;`)
+      .query(`UPDATE calendario set fecha = @fecha , anio = @anio, hora = @hora where ut = @ut and distrito = @distrito and anio = @anio`)
 
       return res.status(200).json({ message: "Registro actualizado correctamente", code: 200 });
 
