@@ -331,15 +331,62 @@ export class InvitacionComponent {
     this.loading = true;
     const primerRegistro = this.dataSource.data[0];
 
-    const  idDistritoDoc = primerRegistro.distrito;
+    const idDistrito = primerRegistro.distrito;
 
-    if(idDistritoDoc == 10 || idDistritoDoc == 31) {
+    if(idDistrito == 10) {
       const datos = {
         distrito: primerRegistro?.distrito ?? '',
         domicilio: primerRegistro?.domicilio ?? '',
         sod: primerRegistro?.sod ?? '',
         tod: primerRegistro?.tod ?? '',
         titular: 'Subcoordinador de Educación Cívica, Organización Electoral y Participación Ciudadana',
+        productos: this.dataSource.data.map((item, index) => ({
+          id: index + 1,
+          dt: item.dt[1],
+          clave: item.ut[0],
+          ut: item.ut[1],
+          fecha: this.extractFecha(item.fecha),
+          hora: this.extraerHoraUTC(item.hora),
+          anio: item.anio
+        }))
+      };
+
+      const templateBob = await this.http
+      .get('assets/Anexo-Invitacion.docx', { responseType: 'arraybuffer' })
+      .toPromise();
+
+      if (!templateBob) {
+        throw new Error("No se pudo cargar el Documento");
+      }
+
+      const zip = new PizZip(templateBob);
+      const doc = new Docxtemplater(zip, { 
+        paragraphLoop: true,
+        linebreaks: true,
+        delimiters: { start: '[[', end: ']]' }
+      });
+
+      doc.setData(datos);
+
+      try{
+        doc.render();
+      } catch (error) {
+        console.error('Error al cargar archivo', error);
+        return;
+      } 
+
+      const output = doc.getZip().generate({ type: 'blob' });
+      saveAs(output, 'Anexo Calendario.docx');
+      this.loading = false;
+
+    } else if(idDistrito == 31) {
+
+      const datos = {
+        distrito: primerRegistro?.distrito ?? '',
+        domicilio: primerRegistro?.domicilio ?? '',
+        sod: primerRegistro?.sod ?? '',
+        tod: primerRegistro?.tod ?? '',
+        titular: 'Subcoordinación de Educación Cívica, Organización Electoral y Participación Ciudadana',
         productos: this.dataSource.data.map((item, index) => ({
           id: index + 1,
           dt: item.dt[1],

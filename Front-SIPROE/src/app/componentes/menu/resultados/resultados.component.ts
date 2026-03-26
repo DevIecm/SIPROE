@@ -117,7 +117,6 @@ export class ResultadosComponent {
   }
 
   onAnioChange() {
-    console.log(this.selectedTipo)
      this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.selectedTipo!, this.anioSeleccionado, this.tokenSesion).subscribe({
       next: (data) => {
         this.proyectos = data.registrosProyectos;
@@ -211,13 +210,11 @@ export class ResultadosComponent {
   async GeneraConstancia(){
     
     this.loading = true;
-    console.log(this.proyectos)
     const motivo = this.proyectos[0].id_motivo || null;
-console.log
     const primerRegistro = this.proyectos[0];
     const idDistrito = primerRegistro.distrito;
 
-    if(idDistrito == 10 || idDistrito == 31){
+    if(idDistrito == 10){
       const datos = {
         nombre_ut: primerRegistro?.nombre_ut ?? '',
         clave: primerRegistro?.clave ?? '',
@@ -237,7 +234,72 @@ console.log
           nombre_proyecto: item.nombre ?? '',
         }))
       };
-console.log(this.selectedTipo)
+
+      if(this.selectedTipo === 1) { 
+        if(this.anioSeleccionado === 2026) {
+          this.documentos = 'assets/ConstanciaAsignacionSorteo2026.docx';
+        } else if(this.anioSeleccionado === 2027) { 
+          this.documentos = 'assets/ConstanciaAsignacionSorteo2027.docx';
+        }
+      } else { 
+        if(this.anioSeleccionado === 2026) {
+          this.documentos = 'assets/ConstanciaAsignacion2.docx';
+        } else if(this.anioSeleccionado === 2027) { 
+          this.documentos = 'assets/ConstanciaAsignacion2.docx';
+        }
+      }
+        
+      const templateBob = await this.http
+      .get(this.documentos, { responseType: 'arraybuffer' })
+      .toPromise();
+
+      if (!templateBob) {
+        throw new Error("No se pudo cargar el Documento");
+      }
+
+      const zip = new PizZip(templateBob);
+      const doc = new Docxtemplater(zip, { 
+        paragraphLoop: true,
+        linebreaks: true,
+        delimiters: { start: '[[', end: ']]' }
+      });
+
+      doc.setData(datos);
+
+      try{
+        doc.render();
+      } catch (error) {
+        console.error('Error al cargar archivo', error);
+        return;
+      } 
+
+      const output = doc.getZip().generate({ type: 'blob' });
+      saveAs(output, 'Constancia.docx');
+
+      this.loading = false;
+
+    } else if(idDistrito == 31) {
+
+      const datos = {
+        nombre_ut: primerRegistro?.nombre_ut ?? '',
+        clave: primerRegistro?.clave ?? '',
+        nombre_demarcacion: primerRegistro?.nombre_demarcacion ?? '',
+        fecha: this.extractFecha(primerRegistro?.fecha) ?? '',
+        distrito: primerRegistro?.distrito ?? '',
+        domicilio: primerRegistro?.domicilio ?? '',
+        sod: primerRegistro?.sod ?? '',
+        tod: primerRegistro?.tod ?? '',
+        fecha_sentencia: this.extractFecha(primerRegistro?.fecha_sentencia) ?? '',
+        numero_expediente: primerRegistro?.numero_expediente ?? '',
+        anio: primerRegistro?.anio ?? '',
+        titular: 'Subcoordinación de Educación Cívica, Organización Electoral y Participación Ciudadana',
+        proyectos: this.proyectos.map((item, index) => ({
+          identificador: item.numero_aleatorio ?? '',
+          folio: item.folio ?? '',
+          nombre_proyecto: item.nombre ?? '',
+        }))
+      };
+
       if(this.selectedTipo === 1) { 
         if(this.anioSeleccionado === 2026) {
           this.documentos = 'assets/ConstanciaAsignacionSorteo2026.docx';
