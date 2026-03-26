@@ -331,8 +331,6 @@ export class InvitacionComponent {
     this.loading = true;
     const primerRegistro = this.dataSource.data[0];
 
-    console.log(primerRegistro.distrito)
-
     const  idDistritoDoc = primerRegistro.distrito;
 
     if(idDistritoDoc == 10 || idDistritoDoc == 31) {

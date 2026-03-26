@@ -117,6 +117,7 @@ export class ResultadosComponent {
   }
 
   onAnioChange() {
+    console.log(this.selectedTipo)
      this.resultadosService.getDataProyectos(this.clave_ut, parseInt(this.idDistrital), this.selectedTipo!, this.anioSeleccionado, this.tokenSesion).subscribe({
       next: (data) => {
         this.proyectos = data.registrosProyectos;
@@ -210,7 +211,9 @@ export class ResultadosComponent {
   async GeneraConstancia(){
     
     this.loading = true;
+    console.log(this.proyectos)
     const motivo = this.proyectos[0].id_motivo || null;
+console.log
     const primerRegistro = this.proyectos[0];
     const idDistrito = primerRegistro.distrito;
 
@@ -234,7 +237,7 @@ export class ResultadosComponent {
           nombre_proyecto: item.nombre ?? '',
         }))
       };
-
+console.log(this.selectedTipo)
       if(this.selectedTipo === 1) { 
         if(this.anioSeleccionado === 2026) {
           this.documentos = 'assets/ConstanciaAsignacionSorteo2026.docx';
@@ -242,9 +245,9 @@ export class ResultadosComponent {
           this.documentos = 'assets/ConstanciaAsignacionSorteo2027.docx';
         }
       } else { 
-        if(motivo === 1){
-          this.documentos = 'assets/ConstanciaAsignacion1.docx';
-        }else{
+        if(this.anioSeleccionado === 2026) {
+          this.documentos = 'assets/ConstanciaAsignacion2.docx';
+        } else if(this.anioSeleccionado === 2027) { 
           this.documentos = 'assets/ConstanciaAsignacion2.docx';
         }
       }
@@ -277,6 +280,7 @@ export class ResultadosComponent {
       saveAs(output, 'Constancia.docx');
 
       this.loading = false;
+
     } else {
       const datos = {
         nombre_ut: primerRegistro?.nombre_ut ?? '',
@@ -298,19 +302,19 @@ export class ResultadosComponent {
         }))
       };
 
-    if(this.selectedTipo === 1) { 
-      if(this.anioSeleccionado === 2026) {
-        this.documentos = 'assets/ConstanciaAsignacionSorteo2026.docx';
-      } else if(this.anioSeleccionado === 2027) { 
-        this.documentos = 'assets/ConstanciaAsignacionSorteo2027.docx';
+      if(this.selectedTipo === 1) { 
+        if(this.anioSeleccionado === 2026) {
+          this.documentos = 'assets/ConstanciaAsignacionSorteo2026.docx';
+        } else if(this.anioSeleccionado === 2027) { 
+          this.documentos = 'assets/ConstanciaAsignacionSorteo2027.docx';
+        }
+      } else { 
+        if(this.anioSeleccionado === 2026) {
+          this.documentos = 'assets/ConstanciaAsignacion2.docx';
+        } else if(this.anioSeleccionado === 2027) { 
+          this.documentos = 'assets/ConstanciaAsignacion2.docx';
+        }
       }
-    } else { 
-      if(motivo === 1){
-        this.documentos = 'assets/ConstanciaAsignacion1.docx';
-      }else{
-        this.documentos = 'assets/ConstanciaAsignacion2.docx';
-      }
-    }
       
     const templateBob = await this.http
       .get(this.documentos, { responseType: 'arraybuffer' })
@@ -347,7 +351,6 @@ export class ResultadosComponent {
   async GeneraLista() {
   
     this.loading = true;
-
 
     const fechaHoraActual = new Date();
 
