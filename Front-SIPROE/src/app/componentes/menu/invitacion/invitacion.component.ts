@@ -90,8 +90,8 @@ export class InvitacionComponent {
   dataUpdate: any;
   distritoChange: any;
   utChange: any;
-  minFecha = new Date(2026, 2, 20);
-  maxFecha = new Date(2026, 2, 30);
+  minFecha = new Date(2026, 2, 25);
+  maxFecha = new Date(2026, 2, 27);
 
   constructor(private http: HttpClient, private service: AuthService) {}
 

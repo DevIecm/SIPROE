@@ -35,7 +35,7 @@ export class MonitorComponent {
   ngOnInit(): void{
     this.getMonitor();
 
-    this.subscription = interval(50000).subscribe(() => {
+    this.subscription = interval(5000).subscribe(() => {
       this.getMonitor();
     });
   }
